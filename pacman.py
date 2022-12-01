@@ -652,16 +652,18 @@ def check_collisions(scor, power, power_count, eaten_ghosts):
 
 def draw_board():
     for i in range(len(level)):
+        n_row=i * num1
         for j in range(len(level[i])):
-            if level[i][j] == 1:                pygame.draw.circle(screen, 'white', (j * num2 + (0.5 * num2), i * num1 + (0.5 * num1)), 4)
-            if level[i][j] == 2 and not flicker:pygame.draw.circle(screen, 'white', (j * num2 + (0.5 * num2), i * num1 + (0.5 * num1)), 10)
-            if level[i][j] == 3:                pygame.draw.line(screen, color, (j * num2 + (0.5 * num2), i * num1),  (j * num2 + (0.5 * num2), i * num1 + num1), 3)
-            if level[i][j] == 4:                pygame.draw.line(screen, color, (j * num2, i * num1 + (0.5 * num1)),  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
-            if level[i][j] == 5:                pygame.draw.arc(screen, color, [(j * num2 - (num2 * 0.4)) - 2, (i * num1 + (0.5 * num1)), num2, num1],    0, PI / 2, 3)
-            if level[i][j] == 6:                pygame.draw.arc(screen, color, [(j * num2 + (num2 * 0.5)), (i * num1 + (0.5 * num1)), num2, num1], PI / 2, PI, 3)
-            if level[i][j] == 7:                pygame.draw.arc(screen, color, [(j * num2 + (num2 * 0.5)), (i * num1 - (0.4 * num1)), num2, num1], PI,    3 * PI / 2, 3)            
-            if level[i][j] == 8:                pygame.draw.arc(screen, color,[(j * num2 - (num2 * 0.4)) - 2, (i * num1 - (0.4 * num1)), num2, num1], 3 * PI / 2,              2 * PI, 3)
-            if level[i][j] == 9:                pygame.draw.line(screen, 'white', (j * num2, i * num1 + (0.5 * num1)), (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
+            n_col=j * num2
+            if level[i][j] == 1:                pygame.draw.circle(screen, 'white', (n_col + (0.5 * num2), n_row + (0.5 * num1)), 4)
+            if level[i][j] == 2 and not flicker:pygame.draw.circle(screen, 'white', (n_col + (0.5 * num2), n_row + (0.5 * num1)), 10)
+            if level[i][j] == 3:                pygame.draw.line(screen, color, (n_col + (0.5 * num2), n_row),  (n_col + (0.5 * num2), n_row + num1), 3)
+            if level[i][j] == 4:                pygame.draw.line(screen, color, (n_col, n_row + (0.5 * num1)),  (n_col + num2, n_row + (0.5 * num1)), 3)
+            if level[i][j] == 5:                pygame.draw.arc(screen, color, [(n_col - (num2 * 0.4)) - 2, (n_row + (0.5 * num1)), num2, num1],    0, PI / 2, 3)
+            if level[i][j] == 6:                pygame.draw.arc(screen, color, [(n_col + (num2 * 0.5)), (n_row + (0.5 * num1)), num2, num1], PI / 2, PI, 3)
+            if level[i][j] == 7:                pygame.draw.arc(screen, color, [(n_col + (num2 * 0.5)), (n_row - (0.4 * num1)), num2, num1], PI,    3 * PI / 2, 3)            
+            if level[i][j] == 8:                pygame.draw.arc(screen, color,[(n_col - (num2 * 0.4)) - 2, (n_row - (0.4 * num1)), num2, num1], 3 * PI / 2,              2 * PI, 3)
+            if level[i][j] == 9:                pygame.draw.line(screen, 'white', (n_col, n_row + (0.5 * num1)), (n_col + num2, n_row + (0.5 * num1)), 3)
 
 def draw_player():
     # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
