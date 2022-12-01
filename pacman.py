@@ -1,6 +1,7 @@
 # Build Pac-Man from Scratch in Python with PyGame!!
 import copy
 from board import boards
+
 #import pygame
 from pygame import init, display, time, font, transform, image, rect, event, QUIT, KEYDOWN, KEYUP, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_SPACE, draw
 import math
@@ -654,15 +655,17 @@ def check_collisions(scor, power, power_count, eaten_ghosts):
 def draw_board():
     for i in range(len(level)):
         n_row=i * num1
+        ic=i+.5 # centrized
         for j in range(len(level[i])):
             n_col=j * num2
-            if level[i][j] == 1:                draw.circle(screen, 'white', (n_col + num2 / 2, n_row + num1 / 2), 4)
-            if level[i][j] == 2 and not flicker:draw.circle(screen, 'white', (n_col + num2 / 2, n_row + num1 / 2), 10)
-            if level[i][j] == 3:                draw.line(screen, color, (n_col + num2 / 2, n_row),  (n_col + num2 / 2, n_row + num1), 3)
+            jc=j+.5 # centrized
+            if level[i][j] == 1:                draw.circle(screen, 'white', (num2*jc, num1*ic), 4)
+            if level[i][j] == 2 and not flicker:draw.circle(screen, 'white', (num2*jc, num1*ic), 10)
+            if level[i][j] == 3:                draw.line(screen, color, (num2*jc, n_row),  (num2*jc, n_row + num1), 3)
             if level[i][j] == 4:                draw.line(screen, color, (n_col, n_row + num1 / 2),  (n_col + num2, n_row + num1 / 2), 3)
             if level[i][j] == 5:                draw.arc(screen, color, [(n_col - (num2 * 0.4)) - 2, (n_row + num1 / 2), num2, num1],    0, PI / 2, 3)
-            if level[i][j] == 6:                draw.arc(screen, color, [(n_col + num2 / 2), (n_row + num1 / 2), num2, num1], PI / 2, PI, 3)
-            if level[i][j] == 7:                draw.arc(screen, color, [(n_col + num2 / 2), (n_row - (0.4 * num1)), num2, num1], PI,    3 * PI / 2, 3)            
+            if level[i][j] == 6:                draw.arc(screen, color, [num2*jc, (n_row + num1 / 2), num2, num1], PI / 2, PI, 3)
+            if level[i][j] == 7:                draw.arc(screen, color, [num2*jc, (n_row - (0.4 * num1)), num2, num1], PI,    3 * PI / 2, 3)            
             if level[i][j] == 8:                draw.arc(screen, color,[(n_col - (num2 * 0.4)) - 2, (n_row - (0.4 * num1)), num2, num1], 3 * PI / 2,              2 * PI, 3)
             if level[i][j] == 9:                draw.line(screen, 'white', (n_col, n_row + num1 / 2), (n_col + num2, n_row + num1 / 2), 3)
 
