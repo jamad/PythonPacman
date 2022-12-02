@@ -1,5 +1,5 @@
 # Build Pac-Man from Scratch in Python with PyGame!!
-# done until 1:26:45
+# done until 1:26:45  , maybe around 2:02 to start
 
 import copy
 from board import boards
@@ -89,27 +89,32 @@ class Ghost:
 
     def check_collisions(self):
         self.turns = [False, False, False, False]
+        
+        cellA = level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C]
+        cellB = level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C]
+        cellC = level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C]
+
         if 0 < self.center_x // 30 < 29:
-            if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9:                self.turns[2] = True
-            if level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
+            if cellA == 9:                self.turns[2] = True
+            if cellC < 3 or (cellC == 9 and (self.in_box or self.dead)):self.turns[1] = True
             if level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
-            if level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
-            if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
+            if cellB < 3 or (cellB == 9 and (self.in_box or self.dead)):self.turns[3] = True
+            if cellA < 3 or (cellA == 9 and (self.in_box or self.dead)):self.turns[2] = True
 
             if self.dir == 2 or self.dir == 3:
                 if 12 <= self.center_x % COUNT_C <= 18:
-                    if level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
-                    if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
+                    if cellB < 3 or (cellB == 9 and (self.in_box or self.dead)):self.turns[3] = True
+                    if cellA < 3 or (cellA == 9 and (self.in_box or self.dead)):self.turns[2] = True
                 if 12 <= self.center_y % COUNT_R <= 18:
                     if level[self.center_y // COUNT_R][(self.center_x - COUNT_C) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - COUNT_C) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
                     if level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
 
             if self.dir == 0 or self.dir == 1:
                 if 12 <= self.center_x % COUNT_C <= 18:
-                    if level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
-                    if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
+                    if cellB < 3 or (cellB == 9 and (self.in_box or self.dead)):self.turns[3] = True
+                    if cellA < 3 or (cellA == 9 and (self.in_box or self.dead)):self.turns[2] = True
                 if 12 <= self.center_y % COUNT_R <= 18:
-                    if level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
+                    if cellC < 3 or (cellC == 9 and (self.in_box or self.dead)):self.turns[1] = True
                     if level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
         else: self.turns[0] = self.turns[1] = 1
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
@@ -620,7 +625,6 @@ def draw_player():
     elif player_dir == 2:    screen.blit(transform.rotate(img_player, 90), pos)
     elif player_dir == 3:    screen.blit(transform.rotate(img_player, -90), pos)
 
-
 # check collisions based on center x and center y of player +/- RADIUS number
 def check_passable(col, row):  # originally check_position
     if 29 <= col // 30 : return [1,1,0,0] # only horizontal warp is passable
@@ -655,10 +659,8 @@ def get_targets(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y):
     return_target = (380, 400)
     if powerup:
         if not GHOST[0].dead and not eaten_ghost[0]:            blink_target = (runaway_x, runaway_y)
-        elif not GHOST[0].dead and eaten_ghost[0]:
-            if 340 < blink_x < 560 and 340 < blink_y < 500:                blink_target = (400, 100)
-            else:                blink_target = (player_x, player_y)
-        else:            blink_target = return_target
+        elif not GHOST[0].dead and eaten_ghost[0]:  blink_target = (400, 100) if 340 < blink_x < 560 and 340 < blink_y < 500 else  (player_x, player_y)
+        else:                                       blink_target = return_target
         if not GHOST[1].dead and not eaten_ghost[1]:            ink_target = (runaway_x, player_y)
         elif not GHOST[1].dead and eaten_ghost[1]:
             if 340 < ink_x < 560 and 340 < ink_y < 500:                ink_target = (400, 100)
