@@ -15,7 +15,7 @@ HEIGHT = 950
 
 COUNT_R = (HEIGHT - 50) // 32   # grid row count
 COUNT_C = (WIDTH // 30)         # grid column count
-FUDGE = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall
+RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall
 
 screen = display.set_mode([WIDTH, HEIGHT])
 timer = time.Clock()
@@ -105,30 +105,30 @@ class Ghost:
     def check_collisions(self):
         # R, L, U, D
         
-        FUDGE = 15  # what's this? 
+        RADIUS = 15  # what's this? 
         self.turns = [False, False, False, False]
         if 0 < self.center_x // 30 < 29:
-            if level[(self.center_y - FUDGE) // COUNT_R][self.center_x // COUNT_C] == 9:                self.turns[2] = True
-            if level[self.center_y // COUNT_R][(self.center_x - FUDGE) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - FUDGE) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
-            if level[self.center_y // COUNT_R][(self.center_x + FUDGE) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + FUDGE) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
-            if level[(self.center_y + FUDGE) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + FUDGE) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
-            if level[(self.center_y - FUDGE) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - FUDGE) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
+            if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9:                self.turns[2] = True
+            if level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
+            if level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
+            if level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
+            if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
 
             if self.direction == 2 or self.direction == 3:
                 if 12 <= self.center_x % COUNT_C <= 18:
-                    if level[(self.center_y + FUDGE) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + FUDGE) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
-                    if level[(self.center_y - FUDGE) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - FUDGE) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
+                    if level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
+                    if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
                 if 12 <= self.center_y % COUNT_R <= 18:
                     if level[self.center_y // COUNT_R][(self.center_x - COUNT_C) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - COUNT_C) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
                     if level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
 
             if self.direction == 0 or self.direction == 1:
                 if 12 <= self.center_x % COUNT_C <= 18:
-                    if level[(self.center_y + FUDGE) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + FUDGE) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
-                    if level[(self.center_y - FUDGE) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - FUDGE) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
+                    if level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
+                    if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
                 if 12 <= self.center_y % COUNT_R <= 18:
-                    if level[self.center_y // COUNT_R][(self.center_x - FUDGE) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - FUDGE) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
-                    if level[self.center_y // COUNT_R][(self.center_x + FUDGE) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + FUDGE) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
+                    if level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
+                    if level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
         else: self.turns[0] = self.turns[1] = 1
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
         return self.turns, self.in_box
@@ -683,11 +683,11 @@ def check_position(col, row):
     if 29 <= col // 30 : return [1,1,0,0] 
 
     turns = [0]*4 #  
-    # check collisions based on center x and center y of player +/- fudge number
-    cell_R=level[row // COUNT_R][(col + FUDGE) // COUNT_C]
-    cell_L=level[row // COUNT_R][(col - FUDGE) // COUNT_C]
-    cell_U=level[(row - FUDGE) // COUNT_R][col // COUNT_C]
-    cell_D=level[(row + FUDGE) // COUNT_R][col // COUNT_C]
+    # check collisions based on center x and center y of player +/- RADIUS number
+    cell_R=level[row // COUNT_R][(col + RADIUS) // COUNT_C]
+    cell_L=level[row // COUNT_R][(col - RADIUS) // COUNT_C]
+    cell_U=level[(row - RADIUS) // COUNT_R][col // COUNT_C]
+    cell_D=level[(row + RADIUS) // COUNT_R][col // COUNT_C]
 
     # backward direction check
     if direction == 1 and cell_R < 3:turns[0] = True
@@ -712,6 +712,7 @@ def check_position(col, row):
         if 12 <= row % COUNT_R <= 18:
             if cell_R < 3:                    turns[0] = True
             if cell_L < 3:                    turns[1] = True
+
     return turns
 
 def move_player(play_x, play_y):
