@@ -35,7 +35,7 @@ dead_img = transform.scale(image.load(f'assets/ghost_images/dead.png'),img_size)
 
 player_x = 450 - 20 # centerize
 player_y = 663
-direction = direction_command = 0 #direction : RLUD
+direction = direction_command = 0 #direction : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
 turns_allowed = [0]*4 # R, L, U, D  open flag for movement
 
 blinky_x = 56
@@ -96,9 +96,6 @@ class Ghost:
         return ghost_rect
 
     def check_collisions(self):
-        # R, L, U, D
-        
-        RADIUS = 15  # what's this? 
         self.turns = [False, False, False, False]
         if 0 < self.center_x // 30 < 29:
             if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9:                self.turns[2] = True
@@ -664,13 +661,12 @@ def draw_board():
             if cell == 9:                draw.line(     screen, 'white', (n_col, COUNT_R*ic), (n_col + COUNT_C, COUNT_R*ic), 3)
 
 def draw_player():
-    # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
     pos=(player_x, player_y)
     img_player=player_images[counter // 5]
-    if direction == 0:        screen.blit(img_player, pos)
-    elif direction == 1:        screen.blit(transform.flip(img_player, True, False), pos)
-    elif direction == 2:        screen.blit(transform.rotate(img_player, 90), pos)
-    elif direction == 3:        screen.blit(transform.rotate(img_player, -90), pos)
+    if direction == 0:      screen.blit(img_player, pos)
+    elif direction == 1:    screen.blit(transform.flip(img_player, True, False), pos)
+    elif direction == 2:    screen.blit(transform.rotate(img_player, 90), pos)
+    elif direction == 3:    screen.blit(transform.rotate(img_player, -90), pos)
 
 
 # check collisions based on center x and center y of player +/- RADIUS number
@@ -793,10 +789,10 @@ while run:
 
     draw_player()
     
-    blinky = Ghost(blinky_x, blinky_y, targets[0], ghost_speeds[0], blinky_img, blinky_direction, blinky_dead,blinky_box, 0)
-    inky = Ghost(inky_x, inky_y, targets[1], ghost_speeds[1], inky_img, inky_direction, inky_dead,inky_box, 1)
-    pinky = Ghost(pinky_x, pinky_y, targets[2], ghost_speeds[2], pinky_img, pinky_direction, pinky_dead,pinky_box, 2)
-    clyde = Ghost(clyde_x, clyde_y, targets[3], ghost_speeds[3], clyde_img, clyde_direction, clyde_dead,clyde_box, 3)
+    blinky  = Ghost(blinky_x, blinky_y, targets[0], ghost_speeds[0], blinky_img, blinky_direction, blinky_dead,blinky_box, 0)
+    inky    = Ghost(inky_x, inky_y, targets[1], ghost_speeds[1], inky_img, inky_direction, inky_dead,inky_box, 1)
+    pinky   = Ghost(pinky_x, pinky_y, targets[2], ghost_speeds[2], pinky_img, pinky_direction, pinky_dead,pinky_box, 2)
+    clyde   = Ghost(clyde_x, clyde_y, targets[3], ghost_speeds[3], clyde_img, clyde_direction, clyde_dead,clyde_box, 3)
     draw_misc()
     targets = get_targets(blinky_x, blinky_y, inky_x, inky_y, pinky_x, pinky_y, clyde_x, clyde_y)
 
@@ -1003,13 +999,13 @@ while run:
                 clyde_y = 438 
                 clyde_x = 440 - 45
                 
-                eaten_ghost = [False, False, False, False]
+                eaten_ghost = [0]*4
                 blinky_dead =inky_dead =clyde_dead =pinky_dead = False
                 score = 0
                 lives = 3
-                level = copy.deepcopy(boards)
                 game_over = False
                 game_won = False
+                level = copy.deepcopy(boards)
 
         # direction : RLUD
         if e.type == KEYUP:
@@ -1018,10 +1014,9 @@ while run:
             if e.key == K_UP and direction_command == 2:    direction_command = direction
             if e.key == K_DOWN and direction_command == 3:  direction_command = direction
 
-    if direction_command == 0 and turns_allowed[0]:        direction = 0
-    if direction_command == 1 and turns_allowed[1]:        direction = 1
-    if direction_command == 2 and turns_allowed[2]:        direction = 2
-    if direction_command == 3 and turns_allowed[3]:        direction = 3
+    for i in range(4):
+        if direction_command == i and turns_allowed[i]: direction = i
+
 
     if player_x > 900:        player_x = -47
     elif player_x < -50:        player_x = 897
