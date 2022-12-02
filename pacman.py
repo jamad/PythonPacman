@@ -10,7 +10,6 @@ from math import pi
 init()
 
 fps = 60
-
 WIDTH = 900
 HEIGHT = 950
 
@@ -41,7 +40,7 @@ dead_img = transform.scale(image.load(f'assets/ghost_images/dead.png'),img_size)
 player_x = 450 - 20 # centerize
 player_y = 663
 player_dir = player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
-can_move = [0]*4 # R, L, U, D  open flag for movement
+can_move = [0]*4                    # R, L, U, D  open flag for movement
 
 # ghosts : blinky 0  inky 1  pinky 2 clyde 3           
 GX=[440, 440+45, 440, 440 -45]      
