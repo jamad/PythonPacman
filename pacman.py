@@ -22,17 +22,17 @@ font = font.Font('freesansbold.ttf', 20)
 level = copy.deepcopy(boards)
 m_color = 'blue'
 PI = math.pi
+img_size=(45, 45)
+player_images = [transform.scale(image.load(f'assets/player_images/{i+1}.png'),img_size) for i in range(4)]
 
-player_images = [transform.scale(image.load(f'assets/player_images/{i+1}.png'), (45, 45)) for i in range(4)]
+blinky_img = transform.scale(image.load(f'assets/ghost_images/red.png'),img_size)
+pinky_img = transform.scale(image.load(f'assets/ghost_images/pink.png'),img_size)
+inky_img = transform.scale(image.load(f'assets/ghost_images/blue.png'),img_size)
+clyde_img = transform.scale(image.load(f'assets/ghost_images/orange.png'),img_size)
+spooked_img = transform.scale(image.load(f'assets/ghost_images/powerup.png'),img_size)
+dead_img = transform.scale(image.load(f'assets/ghost_images/dead.png'),img_size)
 
-blinky_img = transform.scale(image.load(f'assets/ghost_images/red.png'), (45, 45))
-pinky_img = transform.scale(image.load(f'assets/ghost_images/pink.png'), (45, 45))
-inky_img = transform.scale(image.load(f'assets/ghost_images/blue.png'), (45, 45))
-clyde_img = transform.scale(image.load(f'assets/ghost_images/orange.png'), (45, 45))
-spooked_img = transform.scale(image.load(f'assets/ghost_images/powerup.png'), (45, 45))
-dead_img = transform.scale(image.load(f'assets/ghost_images/dead.png'), (45, 45))
-
-player_x = 450
+player_x = 450 - 20
 player_y = 663
 direction = 0
 
@@ -673,14 +673,11 @@ def draw_board():
 def draw_player():
     # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
     pos=(player_x, player_y)
-    if direction == 0:
-        screen.blit(player_images[counter // 5], pos)
-    elif direction == 1:
-        screen.blit(transform.flip(player_images[counter // 5], True, False), pos)
-    elif direction == 2:
-        screen.blit(transform.rotate(player_images[counter // 5], 90), pos)
-    elif direction == 3:
-        screen.blit(transform.rotate(player_images[counter // 5], -90), pos)
+    img_player=player_images[counter // 5]
+    if direction == 0:        screen.blit(img_player, pos)
+    elif direction == 1:        screen.blit(transform.flip(img_player, True, False), pos)
+    elif direction == 2:        screen.blit(transform.rotate(img_player, 90), pos)
+    elif direction == 3:        screen.blit(transform.rotate(img_player, -90), pos)
 
 def check_position(centerx, centery):
     turns = [0]*4
