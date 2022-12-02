@@ -39,15 +39,13 @@ player_y = 663
 player_dir = player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
 can_move = [0]*4 # R, L, U, D  open flag for movement
 
-# ghosts : blinky 0  inky 1  pinky 2 clyde 3
+# ghosts : blinky 0  inky 1  pinky 2 clyde 3           
 G0_x = 440 
 G1_x = 440 + 45
 G2_x = 440
 G3_x = 440 - 45
-
 G0_y = 388
 G1_y = G2_y = G3_y = 438
-
 G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
 
 counter = 0  
@@ -803,16 +801,13 @@ while run:
                 player_dir = 0
                 player_dir_command = 0
                 
-                G0_x = 56
-                G0_y = 58
-                G0_player_dir = 0
-                
-                G1_x = G2_x = G3_x = 440
-                G1_player_dir = G2_player_dir = G3_player_dir = 2
-                
-                G1_y = 388
-                G2_y = 438
-                G3_y = 438
+                G0_x = 440 
+                G1_x = 440 + 45
+                G2_x = 440
+                G3_x = 440 - 45
+                G0_y = 388
+                G1_y = G2_y = G3_y = 438
+                G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
                 
                 eaten_ghost = [0]*4
                 G0_dead = G1_dead = G3_dead = G2_dead = 0
@@ -829,18 +824,15 @@ while run:
             player_y = 663
             player_dir = 0
             player_dir_command = 0
-            G0_x = 56
-            G0_y = 58
-            G0_player_dir = 0
-            G1_x = 440
-            G1_y = 388
-            G1_player_dir = 2
+            
+            G0_x = 440 
+            G1_x = 440 + 45
             G2_x = 440
-            G2_y = 438
-            G2_player_dir = 2
-            G3_x = 440
-            G3_y = 438
-            G3_player_dir = 2
+            G3_x = 440 - 45
+            G0_y = 388
+            G1_y = G2_y = G3_y = 438
+            G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
+
             eaten_ghost = [0]*4
             G0_dead =G1_dead =G3_dead =G2_dead = False
         else:
@@ -857,18 +849,15 @@ while run:
             player_y = 663
             player_dir = 0
             player_dir_command = 0
-            G0_x = 56
-            G0_y = 58
-            G0_player_dir = 0
-            G1_x = 440
-            G1_y = 388
-            G1_player_dir = 2
+            
+            G0_x = 440 
+            G1_x = 440 + 45
             G2_x = 440
-            G2_y = 438
-            G2_player_dir = 2
-            G3_x = 440
-            G3_y = 438
-            G3_player_dir = 2
+            G3_x = 440 - 45
+            G0_y = 388
+            G1_y = G2_y = G3_y = 438
+            G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
+            
             eaten_ghost = [False, False, False, False]
             G0_dead =G1_dead =G3_dead = G2_dead = False
         else:
@@ -885,23 +874,17 @@ while run:
             player_y = 663
             player_dir = 0
             player_dir_command = 0
-            G0_x = 56
-            G0_y = 58
-            G0_player_dir = 0
-            G1_x = 440
-            G1_y = 388
-            G1_player_dir = 2
+
+            G0_x = 440 
+            G1_x = 440 + 45
             G2_x = 440
-            G2_y = 438
-            G2_player_dir = 2
-            G3_x = 440
-            G3_y = 438
-            G3_player_dir = 2
+            G3_x = 440 - 45
+            G0_y = 388
+            G1_y = G2_y = G3_y = 438
+            G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
+
             eaten_ghost = [False, False, False, False]
-            G0_dead = False
-            G1_dead = False
-            G3_dead = False
-            G2_dead = False
+            G0_dead =G1_dead =G3_dead =G2_dead = False
         else:
             game_over = True
             moving = False
@@ -916,23 +899,17 @@ while run:
             player_y = 663
             player_dir = 0
             player_dir_command = 0
-            G0_x = 56
-            G0_y = 58
-            G0_player_dir = 0
-            G1_x = 440
-            G1_y = 388
-            G1_player_dir = 2
+            
+            G0_x = 440 
+            G1_x = 440 + 45
             G2_x = 440
-            G2_y = 438
-            G2_player_dir = 2
-            G3_x = 440
-            G3_y = 438
-            G3_player_dir = 2
+            G3_x = 440 - 45
+            G0_y = 388
+            G1_y = G2_y = G3_y = 438
+            G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
+
             eaten_ghost = [False, False, False, False]
-            G0_dead = False
-            G1_dead = False
-            G3_dead = False
-            G2_dead = False
+            G0_dead =G1_dead =G3_dead =G2_dead = False
         else:
             game_over = True
             moving = False
@@ -969,15 +946,14 @@ while run:
                 player_y = 663
                 player_dir = 0
                 player_dir_command = 0
-                G0_x = 56
-                G0_y = 58
-                G0_player_dir = 0
-                G1_x = G2_x = 440
-                G1_player_dir = G2_player_dir = G3_player_dir = 2
-                G1_y = 388
-                G2_y = 438
-                G3_y = 438 
+
+                G0_x = 440 
+                G1_x = 440 + 45
+                G2_x = 440
                 G3_x = 440 - 45
+                G0_y = 388
+                G1_y = G2_y = G3_y = 438
+                G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
                 
                 eaten_ghost = [0]*4
                 G0_dead =G1_dead =G3_dead =G2_dead = False
