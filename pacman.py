@@ -679,19 +679,22 @@ def draw_player():
     elif direction == 2:        screen.blit(transform.rotate(img_player, 90), pos)
     elif direction == 3:        screen.blit(transform.rotate(img_player, -90), pos)
 
-def check_position(col, row):
-    if 29 <= col // 30 : return [1,1,0,0] 
 
-    # check collisions based on center x and center y of player +/- RADIUS number
+# check collisions based on center x and center y of player +/- RADIUS number
+def check_passable(col, row):  # originally check_position
+    if 29 <= col // 30 : return [1,1,0,0] # only horizontal warp is passable
+
     cell_R=level[row // COUNT_R][(col + RADIUS) // COUNT_C]
     cell_L=level[row // COUNT_R][(col - RADIUS) // COUNT_C]
     cell_U=level[(row - RADIUS) // COUNT_R][col // COUNT_C]
     cell_D=level[(row + RADIUS) // COUNT_R][col // COUNT_C]
+    dir_H= direction in(0,1)
+    dir_V= direction in(2,3)
 
-    tR = (direction in(0,1)and cell_R < 3)or( direction in(2,3)and( 12 <= row % COUNT_R <= 18)and(level[row // COUNT_R][col // COUNT_C + 1] < 3)) 
-    tL = (direction in(0,1)and cell_L < 3)or( direction in(2,3)and( 12 <= row % COUNT_R <= 18)and(level[row // COUNT_R][col // COUNT_C - 1] < 3))     
-    tU = (direction in(2,3)and cell_U < 3)or( direction in(0,1)and( 12 <= col % COUNT_C <= 18)and(level[row // COUNT_R - 1][col // COUNT_C] < 3)) 
-    tD = (direction in(2,3)and cell_D < 3)or( direction in(0,1)and( 12 <= col % COUNT_C <= 18)and(level[row // COUNT_R + 1][col // COUNT_C] < 3)) 
+    tR = (direction in(0,1)and cell_R < 3) or ( dir_V and( 12 <= row % COUNT_R <= 18)and(level[row // COUNT_R][col // COUNT_C + 1] < 3)) 
+    tL = (direction in(0,1)and cell_L < 3) or ( dir_V and( 12 <= row % COUNT_R <= 18)and(level[row // COUNT_R][col // COUNT_C - 1] < 3))     
+    tU = (direction in(2,3)and cell_U < 3) or ( dir_H and( 12 <= col % COUNT_C <= 18)and(level[row // COUNT_R - 1][col // COUNT_C] < 3)) 
+    tD = (direction in(2,3)and cell_D < 3) or ( dir_H and( 12 <= col % COUNT_C <= 18)and(level[row // COUNT_R + 1][col // COUNT_C] < 3)) 
 
     return [tR,tL,tU,tD]
 
@@ -804,7 +807,7 @@ while run:
     draw_misc()
     targets = get_targets(blinky_x, blinky_y, inky_x, inky_y, pinky_x, pinky_y, clyde_x, clyde_y)
 
-    turns_allowed = check_position(center_x, center_y)
+    turns_allowed = check_passable(center_x, center_y)
     if moving:
         player_x, player_y = move_player(player_x, player_y)
         if not blinky_dead and not blinky.in_box:            blinky_x, blinky_y, blinky_direction = blinky.move_blinky()
