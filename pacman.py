@@ -23,6 +23,7 @@ font = font.Font('freesansbold.ttf', 20)
 level = copy.deepcopy(boards)
 m_color = 'blue'
 
+# image assets
 img_size=(45, 45)
 player_images = [transform.scale(image.load(f'assets/player_images/{i}.png'),img_size) for i in (1,2,3,2)]# 4 images
 blinky_img = transform.scale(image.load(f'assets/ghost_images/red.png'),img_size)
@@ -32,7 +33,7 @@ clyde_img = transform.scale(image.load(f'assets/ghost_images/orange.png'),img_si
 spooked_img = transform.scale(image.load(f'assets/ghost_images/powerup.png'),img_size)
 dead_img = transform.scale(image.load(f'assets/ghost_images/dead.png'),img_size)
 
-player_x = 450 - 20
+player_x = 450 - 20 # centerize
 player_y = 663
 direction = direction_command = 0 #direction : RLUD
 turns_allowed = [0]*4 # R, L, U, D  open flag for movement
@@ -57,27 +58,19 @@ counter = 0  # what it is for?
 powerup_show = False
 
 
-
 player_speed = 2
 score = 0
 powerup = False
 power_counter = 0
 eaten_ghost = [False, False, False, False]
 targets = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)]
-blinky_dead = False
-inky_dead = False
-clyde_dead = False
-pinky_dead = False
-blinky_box = False
-inky_box = False
-clyde_box = False
-pinky_box = False
+blinky_dead = inky_dead = clyde_dead = pinky_dead = False
+blinky_box = inky_box = clyde_box = pinky_box = False
 moving = False
 ghost_speeds = [2, 2, 2, 2]
 startup_counter = 0
 lives = 3
-game_over = False
-game_won = False
+game_over = game_won = False
 
 class Ghost:
     def __init__(self, x_coord, y_coord, target, speed, img, direct, dead, box, id):
@@ -1003,20 +996,15 @@ while run:
                 blinky_x = 56
                 blinky_y = 58
                 blinky_direction = 0
-                inky_x = 440
+                inky_x = pinky_x = 440
+                inky_direction = pinky_direction = clyde_direction = 2
                 inky_y = 388
-                inky_direction = 2
-                pinky_x = 440
                 pinky_y = 438
-                pinky_direction = 2
-                clyde_x = 440
-                clyde_y = 438
-                clyde_direction = 2
+                clyde_y = 438 
+                clyde_x = 440 - 45
+                
                 eaten_ghost = [False, False, False, False]
-                blinky_dead = False
-                inky_dead = False
-                clyde_dead = False
-                pinky_dead = False
+                blinky_dead =inky_dead =clyde_dead =pinky_dead = False
                 score = 0
                 lives = 3
                 level = copy.deepcopy(boards)
@@ -1025,10 +1013,10 @@ while run:
 
         # direction : RLUD
         if e.type == KEYUP:
-            if e.key == K_RIGHT and direction_command == 0:                direction_command = direction
-            if e.key == K_LEFT and direction_command == 1:                direction_command = direction
-            if e.key == K_UP and direction_command == 2:                direction_command = direction
-            if e.key == K_DOWN and direction_command == 3:                direction_command = direction
+            if e.key == K_RIGHT and direction_command == 0: direction_command = direction
+            if e.key == K_LEFT and direction_command == 1:  direction_command = direction
+            if e.key == K_UP and direction_command == 2:    direction_command = direction
+            if e.key == K_DOWN and direction_command == 3:  direction_command = direction
 
     if direction_command == 0 and turns_allowed[0]:        direction = 0
     if direction_command == 1 and turns_allowed[1]:        direction = 1
@@ -1044,6 +1032,7 @@ while run:
     if clyde.in_box and clyde_dead:        clyde_dead = False
 
     display.flip()
+
 quit()
 
 # sound effects, restart and winning messages
