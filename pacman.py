@@ -116,7 +116,7 @@ class Ghost:
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
         return self.turns, self.in_box
 
-    def move_G3(self): # G3 is going to turn whenever advantageous for pursuit
+    def move_G3(self): # GHOST[3] is going to turn whenever advantageous for pursuit
         if self.dir == 0:
             if self.target[0] > self.x_pos and self.turns[0]:   self.x_pos += self.speed
             elif not self.turns[0]:
@@ -242,7 +242,7 @@ class Ghost:
         self.x_pos = (self.x_pos < -30 and 900) or ( self.x_pos > 900 and self.x_pos - 30) or self.x_pos            
         return self.x_pos, self.y_pos, self.dir
 
-    def move_G0(self):   # G0 is going to turn whenever colliding with walls, otherwise continue straight
+    def move_G0(self):   # GHOST[0] is going to turn whenever colliding with walls, otherwise continue straight
         if self.dir == 0:
             if self.target[0] > self.x_pos and self.turns[0]:                self.x_pos += self.speed
             elif not self.turns[0]:
@@ -337,7 +337,7 @@ class Ghost:
         elif self.x_pos > 900:            self.x_pos - 30
         return self.x_pos, self.y_pos, self.dir
 
-    def move_G1(self):# G1 turns up or down at any point to pursue, but left and right only on collision
+    def move_G1(self):# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
         if self.dir == 0:
             if self.target[0] > self.x_pos and self.turns[0]:                self.x_pos += self.speed
             elif not self.turns[0]:
@@ -450,7 +450,7 @@ class Ghost:
         elif self.x_pos > 900:            self.x_pos - 30
         return self.x_pos, self.y_pos, self.dir
 
-    def move_G2(self):# G2 is going to turn left or right whenever advantageous, but only up or down on collision
+    def move_G2(self):# GHOST[2] is going to turn left or right whenever advantageous, but only up or down on collision
         if self.dir == 0:
             if self.target[0] > self.x_pos and self.turns[0]:                self.x_pos += self.speed
             elif not self.turns[0]:
@@ -655,40 +655,40 @@ def get_targets(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y):
     else:        runaway_y = 0
     return_target = (380, 400)
     if powerup:
-        if not G0.dead and not eaten_ghost[0]:            blink_target = (runaway_x, runaway_y)
-        elif not G0.dead and eaten_ghost[0]:
+        if not GHOST[0].dead and not eaten_ghost[0]:            blink_target = (runaway_x, runaway_y)
+        elif not GHOST[0].dead and eaten_ghost[0]:
             if 340 < blink_x < 560 and 340 < blink_y < 500:                blink_target = (400, 100)
             else:                blink_target = (player_x, player_y)
         else:            blink_target = return_target
-        if not G1.dead and not eaten_ghost[1]:            ink_target = (runaway_x, player_y)
-        elif not G1.dead and eaten_ghost[1]:
+        if not GHOST[1].dead and not eaten_ghost[1]:            ink_target = (runaway_x, player_y)
+        elif not GHOST[1].dead and eaten_ghost[1]:
             if 340 < ink_x < 560 and 340 < ink_y < 500:                ink_target = (400, 100)
             else:                ink_target = (player_x, player_y)
         else:            ink_target = return_target
-        if not G2.dead:            pink_target = (player_x, runaway_y)
-        elif not G2.dead and eaten_ghost[2]:
+        if not GHOST[2].dead:            pink_target = (player_x, runaway_y)
+        elif not GHOST[2].dead and eaten_ghost[2]:
             if 340 < pink_x < 560 and 340 < pink_y < 500:                pink_target = (400, 100)
             else:                pink_target = (player_x, player_y)
         else:            pink_target = return_target
-        if not G3.dead and not eaten_ghost[3]:            clyd_target = (450, 450)
-        elif not G3.dead and eaten_ghost[3]:
+        if not GHOST[3].dead and not eaten_ghost[3]:            clyd_target = (450, 450)
+        elif not GHOST[3].dead and eaten_ghost[3]:
             if 340 < clyd_x < 560 and 340 < clyd_y < 500:                clyd_target = (400, 100)
             else:                clyd_target = (player_x, player_y)
         else:            clyd_target = return_target
     else:
-        if not G0.dead:
+        if not GHOST[0].dead:
             if 340 < blink_x < 560 and 340 < blink_y < 500:                blink_target = (400, 100)
             else:                blink_target = (player_x, player_y)
         else:            blink_target = return_target
-        if not G1.dead:
+        if not GHOST[1].dead:
             if 340 < ink_x < 560 and 340 < ink_y < 500:                ink_target = (400, 100)
             else:                ink_target = (player_x, player_y)
         else:            ink_target = return_target
-        if not G2.dead:
+        if not GHOST[2].dead:
             if 340 < pink_x < 560 and 340 < pink_y < 500:                pink_target = (400, 100)
             else:                pink_target = (player_x, player_y)
         else:            pink_target = return_target
-        if not G3.dead:
+        if not GHOST[3].dead:
             if 340 < clyd_x < 560 and 340 < clyd_y < 500:                clyd_target = (400, 100)
             else:                clyd_target = (player_x, player_y)
         else:            clyd_target = return_target
@@ -740,10 +740,12 @@ while run:
 
     draw_player()
     
-    G0  = Ghost(GX[0], GY[0], targets[0], ghost_speeds[0], G_IMG[0], GD[0], G_DEAD[0],G_BOX[0], 0)
-    G1  = Ghost(GX[1], GY[1], targets[1], ghost_speeds[1], G_IMG[1], GD[1], G_DEAD[1],G_BOX[1], 1)
-    G2  = Ghost(GX[2], GY[2], targets[2], ghost_speeds[2], G_IMG[2], GD[2], G_DEAD[2],G_BOX[2], 2)
-    G3  = Ghost(GX[3], GY[3], targets[3], ghost_speeds[3], G_IMG[3], GD[3], G_DEAD[3],G_BOX[3], 3)
+    GHOST=[Ghost(GX[i], GY[i], targets[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i],G_BOX[i], i) for i in range(4)]
+
+    GHOST[0]  = Ghost(GX[0], GY[0], targets[0], ghost_speeds[0], G_IMG[0], GD[0], G_DEAD[0],G_BOX[0], 0)
+    GHOST[1]  = Ghost(GX[1], GY[1], targets[1], ghost_speeds[1], G_IMG[1], GD[1], G_DEAD[1],G_BOX[1], 1)
+    GHOST[2]  = Ghost(GX[2], GY[2], targets[2], ghost_speeds[2], G_IMG[2], GD[2], G_DEAD[2],G_BOX[2], 2)
+    GHOST[3]  = Ghost(GX[3], GY[3], targets[3], ghost_speeds[3], G_IMG[3], GD[3], G_DEAD[3],G_BOX[3], 3)
 
     draw_misc()
     targets = get_targets(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3])
@@ -752,17 +754,17 @@ while run:
 
     if moving:
         player_x, player_y = move_player(player_x, player_y)
-        if not G_DEAD[0] and not G0.in_box:            GX[0], GY[0], GD[0] = G0.move_G0()
-        else:            GX[0], GY[0], GD[0] = G0.move_G3()
-        if not G_DEAD[2] and not G2.in_box:            GX[2], GY[2], GD[2] = G2.move_G2()
-        else:            GX[2], GY[2], GD[2] = G2.move_G3()
-        if not G_DEAD[1] and not G1.in_box:            GX[1], GY[1], GD[1] = G1.move_G1()
-        else:            GX[1], GY[1], GD[1] = G1.move_G3()
-        GX[3], GY[3], GD[3] = G3.move_G3()
+        if not G_DEAD[0] and not GHOST[0].in_box:GX[0], GY[0], GD[0] = GHOST[0].move_G0()
+        else:            GX[0], GY[0], GD[0] = GHOST[0].move_G3()
+        if not G_DEAD[2] and not GHOST[2].in_box:            GX[2], GY[2], GD[2] = GHOST[2].move_G2()
+        else:            GX[2], GY[2], GD[2] = GHOST[2].move_G3()
+        if not G_DEAD[1] and not GHOST[1].in_box:            GX[1], GY[1], GD[1] = GHOST[1].move_G1()
+        else:            GX[1], GY[1], GD[1] = GHOST[1].move_G3()
+        GX[3], GY[3], GD[3] = GHOST[3].move_G3()
     score, powerup, power_counter, eaten_ghost = check_collisions(score, powerup, power_counter, eaten_ghost)
     # add to if not powerup to check if eaten ghosts
     if not powerup:
-        if any (player_circle.colliderect(x) and not y for x,y in ((G0.rect, G0.dead),(G1.rect, G1.dead),(G2.rect, G2.dead),(G3.rect, G3.dead)) ):
+        if any (player_circle.colliderect(x) and not y for x,y in ((GHOST[0].rect, GHOST[0].dead),(GHOST[1].rect, GHOST[1].dead),(GHOST[2].rect, GHOST[2].dead),(GHOST[3].rect, GHOST[3].dead)) ):
             if lives > 0:
                 lives -= 1
                 startup_counter = powerup = power_counter = 0
@@ -782,7 +784,7 @@ while run:
             else:
                 game_over = 1
                 moving = startup_counter = 0
-    if powerup and player_circle.colliderect(G0.rect) and eaten_ghost[0] and not G0.dead:
+    if powerup and player_circle.colliderect(GHOST[0].rect) and eaten_ghost[0] and not GHOST[0].dead:
         if lives > 0:
             powerup = False
             power_counter = 0
@@ -804,7 +806,7 @@ while run:
             game_over = True
             moving = False
             startup_counter = 0
-    if powerup and player_circle.colliderect(G1.rect) and eaten_ghost[1] and not G1.dead:
+    if powerup and player_circle.colliderect(GHOST[1].rect) and eaten_ghost[1] and not GHOST[1].dead:
         if lives > 0:
             powerup = False
             power_counter = 0
@@ -825,7 +827,7 @@ while run:
             game_over = True
             moving = False
             startup_counter = 0
-    if powerup and player_circle.colliderect(G2.rect) and eaten_ghost[2] and not G2.dead:
+    if powerup and player_circle.colliderect(GHOST[2].rect) and eaten_ghost[2] and not GHOST[2].dead:
         if lives > 0:
             powerup = False
             power_counter = 0
@@ -846,7 +848,7 @@ while run:
             game_over = True
             moving = False
             startup_counter = 0
-    if powerup and player_circle.colliderect(G3.rect) and eaten_ghost[3] and not G3.dead:
+    if powerup and player_circle.colliderect(GHOST[3].rect) and eaten_ghost[3] and not GHOST[3].dead:
         if lives > 0:
             powerup = False
             power_counter = 0
@@ -867,19 +869,19 @@ while run:
             game_over = True
             moving = False
             startup_counter = 0
-    if powerup and player_circle.colliderect(G0.rect) and not G0.dead and not eaten_ghost[0]:
+    if powerup and player_circle.colliderect(GHOST[0].rect) and not GHOST[0].dead and not eaten_ghost[0]:
         G_DEAD[0] = True
         eaten_ghost[0] = True
         score += (2 ** eaten_ghost.count(True)) * 100
-    if powerup and player_circle.colliderect(G1.rect) and not G1.dead and not eaten_ghost[1]:
+    if powerup and player_circle.colliderect(GHOST[1].rect) and not GHOST[1].dead and not eaten_ghost[1]:
         G_DEAD[1] = True
         eaten_ghost[1] = True
         score += (2 ** eaten_ghost.count(True)) * 100
-    if powerup and player_circle.colliderect(G2.rect) and not G2.dead and not eaten_ghost[2]:
+    if powerup and player_circle.colliderect(GHOST[2].rect) and not GHOST[2].dead and not eaten_ghost[2]:
         G_DEAD[2] = True
         eaten_ghost[2] = True
         score += (2 ** eaten_ghost.count(True)) * 100
-    if powerup and player_circle.colliderect(G3.rect) and not G3.dead and not eaten_ghost[3]:
+    if powerup and player_circle.colliderect(GHOST[3].rect) and not GHOST[3].dead and not eaten_ghost[3]:
         G_DEAD[3] = True
         eaten_ghost[3] = True
         score += (2 ** eaten_ghost.count(True)) * 100
@@ -924,10 +926,10 @@ while run:
     if player_x > 900:      player_x = -50+3
     elif player_x < -50:    player_x = 900-3
 
-    if G0.in_box and G_DEAD[0]:   G_DEAD[0] = False
-    if G1.in_box and G_DEAD[1]:       G_DEAD[1] = False
-    if G2.in_box and G_DEAD[2]:     G_DEAD[2] = False
-    if G3.in_box and G_DEAD[3]:     G_DEAD[3] = False
+    if GHOST[0].in_box and G_DEAD[0]:   G_DEAD[0] = False
+    if GHOST[1].in_box and G_DEAD[1]:       G_DEAD[1] = False
+    if GHOST[2].in_box and G_DEAD[2]:     G_DEAD[2] = False
+    if GHOST[3].in_box and G_DEAD[3]:     G_DEAD[3] = False
 
     display.flip()
 
