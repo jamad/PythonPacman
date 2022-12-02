@@ -57,7 +57,8 @@ powerup_show = False
 
 turns_allowed = [0]*4 # R, L, U, D  open flag for movement
 
-direction_command = 0
+direction_command = 0 #direction : RLUD
+
 player_speed = 2
 score = 0
 powerup = False
@@ -685,16 +686,22 @@ def check_position(col, row):
     # check collisions based on center x and center y of player +/- fudge number
     if col // 30 < 29:
 
-        # RIGHT
-        if direction == 0 and level[row // COUNT_R][(col - FUDGE) // COUNT_C] < 3:turns[1] = True
         
-        if direction == 1 and level[row // COUNT_R][(col + FUDGE) // COUNT_C] < 3:turns[0] = True
-        if direction == 2 and level[(row + FUDGE) // COUNT_R][col // COUNT_C] < 3:turns[3] = True
-        if direction == 3 and level[(row - FUDGE) // COUNT_R][col // COUNT_C] < 3:turns[2] = True
+        cell_D=level[(row + FUDGE) // COUNT_R][col // COUNT_C]
+        cell_U=level[(row - FUDGE) // COUNT_R][col // COUNT_C]
+        cell_R=level[row // COUNT_R][(col + FUDGE) // COUNT_C]
+        cell_L=level[row // COUNT_R][(col - FUDGE) // COUNT_C]
+
+        # RIGHT
+        if direction == 0 and cell_L < 3:turns[1] = True
+        
+        if direction == 1 and cell_R < 3:turns[0] = True
+        if direction == 2 and cell_D < 3:turns[3] = True
+        if direction == 3 and cell_U < 3:turns[2] = True
         if direction in (2,3):
             if 12 <= col % COUNT_C <= 18:
-                if level[(row + FUDGE) // COUNT_R][col // COUNT_C] < 3:                    turns[3] = True
-                if level[(row - FUDGE) // COUNT_R][col // COUNT_C] < 3:                    turns[2] = True
+                if cell_D < 3:                    turns[3] = True
+                if cell_U < 3:                    turns[2] = True
             if 12 <= row % COUNT_R <= 18:
                 if level[row // COUNT_R][(col - COUNT_C) // COUNT_C] < 3:                    turns[1] = True
                 if level[row // COUNT_R][(col + COUNT_C) // COUNT_C] < 3:                    turns[0] = True
@@ -703,8 +710,8 @@ def check_position(col, row):
                 if level[(row + COUNT_R) // COUNT_R][col // COUNT_C] < 3:                    turns[3] = True
                 if level[(row - COUNT_R) // COUNT_R][col // COUNT_C] < 3:                    turns[2] = True
             if 12 <= row % COUNT_R <= 18:
-                if level[row // COUNT_R][(col - FUDGE) // COUNT_C] < 3:                    turns[1] = True
-                if level[row // COUNT_R][(col + FUDGE) // COUNT_C] < 3:                    turns[0] = True
+                if cell_L < 3:                    turns[1] = True
+                if cell_R < 3:                    turns[0] = True
     else: turns[0] = turns[1] = True
     return turns
 
@@ -1033,6 +1040,7 @@ while run:
                 game_over = False
                 game_won = False
 
+        # direction : RLUD
         if e.type == KEYUP:
             if e.key == K_RIGHT and direction_command == 0:                direction_command = direction
             if e.key == K_LEFT and direction_command == 1:                direction_command = direction
