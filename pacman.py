@@ -582,10 +582,10 @@ def check_collisions(scor, power, power_count, eaten_ghosts):
     if 0 < player_x < 870:
         idx1=center_y // COUNT_R
         idx2=center_x // COUNT_C
-        if level[idx1][idx2] == 1:
+        if level[idx1][idx2] == 1:  # normal dot
             level[idx1][idx2] = 0
             scor += 10
-        if level[idx1][idx2] == 2:
+        if level[idx1][idx2] == 2:  # power dot
             level[idx1][idx2] = 0
             scor += 50
             power = True
@@ -708,7 +708,7 @@ while run:
     elif powerup and power_counter >= 600:
         power_counter = 0
         powerup = False
-        eaten_ghost = [False, False, False, False]
+        eaten_ghost = [0]*4
     if startup_counter < 180 and not game_over and not game_won:
         moving = False
         startup_counter += 1
@@ -784,35 +784,31 @@ while run:
                 game_over = 1
                 moving = startup_counter = 0
 
+    # active ghost hit pacman
     for i in range(4):
-    
-        if powerup and player_circle.colliderect(GHOST[i].rect) and eaten_ghost[i] and not GHOST[i].dead:
-            if lives > 0:
-                powerup = False
-                power_counter = 0
-                lives -= 1
-                startup_counter = 0
-                player_x = 450
-                player_y = 663
-                player_dir = player_dir_command = 0
-                
-                
-                GX=[440, 440+45, 440, 440 -45]      
-                GY=[388, 438, 438, 438]
-                GD=[0]*4
-
-                eaten_ghost = [0]*4
-                G_DEAD= [0]*4
-            else:
-                game_over = True
-                moving = False
-                startup_counter = 0
-    
-
-    for i in range(4):    
-        if powerup and player_circle.colliderect(GHOST[i].rect) and not GHOST[i].dead and not eaten_ghost[i]:
-            G_DEAD[i] = eaten_ghost[i] = True
-            score += (2 ** eaten_ghost.count(True)) * 100
+        if powerup and player_circle.colliderect(GHOST[i].rect) and not GHOST[i].dead:
+            if eaten_ghost[i]:  # ghost eat pacman , so game reset
+                if lives > 0:
+                    powerup = False
+                    power_counter = 0
+                    lives -= 1
+                    startup_counter = 0
+                    player_x = 450
+                    player_y = 663
+                    player_dir = player_dir_command = 0
+                                
+                    GX=[440, 440+45, 440, 440 -45]      
+                    GY=[388, 438, 438, 438]
+                    GD=[0]*4
+                    eaten_ghost = [0]*4
+                    G_DEAD= [0]*4
+                else:
+                    game_over = True
+                    moving = False
+                    startup_counter = 0
+            else: # pacman eat ghost
+                G_DEAD[i] = eaten_ghost[i] = True
+                score += (2 ** eaten_ghost.count(True)) * 100
 
     for e in event.get():
         run = (e.type != QUIT) 
