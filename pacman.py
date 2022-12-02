@@ -752,10 +752,9 @@ while run:
     center_y = player_y + 23 # due to 45 pixel image
 
     ghost_speeds = [ powerup and 1 or 2]*4
-    if eaten_ghost[0]:        ghost_speeds[0] = 2
-    if eaten_ghost[1]:        ghost_speeds[1] = 2
-    if eaten_ghost[2]:        ghost_speeds[2] = 2
-    if eaten_ghost[3]:        ghost_speeds[3] = 2
+    for i in range(4):
+        if eaten_ghost[i]:ghost_speeds[i] = 2
+        
     if G0_dead:        ghost_speeds[0] = 4
     if G1_dead:        ghost_speeds[1] = 4
     if G2_dead:        ghost_speeds[2] = 4
