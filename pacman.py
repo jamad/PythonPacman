@@ -4,7 +4,7 @@ from board import boards
 
 #import pygame
 from pygame import init, display, time, font, transform, image, rect, event, QUIT, KEYDOWN, KEYUP, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_SPACE, draw
-import math
+from math import pi
 
 init()
 
@@ -22,10 +22,9 @@ timer = time.Clock()
 font = font.Font('freesansbold.ttf', 20)
 level = copy.deepcopy(boards)
 m_color = 'blue'
-PI = math.pi
+
 img_size=(45, 45)
 player_images = [transform.scale(image.load(f'assets/player_images/{i}.png'),img_size) for i in (1,2,3,2)]# 4 images
-
 blinky_img = transform.scale(image.load(f'assets/ghost_images/red.png'),img_size)
 pinky_img = transform.scale(image.load(f'assets/ghost_images/pink.png'),img_size)
 inky_img = transform.scale(image.load(f'assets/ghost_images/blue.png'),img_size)
@@ -665,10 +664,10 @@ def draw_board():
             if cell == 2 and not flicker:draw.circle(   screen, 'white', (num2*jc, num1*ic), 10)
             if cell == 3:                draw.line(     screen, m_color, (num2*jc, i * num1),  (num2*jc, (i+1)*num1), 3)
             if cell == 4:                draw.line(     screen, m_color, (n_col, num1*ic),  (n_col + num2, num1*ic), 3)
-            if cell == 5:                draw.arc(      screen, m_color, [(n_col - (num2 * 0.4)) - 2, (num1*ic), num2, num1],0, PI / 2, 3)
-            if cell == 6:                draw.arc(      screen, m_color, [num2*jc, num1*ic, num2, num1], PI / 2, PI, 3)
-            if cell == 7:                draw.arc(      screen, m_color, [num2*jc, (i-.4)*num1, num2, num1], PI, 3* PI / 2, 3)            
-            if cell == 8:                draw.arc(      screen, m_color, [num2*(j-.4)- 2, (i-.4) * num1, num2, num1], 3 * PI / 2,2 * PI, 3)
+            if cell == 5:                draw.arc(      screen, m_color, [(n_col - (num2 * 0.4)) - 2, (num1*ic), num2, num1],0, pi / 2, 3)
+            if cell == 6:                draw.arc(      screen, m_color, [num2*jc, num1*ic, num2, num1], pi / 2, pi, 3)
+            if cell == 7:                draw.arc(      screen, m_color, [num2*jc, (i-.4)*num1, num2, num1], pi, 3* pi / 2, 3)            
+            if cell == 8:                draw.arc(      screen, m_color, [num2*(j-.4)- 2, (i-.4) * num1, num2, num1], 3 * pi / 2,2 * pi, 3)
             if cell == 9:                draw.line(     screen, 'white', (n_col, num1*ic), (n_col + num2, num1*ic), 3)
 
 def draw_player():
@@ -992,7 +991,7 @@ while run:
         score += (2 ** eaten_ghost.count(True)) * 100
 
     for e in event.get():
-        if e.type == QUIT:            run = False
+        run = (e.type != QUIT) 
         if e.type == KEYDOWN:
             if e.key == K_RIGHT:                direction_command = 0
             if e.key == K_LEFT:                direction_command = 1
