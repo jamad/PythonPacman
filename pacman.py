@@ -40,12 +40,8 @@ player_dir = player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT,
 can_move = [0]*4 # R, L, U, D  open flag for movement
 
 # ghosts : blinky 0  inky 1  pinky 2 clyde 3           
-G0_x = 440 
-G1_x = 440 + 45
-G2_x = 440
-G3_x = 440 - 45
-G0_y = 388
-G1_y = G2_y = G3_y = 438
+GX=[440, 440+45, 440, 440 -45]      
+GY=[388, 438, 438, 438]
 G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
 
 counter = 0  
@@ -740,24 +736,24 @@ while run:
 
     draw_player()
     
-    G0  = Ghost(G0_x, G0_y, targets[0], ghost_speeds[0], G0_img, G0_player_dir, G0_dead,G0_box, 0)
-    G1    = Ghost(G1_x, G1_y, targets[1], ghost_speeds[1], G1_img, G1_player_dir, G1_dead,G1_box, 1)
-    G2   = Ghost(G2_x, G2_y, targets[2], ghost_speeds[2], G2_img, G2_player_dir, G2_dead,G2_box, 2)
-    G3   = Ghost(G3_x, G3_y, targets[3], ghost_speeds[3], G3_img, G3_player_dir, G3_dead,G3_box, 3)
+    G0  = Ghost(GX[0], GY[0], targets[0], ghost_speeds[0], G0_img, G0_player_dir, G0_dead,G0_box, 0)
+    G1    = Ghost(GX[1], GY[1], targets[1], ghost_speeds[1], G1_img, G1_player_dir, G1_dead,G1_box, 1)
+    G2   = Ghost(GX[2], GY[2], targets[2], ghost_speeds[2], G2_img, G2_player_dir, G2_dead,G2_box, 2)
+    G3   = Ghost(GX[3], GY[3], targets[3], ghost_speeds[3], G3_img, G3_player_dir, G3_dead,G3_box, 3)
     draw_misc()
-    targets = get_targets(G0_x, G0_y, G1_x, G1_y, G2_x, G2_y, G3_x, G3_y)
+    targets = get_targets(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3])
 
     can_move = check_passable(center_x, center_y)
 
     if moving:
         player_x, player_y = move_player(player_x, player_y)
-        if not G0_dead and not G0.in_box:            G0_x, G0_y, G0_player_dir = G0.move_G0()
-        else:            G0_x, G0_y, G0_player_dir = G0.move_G3()
-        if not G2_dead and not G2.in_box:            G2_x, G2_y, G2_player_dir = G2.move_G2()
-        else:            G2_x, G2_y, G2_player_dir = G2.move_G3()
-        if not G1_dead and not G1.in_box:            G1_x, G1_y, G1_player_dir = G1.move_G1()
-        else:            G1_x, G1_y, G1_player_dir = G1.move_G3()
-        G3_x, G3_y, G3_player_dir = G3.move_G3()
+        if not G0_dead and not G0.in_box:            GX[0], GY[0], G0_player_dir = G0.move_G0()
+        else:            GX[0], GY[0], G0_player_dir = G0.move_G3()
+        if not G2_dead and not G2.in_box:            GX[2], GY[2], G2_player_dir = G2.move_G2()
+        else:            GX[2], GY[2], G2_player_dir = G2.move_G3()
+        if not G1_dead and not G1.in_box:            GX[1], GY[1], G1_player_dir = G1.move_G1()
+        else:            GX[1], GY[1], G1_player_dir = G1.move_G3()
+        GX[3], GY[3], G3_player_dir = G3.move_G3()
     score, powerup, power_counter, eaten_ghost = check_collisions(score, powerup, power_counter, eaten_ghost)
     # add to if not powerup to check if eaten ghosts
     if not powerup:
@@ -772,12 +768,8 @@ while run:
                 player_dir = 0
                 player_dir_command = 0
                 
-                G0_x = 440 
-                G1_x = 440 + 45
-                G2_x = 440
-                G3_x = 440 - 45
-                G0_y = 388
-                G1_y = G2_y = G3_y = 438
+                GX=[440, 440+45, 440, 440 -45]      
+                GY=[388, 438, 438, 438]
                 G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
                 
                 eaten_ghost = [0]*4
@@ -796,12 +788,9 @@ while run:
             player_dir = 0
             player_dir_command = 0
             
-            G0_x = 440 
-            G1_x = 440 + 45
-            G2_x = 440
-            G3_x = 440 - 45
-            G0_y = 388
-            G1_y = G2_y = G3_y = 438
+            
+            GX=[440, 440+45, 440, 440 -45]      
+            GY=[388, 438, 438, 438]
             G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
 
             eaten_ghost = [0]*4
@@ -821,12 +810,8 @@ while run:
             player_dir = 0
             player_dir_command = 0
             
-            G0_x = 440 
-            G1_x = 440 + 45
-            G2_x = 440
-            G3_x = 440 - 45
-            G0_y = 388
-            G1_y = G2_y = G3_y = 438
+            GX=[440, 440+45, 440, 440 -45]      
+            GY=[388, 438, 438, 438]
             G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
             
             eaten_ghost = [False, False, False, False]
@@ -846,12 +831,8 @@ while run:
             player_dir = 0
             player_dir_command = 0
 
-            G0_x = 440 
-            G1_x = 440 + 45
-            G2_x = 440
-            G3_x = 440 - 45
-            G0_y = 388
-            G1_y = G2_y = G3_y = 438
+            GX=[440, 440+45, 440, 440 -45]      
+            GY=[388, 438, 438, 438]
             G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
 
             eaten_ghost = [False, False, False, False]
@@ -871,12 +852,8 @@ while run:
             player_dir = 0
             player_dir_command = 0
             
-            G0_x = 440 
-            G1_x = 440 + 45
-            G2_x = 440
-            G3_x = 440 - 45
-            G0_y = 388
-            G1_y = G2_y = G3_y = 438
+            GX=[440, 440+45, 440, 440 -45]      
+            GY=[388, 438, 438, 438]
             G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
 
             eaten_ghost = [False, False, False, False]
@@ -918,12 +895,8 @@ while run:
                 player_dir = 0
                 player_dir_command = 0
 
-                G0_x = 440 
-                G1_x = 440 + 45
-                G2_x = 440
-                G3_x = 440 - 45
-                G0_y = 388
-                G1_y = G2_y = G3_y = 438
+                GX=[440, 440+45, 440, 440 -45]      
+                GY=[388, 438, 438, 438]
                 G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
                 
                 eaten_ghost = [0]*4
