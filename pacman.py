@@ -992,11 +992,9 @@ while run:
 
     for e in event.get():
         run = (e.type != QUIT) 
+
         if e.type == KEYDOWN:
-            if e.key == K_RIGHT:                direction_command = 0
-            if e.key == K_LEFT:                direction_command = 1
-            if e.key == K_UP:                direction_command = 2
-            if e.key == K_DOWN:                direction_command = 3
+            direction_command={x:i for i,x in enumerate([K_RIGHT,K_LEFT,K_UP,K_DOWN])}.get(e.key, direction_command)
 
             if e.key == K_SPACE and (game_over or game_won):
                 powerup = False
