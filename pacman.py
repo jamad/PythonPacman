@@ -1,4 +1,6 @@
 # Build Pac-Man from Scratch in Python with PyGame!!
+# done until 1:26:45
+
 import copy
 from board import boards
 
@@ -37,26 +39,19 @@ player_y = 663
 player_dir = player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
 can_move = [0]*4 # R, L, U, D  open flag for movement
 
-
-# blinky 0  inky 1  pinky 2 clyde 3
-G0_x = 440 + 45
-G0_y = 438
-
-G1_x = 440
-G1_y = 388
-
+# ghosts : blinky 0  inky 1  pinky 2 clyde 3
+G0_x = 440 
+G1_x = 440 + 45
 G2_x = 440
-G2_y = 438
-
-
 G3_x = 440 - 45
-G3_y = 438
+
+G0_y = 388
+G1_y = G2_y = G3_y = 438
 
 G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
 
-counter = 0  # what it is for?
+counter = 0  
 powerup_show = False
-
 
 player_speed = 2
 score = 0
@@ -123,11 +118,9 @@ class Ghost:
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
         return self.turns, self.in_box
 
-    def move_G3(self):
-        # r, l, u, d
-        # G3 is going to turn whenever advantageous for pursuit
+    def move_G3(self): # G3 is going to turn whenever advantageous for pursuit
         if self.dir == 0:
-            if self.target[0] > self.x_pos and self.turns[0]:                self.x_pos += self.speed
+            if self.target[0] > self.x_pos and self.turns[0]:   self.x_pos += self.speed
             elif not self.turns[0]:
                 if self.target[1] > self.y_pos and self.turns[3]:
                     self.dir = 3
@@ -156,8 +149,8 @@ class Ghost:
                     self.y_pos -= self.speed
                 else:                    self.x_pos += self.speed
         elif self.dir == 1:
-            if self.target[1] > self.y_pos and self.turns[3]:                self.dir = 3
-            elif self.target[0] < self.x_pos and self.turns[1]:                self.x_pos -= self.speed
+            if self.target[1] > self.y_pos and self.turns[3]:   self.dir = 3
+            elif self.target[0] < self.x_pos and self.turns[1]: self.x_pos -= self.speed
             elif not self.turns[1]:
                 if self.target[1] > self.y_pos and self.turns[3]:
                     self.dir = 3
@@ -184,7 +177,7 @@ class Ghost:
                 if self.target[1] < self.y_pos and self.turns[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                else:                    self.x_pos -= self.speed
+                else:   self.x_pos -= self.speed
         elif self.dir == 2:
             if self.target[0] < self.x_pos and self.turns[1]:
                 self.dir = 1
@@ -253,9 +246,7 @@ class Ghost:
         self.x_pos = (self.x_pos < -30 and 900) or ( self.x_pos > 900 and self.x_pos - 30) or self.x_pos            
         return self.x_pos, self.y_pos, self.dir
 
-    def move_G0(self):
-        # r, l, u, d
-        # G0 is going to turn whenever colliding with walls, otherwise continue straight
+    def move_G0(self):   # G0 is going to turn whenever colliding with walls, otherwise continue straight
         if self.dir == 0:
             if self.target[0] > self.x_pos and self.turns[0]:
                 self.x_pos += self.speed
@@ -359,9 +350,7 @@ class Ghost:
             self.x_pos - 30
         return self.x_pos, self.y_pos, self.dir
 
-    def move_G1(self):
-        # r, l, u, d
-        # G1 turns up or down at any point to pursue, but left and right only on collision
+    def move_G1(self):# G1 turns up or down at any point to pursue, but left and right only on collision
         if self.dir == 0:
             if self.target[0] > self.x_pos and self.turns[0]:
                 self.x_pos += self.speed
@@ -481,9 +470,7 @@ class Ghost:
             self.x_pos - 30
         return self.x_pos, self.y_pos, self.dir
 
-    def move_G2(self):
-        # r, l, u, d
-        # G1 is going to turn left or right whenever advantageous, but only up or down on collision
+    def move_G2(self):# G2 is going to turn left or right whenever advantageous, but only up or down on collision
         if self.dir == 0:
             if self.target[0] > self.x_pos and self.turns[0]:
                 self.x_pos += self.speed
@@ -614,16 +601,12 @@ def draw_misc():
 
     for i in range(lives):        screen.blit(transform.scale(player_images[0], (30, 30)), (650 + i * 40, 915))
     
-    if game_over:
+    if game_over or game_won:
         draw.rect(screen, 'white', [50, 200, 800, 300],0, 10)
         draw.rect(screen, 'dark gray', [70, 220, 760, 260], 0, 10)
-        gameover_text = font.render('Game over! Space bar to restart!', True, 'red')
-        screen.blit(gameover_text, (100, 300))
-    
-    if game_won:
-        draw.rect(screen, 'white', [50, 200, 800, 300],0, 10)
-        draw.rect(screen, 'dark gray', [70, 220, 760, 260], 0, 10)
-        gameover_text = font.render('Victory! Space bar to restart!', True, 'green')
+        message= game_over and 'Game over! Space bar to restart!' or 'Victory! Space bar to restart!'
+        color=game_over and 'red' or 'green'
+        gameover_text = font.render( message, True, color)
         screen.blit(gameover_text, (100, 300))
 
 def check_collisions(scor, power, power_count, eaten_ghosts):
@@ -887,10 +870,7 @@ while run:
             G3_y = 438
             G3_player_dir = 2
             eaten_ghost = [False, False, False, False]
-            G0_dead = False
-            G1_dead = False
-            G3_dead = False
-            G2_dead = False
+            G0_dead =G1_dead =G3_dead = G2_dead = False
         else:
             game_over = True
             moving = False
@@ -1003,8 +983,7 @@ while run:
                 G0_dead =G1_dead =G3_dead =G2_dead = False
                 score = 0
                 lives = 3
-                game_over = False
-                game_won = False
+                game_over = game_won = False
                 level = copy.deepcopy(boards)
 
         # player_dir : RLUD
