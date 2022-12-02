@@ -20,7 +20,7 @@ timer = time.Clock()
 fps = 60
 font = font.Font('freesansbold.ttf', 20)
 level = copy.deepcopy(boards)
-main_color = 'blue'
+m_color = 'blue'
 PI = math.pi
 player_images = []
 
@@ -661,15 +661,15 @@ def draw_board():
             cell=level[i][j]
             
             # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
-            if cell == 1:                draw.circle(screen, 'white', (num2*jc, num1*ic), 4)
-            if cell == 2 and not flicker:draw.circle(screen, 'white', (num2*jc, num1*ic), 10)
-            if cell == 3:                draw.line(screen, main_color, (num2*jc, i * num1),  (num2*jc, (i+1)*num1), 3)
-            if cell == 4:                draw.line(screen, main_color, (n_col, num1*ic),  (n_col + num2, num1*ic), 3)
-            if cell == 5:                draw.arc(screen, main_color, [(n_col - (num2 * 0.4)) - 2, (num1*ic), num2, num1],    0, PI / 2, 3)
-            if cell == 6:                draw.arc(screen, main_color, [num2*jc, num1*ic, num2, num1], PI / 2, PI, 3)
-            if cell == 7:                draw.arc(screen, main_color, [num2*jc, (i-.4)*num1, num2, num1], PI, 3* PI / 2, 3)            
-            if cell == 8:                draw.arc(screen, main_color,[(n_col - (num2 * 0.4)) - 2, (i * num1 - (0.4 * num1)), num2, num1], 3 * PI / 2,              2 * PI, 3)
-            if cell == 9:                draw.line(screen, 'white', (n_col, num1*ic), (n_col + num2, num1*ic), 3)
+            if cell == 1:                draw.circle(   screen, 'white', (num2*jc, num1*ic), 4)
+            if cell == 2 and not flicker:draw.circle(   screen, 'white', (num2*jc, num1*ic), 10)
+            if cell == 3:                draw.line(     screen, m_color, (num2*jc, i * num1),  (num2*jc, (i+1)*num1), 3)
+            if cell == 4:                draw.line(     screen, m_color, (n_col, num1*ic),  (n_col + num2, num1*ic), 3)
+            if cell == 5:                draw.arc(      screen, m_color, [(n_col - (num2 * 0.4)) - 2, (num1*ic), num2, num1],0, PI / 2, 3)
+            if cell == 6:                draw.arc(      screen, m_color, [num2*jc, num1*ic, num2, num1], PI / 2, PI, 3)
+            if cell == 7:                draw.arc(      screen, m_color, [num2*jc, (i-.4)*num1, num2, num1], PI, 3* PI / 2, 3)            
+            if cell == 8:                draw.arc(      screen, m_color, [num2*(j-.4)- 2, (i-.4) * num1, num2, num1], 3 * PI / 2,2 * PI, 3)
+            if cell == 9:                draw.line(     screen, 'white', (n_col, num1*ic), (n_col + num2, num1*ic), 3)
 
 def draw_player():
     # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
