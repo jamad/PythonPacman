@@ -690,17 +690,9 @@ def check_position(col, row):
     cell_D=level[(row + RADIUS) // COUNT_R][col // COUNT_C]
 
     # backward direction check
-    turns[0] = (direction in (0,1) and cell_R < 3) or \
-        ( direction in (2,3) and ( 12 <= row % COUNT_R <= 18) and (level[row // COUNT_R][col // COUNT_C + 1] < 3) ) 
+    turns[0] = (direction in(0,1)and cell_R < 3)or( direction in(2,3)and( 12 <= row % COUNT_R <= 18)and(level[row // COUNT_R][col // COUNT_C + 1] < 3)) 
+    turns[1] = (direction in(0,1)and cell_L < 3)or( direction in(2,3)and( 12 <= row % COUNT_R <= 18)and(level[row // COUNT_R][col // COUNT_C - 1] < 3)) 
 
-
-    if direction == 0 and cell_L < 3:turns[1] = True
-    if direction in (2,3):
-        if 12 <= row % COUNT_R <= 18:
-            if level[row // COUNT_R][col // COUNT_C - 1] < 3:                    turns[1] = True
-    if direction in (0,1):
-        if 12 <= row % COUNT_R <= 18:
-            if cell_L < 3:                    turns[1] = True
 
 
     if direction == 3 and cell_U < 3:turns[2] = True
