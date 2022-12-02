@@ -462,16 +462,13 @@ class Ghost:
                     self.x_pos += self.speed
             elif self.turns[3]:
                 self.y_pos += self.speed
-        if self.x_pos < -30:
-            self.x_pos = 900
-        elif self.x_pos > 900:
-            self.x_pos - 30
+        if self.x_pos < -30:            self.x_pos = 900
+        elif self.x_pos > 900:            self.x_pos - 30
         return self.x_pos, self.y_pos, self.dir
 
     def move_G2(self):# G2 is going to turn left or right whenever advantageous, but only up or down on collision
         if self.dir == 0:
-            if self.target[0] > self.x_pos and self.turns[0]:
-                self.x_pos += self.speed
+            if self.target[0] > self.x_pos and self.turns[0]:                self.x_pos += self.speed
             elif not self.turns[0]:
                 if self.target[1] > self.y_pos and self.turns[3]:
                     self.dir = 3
@@ -491,13 +488,10 @@ class Ghost:
                 elif self.turns[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-            elif self.turns[0]:
-                self.x_pos += self.speed
+            elif self.turns[0]:                self.x_pos += self.speed
         elif self.dir == 1:
-            if self.target[1] > self.y_pos and self.turns[3]:
-                self.dir = 3
-            elif self.target[0] < self.x_pos and self.turns[1]:
-                self.x_pos -= self.speed
+            if self.target[1] > self.y_pos and self.turns[3]:                self.dir = 3
+            elif self.target[0] < self.x_pos and self.turns[1]:                self.x_pos -= self.speed
             elif not self.turns[1]:
                 if self.target[1] > self.y_pos and self.turns[3]:
                     self.dir = 3
@@ -517,8 +511,7 @@ class Ghost:
                 elif self.turns[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-            elif self.turns[1]:
-                self.x_pos -= self.speed
+            elif self.turns[1]:                self.x_pos -= self.speed
         elif self.dir == 2:
             if self.target[0] < self.x_pos and self.turns[1]:
                 self.dir = 1
@@ -552,11 +545,9 @@ class Ghost:
                 elif self.target[0] < self.x_pos and self.turns[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                else:
-                    self.y_pos -= self.speed
+                else:                    self.y_pos -= self.speed
         elif self.dir == 3:
-            if self.target[1] > self.y_pos and self.turns[3]:
-                self.y_pos += self.speed
+            if self.target[1] > self.y_pos and self.turns[3]:                self.y_pos += self.speed
             elif not self.turns[3]:
                 if self.target[0] > self.x_pos and self.turns[0]:
                     self.dir = 0
@@ -583,12 +574,9 @@ class Ghost:
                 elif self.target[0] < self.x_pos and self.turns[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                else:
-                    self.y_pos += self.speed
-        if self.x_pos < -30:
-            self.x_pos = 900
-        elif self.x_pos > 900:
-            self.x_pos - 30
+                else:                    self.y_pos += self.speed
+        if self.x_pos < -30:            self.x_pos = 900
+        elif self.x_pos > 900:            self.x_pos - 30
         return self.x_pos, self.y_pos, self.dir
 
 def draw_misc():
