@@ -725,11 +725,7 @@ while run:
     ghost_speeds = [ powerup and 1 or 2]*4
     for i in range(4):
         if eaten_ghost[i]:ghost_speeds[i] = 2
-        
-    if G_DEAD[0]:        ghost_speeds[0] = 4
-    if G_DEAD[1]:        ghost_speeds[1] = 4
-    if G_DEAD[2]:        ghost_speeds[2] = 4
-    if G_DEAD[3]:        ghost_speeds[3] = 4
+        if G_DEAD[i]:ghost_speeds[i] = 4
 
     game_won = True
     for i in range(len(level)):
@@ -748,12 +744,22 @@ while run:
 
     if moving:
         player_x, player_y = move_player(player_x, player_y)
-        if not G_DEAD[0] and not GHOST[0].in_box:GX[0], GY[0], GD[0] = GHOST[0].move_G0()
-        else:            GX[0], GY[0], GD[0] = GHOST[0].move_G3()
-        if not G_DEAD[2] and not GHOST[2].in_box:            GX[2], GY[2], GD[2] = GHOST[2].move_G2()
-        else:            GX[2], GY[2], GD[2] = GHOST[2].move_G3()
-        if not G_DEAD[1] and not GHOST[1].in_box:            GX[1], GY[1], GD[1] = GHOST[1].move_G1()
-        else:            GX[1], GY[1], GD[1] = GHOST[1].move_G3()
+        
+        if not G_DEAD[0] and not GHOST[0].in_box:
+            GX[0], GY[0], GD[0] = GHOST[0].move_G0()
+        else:            
+            GX[0], GY[0], GD[0] = GHOST[0].move_G3()
+        
+        if not G_DEAD[2] and not GHOST[2].in_box:            
+            GX[2], GY[2], GD[2] = GHOST[2].move_G2()
+        else:            
+            GX[2], GY[2], GD[2] = GHOST[2].move_G3()
+        
+        if not G_DEAD[1] and not GHOST[1].in_box:            
+            GX[1], GY[1], GD[1] = GHOST[1].move_G1()
+        else:            
+            GX[1], GY[1], GD[1] = GHOST[1].move_G3()
+
         GX[3], GY[3], GD[3] = GHOST[3].move_G3()
     score, powerup, power_counter, eaten_ghost = check_collisions(score, powerup, power_counter, eaten_ghost)
     # add to if not powerup to check if eaten ghosts
@@ -774,7 +780,7 @@ while run:
                 GD=[0]*4        
                 
                 eaten_ghost = [0]*4
-                G_DEAD[0] = G_DEAD[1] = G_DEAD[3] = G_DEAD[2] = 0
+                G_DEAD= [0]*4
             else:
                 game_over = 1
                 moving = startup_counter = 0
@@ -795,7 +801,7 @@ while run:
             GD=[0]*4
 
             eaten_ghost = [0]*4
-            G_DEAD[0] =G_DEAD[1] =G_DEAD[3] =G_DEAD[2] = False
+            G_DEAD= [0]*4
         else:
             game_over = True
             moving = False
@@ -816,7 +822,7 @@ while run:
             GD=[0]*4
             
             eaten_ghost = [False, False, False, False]
-            G_DEAD[0] =G_DEAD[1] =G_DEAD[3] = G_DEAD[2] = False
+            G_DEAD= [0]*4
         else:
             game_over = True
             moving = False
@@ -837,7 +843,7 @@ while run:
             GD=[0]*4
             
             eaten_ghost = [False, False, False, False]
-            G_DEAD[0] =G_DEAD[1] =G_DEAD[3] =G_DEAD[2] = False
+            G_DEAD= [0]*4
         else:
             game_over = True
             moving = False
@@ -858,7 +864,7 @@ while run:
             GD=[0]*4
             
             eaten_ghost = [False, False, False, False]
-            G_DEAD[0] =G_DEAD[1] =G_DEAD[3] =G_DEAD[2] = False
+            G_DEAD= [0]*4
         else:
             game_over = True
             moving = False
@@ -901,7 +907,7 @@ while run:
                 GD=[0]*4
                 
                 eaten_ghost = [0]*4
-                G_DEAD[0] =G_DEAD[1] =G_DEAD[3] =G_DEAD[2] = False
+                G_DEAD= [0]*4
                 score = 0
                 lives = 3
                 game_over = game_won = False
