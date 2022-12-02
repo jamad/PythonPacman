@@ -22,9 +22,8 @@ font = font.Font('freesansbold.ttf', 20)
 level = copy.deepcopy(boards)
 m_color = 'blue'
 PI = math.pi
-player_images = []
 
-for i in range(1, 5):player_images.append(transform.scale(image.load(f'assets/player_images/{i}.png'), (45, 45)))
+player_images = [transform.scale(image.load(f'assets/player_images/{i+1}.png'), (45, 45)) for i in range(4)]
 
 blinky_img = transform.scale(image.load(f'assets/ghost_images/red.png'), (45, 45))
 pinky_img = transform.scale(image.load(f'assets/ghost_images/pink.png'), (45, 45))
@@ -671,17 +670,17 @@ def draw_board():
             if cell == 8:                draw.arc(      screen, m_color, [num2*(j-.4)- 2, (i-.4) * num1, num2, num1], 3 * PI / 2,2 * PI, 3)
             if cell == 9:                draw.line(     screen, 'white', (n_col, num1*ic), (n_col + num2, num1*ic), 3)
 
-
 def draw_player():
     # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
+    pos=(player_x, player_y)
     if direction == 0:
-        screen.blit(player_images[counter // 5], (player_x, player_y))
+        screen.blit(player_images[counter // 5], pos)
     elif direction == 1:
-        screen.blit(transform.flip(player_images[counter // 5], True, False), (player_x, player_y))
+        screen.blit(transform.flip(player_images[counter // 5], True, False), pos)
     elif direction == 2:
-        screen.blit(transform.rotate(player_images[counter // 5], 90), (player_x, player_y))
+        screen.blit(transform.rotate(player_images[counter // 5], 90), pos)
     elif direction == 3:
-        screen.blit(transform.rotate(player_images[counter // 5], 270), (player_x, player_y))
+        screen.blit(transform.rotate(player_images[counter // 5], -90), pos)
 
 def check_position(centerx, centery):
     turns = [0]*4
@@ -785,7 +784,9 @@ while run:
         moving = True
 
     screen.fill('black')
+    
     draw_board()
+
     center_x = player_x + 23
     center_y = player_y + 24
     ghost_speeds = [ powerup and 1 or 2]*4
@@ -803,7 +804,9 @@ while run:
         if 1 in level[i] or 2 in level[i]:game_won = False
 
     player_circle = draw.circle(screen, 'black', (center_x, center_y), 20, 2)
+
     draw_player()
+    
     blinky = Ghost(blinky_x, blinky_y, targets[0], ghost_speeds[0], blinky_img, blinky_direction, blinky_dead,blinky_box, 0)
     inky = Ghost(inky_x, inky_y, targets[1], ghost_speeds[1], inky_img, inky_direction, inky_dead,inky_box, 1)
     pinky = Ghost(pinky_x, pinky_y, targets[2], ghost_speeds[2], pinky_img, pinky_direction, pinky_dead,pinky_box, 2)
