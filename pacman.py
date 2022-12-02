@@ -741,11 +741,6 @@ while run:
     
     GHOST=[Ghost(GX[i], GY[i], targets[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i],G_BOX[i], i) for i in range(4)]
 
-    GHOST[0]  = Ghost(GX[0], GY[0], targets[0], ghost_speeds[0], G_IMG[0], GD[0], G_DEAD[0],G_BOX[0], 0)
-    GHOST[1]  = Ghost(GX[1], GY[1], targets[1], ghost_speeds[1], G_IMG[1], GD[1], G_DEAD[1],G_BOX[1], 1)
-    GHOST[2]  = Ghost(GX[2], GY[2], targets[2], ghost_speeds[2], G_IMG[2], GD[2], G_DEAD[2],G_BOX[2], 2)
-    GHOST[3]  = Ghost(GX[3], GY[3], targets[3], ghost_speeds[3], G_IMG[3], GD[3], G_DEAD[3],G_BOX[3], 3)
-
     draw_misc()
     targets = get_targets(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3])
 
