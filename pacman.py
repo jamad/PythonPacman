@@ -8,6 +8,8 @@ import math
 
 init()
 
+fps = 60
+
 WIDTH = 900
 HEIGHT = 950
 
@@ -17,13 +19,12 @@ num3 = 15 # what's this?
 
 screen = display.set_mode([WIDTH, HEIGHT])
 timer = time.Clock()
-fps = 60
 font = font.Font('freesansbold.ttf', 20)
 level = copy.deepcopy(boards)
 m_color = 'blue'
 PI = math.pi
 img_size=(45, 45)
-player_images = [transform.scale(image.load(f'assets/player_images/{i+1}.png'),img_size) for i in range(4)]
+player_images = [transform.scale(image.load(f'assets/player_images/{i}.png'),img_size) for i in (1,2,3,2)]# 4 images
 
 blinky_img = transform.scale(image.load(f'assets/ghost_images/red.png'),img_size)
 pinky_img = transform.scale(image.load(f'assets/ghost_images/pink.png'),img_size)
@@ -52,7 +53,7 @@ clyde_x = 440
 clyde_y = 438
 clyde_direction = 2
 
-counter = 0
+counter = 0  # what it is for?
 flicker = False
 
 # R, L, U, D
@@ -761,13 +762,14 @@ def get_targets(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y):
 
 run = True
 while run:
+    
     timer.tick(fps)
-    if counter < 19:
-        counter += 1
-        if counter > 3: flicker = False
-    else:
-        counter = 0
-        flicker = 1
+
+    counter += 1
+    counter %= 20
+    
+    flicker = (counter < 8)
+
     if powerup and power_counter < 600:
         power_counter += 1
     elif powerup and power_counter >= 600:
