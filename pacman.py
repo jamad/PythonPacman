@@ -671,6 +671,7 @@ def draw_board():
             if cell == 8:                draw.arc(      screen, m_color, [num2*(j-.4)- 2, (i-.4) * num1, num2, num1], 3 * PI / 2,2 * PI, 3)
             if cell == 9:                draw.line(     screen, 'white', (n_col, num1*ic), (n_col + num2, num1*ic), 3)
 
+
 def draw_player():
     # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
     if direction == 0:
