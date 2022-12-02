@@ -772,8 +772,7 @@ while run:
                 player_x = 450
                 player_y = 663
                 
-                player_dir = 0
-                player_dir_command = 0
+                player_dir = player_dir_command = 0
                 
                 GX=[440, 440+45, 440, 440 -45]      
                 GY=[388, 438, 438, 438]
@@ -784,91 +783,31 @@ while run:
             else:
                 game_over = 1
                 moving = startup_counter = 0
-    if powerup and player_circle.colliderect(GHOST[0].rect) and eaten_ghost[0] and not GHOST[0].dead:
-        if lives > 0:
-            powerup = False
-            power_counter = 0
-            lives -= 1
-            startup_counter = 0
-            player_x = 450
-            player_y = 663
-            player_dir = 0
-            player_dir_command = 0
-            
-            
-            GX=[440, 440+45, 440, 440 -45]      
-            GY=[388, 438, 438, 438]
-            GD=[0]*4
 
-            eaten_ghost = [0]*4
-            G_DEAD= [0]*4
-        else:
-            game_over = True
-            moving = False
-            startup_counter = 0
-    if powerup and player_circle.colliderect(GHOST[1].rect) and eaten_ghost[1] and not GHOST[1].dead:
-        if lives > 0:
-            powerup = False
-            power_counter = 0
-            lives -= 1
-            startup_counter = 0
-            player_x = 450
-            player_y = 663
-            player_dir = 0
-            player_dir_command = 0
-            
-            GX=[440, 440+45, 440, 440 -45]      
-            GY=[388, 438, 438, 438]
-            GD=[0]*4
-            
-            eaten_ghost = [False, False, False, False]
-            G_DEAD= [0]*4
-        else:
-            game_over = True
-            moving = False
-            startup_counter = 0
-    if powerup and player_circle.colliderect(GHOST[2].rect) and eaten_ghost[2] and not GHOST[2].dead:
-        if lives > 0:
-            powerup = False
-            power_counter = 0
-            lives -= 1
-            startup_counter = 0
-            player_x = 450
-            player_y = 663
-            player_dir = 0
-            player_dir_command = 0
+    for i in range(4):
+    
+        if powerup and player_circle.colliderect(GHOST[i].rect) and eaten_ghost[i] and not GHOST[i].dead:
+            if lives > 0:
+                powerup = False
+                power_counter = 0
+                lives -= 1
+                startup_counter = 0
+                player_x = 450
+                player_y = 663
+                player_dir = player_dir_command = 0
+                
+                
+                GX=[440, 440+45, 440, 440 -45]      
+                GY=[388, 438, 438, 438]
+                GD=[0]*4
 
-            GX=[440, 440+45, 440, 440 -45]      
-            GY=[388, 438, 438, 438]
-            GD=[0]*4
-            
-            eaten_ghost = [False, False, False, False]
-            G_DEAD= [0]*4
-        else:
-            game_over = True
-            moving = False
-            startup_counter = 0
-    if powerup and player_circle.colliderect(GHOST[3].rect) and eaten_ghost[3] and not GHOST[3].dead:
-        if lives > 0:
-            powerup = False
-            power_counter = 0
-            lives -= 1
-            startup_counter = 0
-            player_x = 450
-            player_y = 663
-            player_dir = 0
-            player_dir_command = 0
-            
-            GX=[440, 440+45, 440, 440 -45]      
-            GY=[388, 438, 438, 438]
-            GD=[0]*4
-            
-            eaten_ghost = [False, False, False, False]
-            G_DEAD= [0]*4
-        else:
-            game_over = True
-            moving = False
-            startup_counter = 0
+                eaten_ghost = [0]*4
+                G_DEAD= [0]*4
+            else:
+                game_over = True
+                moving = False
+                startup_counter = 0
+    
 
     for i in range(4):    
         if powerup and player_circle.colliderect(GHOST[i].rect) and not GHOST[i].dead and not eaten_ghost[i]:
