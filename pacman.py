@@ -13,8 +13,8 @@ fps = 60
 WIDTH = 900
 HEIGHT = 950
 
-num1 = (HEIGHT - 50) // 32
-num2 = (WIDTH // 30)
+COUNT_R = (HEIGHT - 50) // 32   # grid row count
+COUNT_C = (WIDTH // 30)         # grid column count
 num3 = 15 # what's this?
 
 screen = display.set_mode([WIDTH, HEIGHT])
@@ -55,8 +55,8 @@ clyde_direction = 2
 counter = 0  # what it is for?
 powerup_show = False
 
-# R, L, U, D
-turns_allowed = [False, False, False, False]
+turns_allowed = [0]*4 # R, L, U, D  open flag for movement
+
 direction_command = 0
 player_speed = 2
 score = 0
@@ -108,27 +108,27 @@ class Ghost:
         num3 = 15  # what's this? 
         self.turns = [False, False, False, False]
         if 0 < self.center_x // 30 < 29:
-            if level[(self.center_y - num3) // num1][self.center_x // num2] == 9:                self.turns[2] = True
-            if level[self.center_y // num1][(self.center_x - num3) // num2] < 3 or (level[self.center_y // num1][(self.center_x - num3) // num2] == 9 and (self.in_box or self.dead)):self.turns[1] = True
-            if level[self.center_y // num1][(self.center_x + num3) // num2] < 3 or (level[self.center_y // num1][(self.center_x + num3) // num2] == 9 and (self.in_box or self.dead)):self.turns[0] = True
-            if level[(self.center_y + num3) // num1][self.center_x // num2] < 3 or (level[(self.center_y + num3) // num1][self.center_x // num2] == 9 and (self.in_box or self.dead)):self.turns[3] = True
-            if level[(self.center_y - num3) // num1][self.center_x // num2] < 3 or (level[(self.center_y - num3) // num1][self.center_x // num2] == 9 and (self.in_box or self.dead)):self.turns[2] = True
+            if level[(self.center_y - num3) // COUNT_R][self.center_x // COUNT_C] == 9:                self.turns[2] = True
+            if level[self.center_y // COUNT_R][(self.center_x - num3) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - num3) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
+            if level[self.center_y // COUNT_R][(self.center_x + num3) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + num3) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
+            if level[(self.center_y + num3) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + num3) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
+            if level[(self.center_y - num3) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - num3) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
 
             if self.direction == 2 or self.direction == 3:
-                if 12 <= self.center_x % num2 <= 18:
-                    if level[(self.center_y + num3) // num1][self.center_x // num2] < 3 or (level[(self.center_y + num3) // num1][self.center_x // num2] == 9 and (self.in_box or self.dead)):self.turns[3] = True
-                    if level[(self.center_y - num3) // num1][self.center_x // num2] < 3 or (level[(self.center_y - num3) // num1][self.center_x // num2] == 9 and (self.in_box or self.dead)):self.turns[2] = True
-                if 12 <= self.center_y % num1 <= 18:
-                    if level[self.center_y // num1][(self.center_x - num2) // num2] < 3 or (level[self.center_y // num1][(self.center_x - num2) // num2] == 9 and (self.in_box or self.dead)):self.turns[1] = True
-                    if level[self.center_y // num1][(self.center_x + num2) // num2] < 3 or (level[self.center_y // num1][(self.center_x + num2) // num2] == 9 and (self.in_box or self.dead)):self.turns[0] = True
+                if 12 <= self.center_x % COUNT_C <= 18:
+                    if level[(self.center_y + num3) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + num3) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
+                    if level[(self.center_y - num3) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - num3) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
+                if 12 <= self.center_y % COUNT_R <= 18:
+                    if level[self.center_y // COUNT_R][(self.center_x - COUNT_C) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - COUNT_C) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
+                    if level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
 
             if self.direction == 0 or self.direction == 1:
-                if 12 <= self.center_x % num2 <= 18:
-                    if level[(self.center_y + num3) // num1][self.center_x // num2] < 3 or (level[(self.center_y + num3) // num1][self.center_x // num2] == 9 and (self.in_box or self.dead)):self.turns[3] = True
-                    if level[(self.center_y - num3) // num1][self.center_x // num2] < 3 or (level[(self.center_y - num3) // num1][self.center_x // num2] == 9 and (self.in_box or self.dead)):self.turns[2] = True
-                if 12 <= self.center_y % num1 <= 18:
-                    if level[self.center_y // num1][(self.center_x - num3) // num2] < 3 or (level[self.center_y // num1][(self.center_x - num3) // num2] == 9 and (self.in_box or self.dead)):self.turns[1] = True
-                    if level[self.center_y // num1][(self.center_x + num3) // num2] < 3 or (level[self.center_y // num1][(self.center_x + num3) // num2] == 9 and (self.in_box or self.dead)):self.turns[0] = True
+                if 12 <= self.center_x % COUNT_C <= 18:
+                    if level[(self.center_y + num3) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + num3) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
+                    if level[(self.center_y - num3) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - num3) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
+                if 12 <= self.center_y % COUNT_R <= 18:
+                    if level[self.center_y // COUNT_R][(self.center_x - num3) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - num3) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
+                    if level[self.center_y // COUNT_R][(self.center_x + num3) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + num3) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
         else: self.turns[0] = self.turns[1] = 1
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
         return self.turns, self.in_box
@@ -638,8 +638,8 @@ def draw_misc():
 
 def check_collisions(scor, power, power_count, eaten_ghosts):
     if 0 < player_x < 870:
-        idx1=center_y // num1
-        idx2=center_x // num2
+        idx1=center_y // COUNT_R
+        idx2=center_x // COUNT_C
         if level[idx1][idx2] == 1:
             level[idx1][idx2] = 0
             scor += 10
@@ -655,20 +655,20 @@ def draw_board():
     for i in range(len(level)):
         ic=i+.5 # centrized
         for j in range(len(level[i])):
-            n_col=j * num2
+            n_col=j * COUNT_C
             jc=j+.5 # centrized
             cell=level[i][j]
             
             # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
-            if cell == 1:                draw.circle(   screen, 'white', (num2*jc, num1*ic), 4)
-            if cell == 2 and powerup_show:draw.circle(   screen, 'white', (num2*jc, num1*ic), 10)
-            if cell == 3:                draw.line(     screen, m_color, (num2*jc, i * num1),  (num2*jc, (i+1)*num1), 3)
-            if cell == 4:                draw.line(     screen, m_color, (n_col, num1*ic),  (n_col + num2, num1*ic), 3)
-            if cell == 5:                draw.arc(      screen, m_color, [(n_col - (num2 * 0.4)) - 2, (num1*ic), num2, num1],0, pi / 2, 3)
-            if cell == 6:                draw.arc(      screen, m_color, [num2*jc, num1*ic, num2, num1], pi / 2, pi, 3)
-            if cell == 7:                draw.arc(      screen, m_color, [num2*jc, (i-.4)*num1, num2, num1], pi, 3* pi / 2, 3)            
-            if cell == 8:                draw.arc(      screen, m_color, [num2*(j-.4)- 2, (i-.4) * num1, num2, num1], 3 * pi / 2,2 * pi, 3)
-            if cell == 9:                draw.line(     screen, 'white', (n_col, num1*ic), (n_col + num2, num1*ic), 3)
+            if cell == 1:                draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 4)
+            if cell == 2 and powerup_show:draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 10)
+            if cell == 3:                draw.line(     screen, m_color, (COUNT_C*jc, i * COUNT_R),  (COUNT_C*jc, (i+1)*COUNT_R), 3)
+            if cell == 4:                draw.line(     screen, m_color, (n_col, COUNT_R*ic),  (n_col + COUNT_C, COUNT_R*ic), 3)
+            if cell == 5:                draw.arc(      screen, m_color, [(n_col - (COUNT_C * 0.4)) - 2, (COUNT_R*ic), COUNT_C, COUNT_R],0, pi / 2, 3)
+            if cell == 6:                draw.arc(      screen, m_color, [COUNT_C*jc, COUNT_R*ic, COUNT_C, COUNT_R], pi / 2, pi, 3)
+            if cell == 7:                draw.arc(      screen, m_color, [COUNT_C*jc, (i-.4)*COUNT_R, COUNT_C, COUNT_R], pi, 3* pi / 2, 3)            
+            if cell == 8:                draw.arc(      screen, m_color, [COUNT_C*(j-.4)- 2, (i-.4) * COUNT_R, COUNT_C, COUNT_R], 3 * pi / 2,2 * pi, 3)
+            if cell == 9:                draw.line(     screen, 'white', (n_col, COUNT_R*ic), (n_col + COUNT_C, COUNT_R*ic), 3)
 
 def draw_player():
     # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
@@ -680,27 +680,28 @@ def draw_player():
     elif direction == 3:        screen.blit(transform.rotate(img_player, -90), pos)
 
 def check_position(centerx, centery):
-    turns = [0]*4
+    turns = [0]*4 #initial value 
+
     # check collisions based on center x and center y of player +/- fudge number
     if centerx // 30 < 29:
-        if direction == 0 and level[centery // num1][(centerx - num3) // num2] < 3:                turns[1] = True
-        if direction == 1 and level[centery // num1][(centerx + num3) // num2] < 3:                turns[0] = True
-        if direction == 2 and level[(centery + num3) // num1][centerx // num2] < 3:                turns[3] = True
-        if direction == 3 and level[(centery - num3) // num1][centerx // num2] < 3:                turns[2] = True
+        if direction == 0 and level[centery // COUNT_R][(centerx - num3) // COUNT_C] < 3:                turns[1] = True
+        if direction == 1 and level[centery // COUNT_R][(centerx + num3) // COUNT_C] < 3:                turns[0] = True
+        if direction == 2 and level[(centery + num3) // COUNT_R][centerx // COUNT_C] < 3:                turns[3] = True
+        if direction == 3 and level[(centery - num3) // COUNT_R][centerx // COUNT_C] < 3:                turns[2] = True
         if direction in (2,3):
-            if 12 <= centerx % num2 <= 18:
-                if level[(centery + num3) // num1][centerx // num2] < 3:                    turns[3] = True
-                if level[(centery - num3) // num1][centerx // num2] < 3:                    turns[2] = True
-            if 12 <= centery % num1 <= 18:
-                if level[centery // num1][(centerx - num2) // num2] < 3:                    turns[1] = True
-                if level[centery // num1][(centerx + num2) // num2] < 3:                    turns[0] = True
+            if 12 <= centerx % COUNT_C <= 18:
+                if level[(centery + num3) // COUNT_R][centerx // COUNT_C] < 3:                    turns[3] = True
+                if level[(centery - num3) // COUNT_R][centerx // COUNT_C] < 3:                    turns[2] = True
+            if 12 <= centery % COUNT_R <= 18:
+                if level[centery // COUNT_R][(centerx - COUNT_C) // COUNT_C] < 3:                    turns[1] = True
+                if level[centery // COUNT_R][(centerx + COUNT_C) // COUNT_C] < 3:                    turns[0] = True
         if direction in (0,1):
-            if 12 <= centerx % num2 <= 18:
-                if level[(centery + num1) // num1][centerx // num2] < 3:                    turns[3] = True
-                if level[(centery - num1) // num1][centerx // num2] < 3:                    turns[2] = True
-            if 12 <= centery % num1 <= 18:
-                if level[centery // num1][(centerx - num3) // num2] < 3:                    turns[1] = True
-                if level[centery // num1][(centerx + num3) // num2] < 3:                    turns[0] = True
+            if 12 <= centerx % COUNT_C <= 18:
+                if level[(centery + COUNT_R) // COUNT_R][centerx // COUNT_C] < 3:                    turns[3] = True
+                if level[(centery - COUNT_R) // COUNT_R][centerx // COUNT_C] < 3:                    turns[2] = True
+            if 12 <= centery % COUNT_R <= 18:
+                if level[centery // COUNT_R][(centerx - num3) // COUNT_C] < 3:                    turns[1] = True
+                if level[centery // COUNT_R][(centerx + num3) // COUNT_C] < 3:                    turns[0] = True
     else: turns[0] = turns[1] = True
     return turns
 
@@ -785,8 +786,9 @@ while run:
     
     draw_board()
 
-    center_x = player_x + 23
-    center_y = player_y + 24
+    center_x = player_x + 23 # due to 45 pixel image
+    center_y = player_y + 23 # due to 45 pixel image
+
     ghost_speeds = [ powerup and 1 or 2]*4
     if eaten_ghost[0]:        ghost_speeds[0] = 2
     if eaten_ghost[1]:        ghost_speeds[1] = 2
