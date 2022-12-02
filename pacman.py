@@ -53,7 +53,7 @@ clyde_y = 438
 clyde_direction = 2
 
 counter = 0  # what it is for?
-flicker = False
+powerup_show = False
 
 # R, L, U, D
 turns_allowed = [False, False, False, False]
@@ -661,7 +661,7 @@ def draw_board():
             
             # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
             if cell == 1:                draw.circle(   screen, 'white', (num2*jc, num1*ic), 4)
-            if cell == 2 and not flicker:draw.circle(   screen, 'white', (num2*jc, num1*ic), 10)
+            if cell == 2 and powerup_show:draw.circle(   screen, 'white', (num2*jc, num1*ic), 10)
             if cell == 3:                draw.line(     screen, m_color, (num2*jc, i * num1),  (num2*jc, (i+1)*num1), 3)
             if cell == 4:                draw.line(     screen, m_color, (n_col, num1*ic),  (n_col + num2, num1*ic), 3)
             if cell == 5:                draw.arc(      screen, m_color, [(n_col - (num2 * 0.4)) - 2, (num1*ic), num2, num1],0, pi / 2, 3)
@@ -767,7 +767,7 @@ while run:
     counter += 1
     counter %= 20
     
-    flicker = (counter < 8)
+    powerup_show = (7 < counter)
 
     if powerup and power_counter < 600:
         power_counter += 1
@@ -994,7 +994,7 @@ while run:
         run = (e.type != QUIT) 
 
         if e.type == KEYDOWN:
-            direction_command={x:i for i,x in enumerate([K_RIGHT,K_LEFT,K_UP,K_DOWN])}.get(e.key, direction_command)
+            direction_command={x:i for i,x in enumerate([K_RIGHT,K_LEFT,K_UP,K_DOWN])}.get(e.key, direction_command) # key defines direction
 
             if e.key == K_SPACE and (game_over or game_won):
                 powerup = False
