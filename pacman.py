@@ -1017,14 +1017,13 @@ while run:
     for i in range(4):
         if direction_command == i and turns_allowed[i]: direction = i
 
+    if player_x > 900:      player_x = -50+3
+    elif player_x < -50:    player_x = 900-3
 
-    if player_x > 900:        player_x = -47
-    elif player_x < -50:        player_x = 897
-
-    if blinky.in_box and blinky_dead:        blinky_dead = False
-    if inky.in_box and inky_dead:        inky_dead = False
-    if pinky.in_box and pinky_dead:        pinky_dead = False
-    if clyde.in_box and clyde_dead:        clyde_dead = False
+    if blinky.in_box and blinky_dead:   blinky_dead = False
+    if inky.in_box and inky_dead:       inky_dead = False
+    if pinky.in_box and pinky_dead:     pinky_dead = False
+    if clyde.in_box and clyde_dead:     clyde_dead = False
 
     display.flip()
 
