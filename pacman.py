@@ -666,10 +666,10 @@ def draw_board():
             if cell == 3:                draw.line(screen, main_color, (num2*jc, i * num1),  (num2*jc, (i+1)*num1), 3)
             if cell == 4:                draw.line(screen, main_color, (n_col, num1*ic),  (n_col + num2, num1*ic), 3)
             if cell == 5:                draw.arc(screen, main_color, [(n_col - (num2 * 0.4)) - 2, (num1*ic), num2, num1],    0, PI / 2, 3)
-            if cell == 6:                draw.arc(screen, main_color, [num2*jc, (num1*ic), num2, num1], PI / 2, PI, 3)
-            if cell == 7:                draw.arc(screen, main_color, [num2*jc, (i * num1 - (0.4 * num1)), num2, num1], PI,    3 * PI / 2, 3)            
+            if cell == 6:                draw.arc(screen, main_color, [num2*jc, num1*ic, num2, num1], PI / 2, PI, 3)
+            if cell == 7:                draw.arc(screen, main_color, [num2*jc, (i-.4)*num1, num2, num1], PI, 3* PI / 2, 3)            
             if cell == 8:                draw.arc(screen, main_color,[(n_col - (num2 * 0.4)) - 2, (i * num1 - (0.4 * num1)), num2, num1], 3 * PI / 2,              2 * PI, 3)
-            #if cell == 9:                draw.line(screen, 'white', (n_col, num1*ic), (n_col + num2, num1*ic), 3)
+            if cell == 9:                draw.line(screen, 'white', (n_col, num1*ic), (n_col + num2, num1*ic), 3)
 
 def draw_player():
     # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
