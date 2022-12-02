@@ -682,37 +682,18 @@ def draw_player():
 def check_position(col, row):
     if 29 <= col // 30 : return [1,1,0,0] 
 
-    turns = [0]*4 #  
     # check collisions based on center x and center y of player +/- RADIUS number
     cell_R=level[row // COUNT_R][(col + RADIUS) // COUNT_C]
     cell_L=level[row // COUNT_R][(col - RADIUS) // COUNT_C]
     cell_U=level[(row - RADIUS) // COUNT_R][col // COUNT_C]
     cell_D=level[(row + RADIUS) // COUNT_R][col // COUNT_C]
 
-    # backward direction check
-    turns[0] = (direction in(0,1)and cell_R < 3)or( direction in(2,3)and( 12 <= row % COUNT_R <= 18)and(level[row // COUNT_R][col // COUNT_C + 1] < 3)) 
-    turns[1] = (direction in(0,1)and cell_L < 3)or( direction in(2,3)and( 12 <= row % COUNT_R <= 18)and(level[row // COUNT_R][col // COUNT_C - 1] < 3)) 
+    tR = (direction in(0,1)and cell_R < 3)or( direction in(2,3)and( 12 <= row % COUNT_R <= 18)and(level[row // COUNT_R][col // COUNT_C + 1] < 3)) 
+    tL = (direction in(0,1)and cell_L < 3)or( direction in(2,3)and( 12 <= row % COUNT_R <= 18)and(level[row // COUNT_R][col // COUNT_C - 1] < 3))     
+    tU = (direction in(2,3)and cell_U < 3)or( direction in(0,1)and( 12 <= col % COUNT_C <= 18)and(level[row // COUNT_R - 1][col // COUNT_C] < 3)) 
+    tD = (direction in(2,3)and cell_D < 3)or( direction in(0,1)and( 12 <= col % COUNT_C <= 18)and(level[row // COUNT_R + 1][col // COUNT_C] < 3)) 
 
-
-
-    if direction == 3 and cell_U < 3:turns[2] = True
-    
-    if direction in (2,3):
-        if 12 <= col % COUNT_C <= 18:
-            if cell_U < 3:                    turns[2] = True
-    if direction in (0,1):
-        if 12 <= col % COUNT_C <= 18:
-            if level[row  // COUNT_R - 1][col // COUNT_C] < 3:                    turns[2] = True
-
-    if direction == 2 and cell_D < 3:turns[3] = True
-    if direction in (2,3):
-        if 12 <= col % COUNT_C <= 18:
-            if cell_D < 3:                    turns[3] = True
-    if direction in (0,1):
-        if 12 <= col % COUNT_C <= 18:
-            if level[row  // COUNT_R + 1][col // COUNT_C] < 3:                    turns[3] = True
-
-    return turns
+    return [tR,tL,tU,tD]
 
 def move_player(play_x, play_y):
     # r, l, u, d
