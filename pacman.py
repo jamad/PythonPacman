@@ -679,29 +679,32 @@ def draw_player():
     elif direction == 2:        screen.blit(transform.rotate(img_player, 90), pos)
     elif direction == 3:        screen.blit(transform.rotate(img_player, -90), pos)
 
-def check_position(centerx, centery):
-    turns = [0]*4 #initial value 
+def check_position(col, row):
+    turns = [0]*4 #  
 
     # check collisions based on center x and center y of player +/- fudge number
-    if centerx // 30 < 29:
-        if direction == 0 and level[centery // COUNT_R][(centerx - FUDGE) // COUNT_C] < 3:                turns[1] = True
-        if direction == 1 and level[centery // COUNT_R][(centerx + FUDGE) // COUNT_C] < 3:                turns[0] = True
-        if direction == 2 and level[(centery + FUDGE) // COUNT_R][centerx // COUNT_C] < 3:                turns[3] = True
-        if direction == 3 and level[(centery - FUDGE) // COUNT_R][centerx // COUNT_C] < 3:                turns[2] = True
+    if col // 30 < 29:
+
+        # RIGHT
+        if direction == 0 and level[row // COUNT_R][(col - FUDGE) // COUNT_C] < 3:turns[1] = True
+        
+        if direction == 1 and level[row // COUNT_R][(col + FUDGE) // COUNT_C] < 3:turns[0] = True
+        if direction == 2 and level[(row + FUDGE) // COUNT_R][col // COUNT_C] < 3:turns[3] = True
+        if direction == 3 and level[(row - FUDGE) // COUNT_R][col // COUNT_C] < 3:turns[2] = True
         if direction in (2,3):
-            if 12 <= centerx % COUNT_C <= 18:
-                if level[(centery + FUDGE) // COUNT_R][centerx // COUNT_C] < 3:                    turns[3] = True
-                if level[(centery - FUDGE) // COUNT_R][centerx // COUNT_C] < 3:                    turns[2] = True
-            if 12 <= centery % COUNT_R <= 18:
-                if level[centery // COUNT_R][(centerx - COUNT_C) // COUNT_C] < 3:                    turns[1] = True
-                if level[centery // COUNT_R][(centerx + COUNT_C) // COUNT_C] < 3:                    turns[0] = True
+            if 12 <= col % COUNT_C <= 18:
+                if level[(row + FUDGE) // COUNT_R][col // COUNT_C] < 3:                    turns[3] = True
+                if level[(row - FUDGE) // COUNT_R][col // COUNT_C] < 3:                    turns[2] = True
+            if 12 <= row % COUNT_R <= 18:
+                if level[row // COUNT_R][(col - COUNT_C) // COUNT_C] < 3:                    turns[1] = True
+                if level[row // COUNT_R][(col + COUNT_C) // COUNT_C] < 3:                    turns[0] = True
         if direction in (0,1):
-            if 12 <= centerx % COUNT_C <= 18:
-                if level[(centery + COUNT_R) // COUNT_R][centerx // COUNT_C] < 3:                    turns[3] = True
-                if level[(centery - COUNT_R) // COUNT_R][centerx // COUNT_C] < 3:                    turns[2] = True
-            if 12 <= centery % COUNT_R <= 18:
-                if level[centery // COUNT_R][(centerx - FUDGE) // COUNT_C] < 3:                    turns[1] = True
-                if level[centery // COUNT_R][(centerx + FUDGE) // COUNT_C] < 3:                    turns[0] = True
+            if 12 <= col % COUNT_C <= 18:
+                if level[(row + COUNT_R) // COUNT_R][col // COUNT_C] < 3:                    turns[3] = True
+                if level[(row - COUNT_R) // COUNT_R][col // COUNT_C] < 3:                    turns[2] = True
+            if 12 <= row % COUNT_R <= 18:
+                if level[row // COUNT_R][(col - FUDGE) // COUNT_C] < 3:                    turns[1] = True
+                if level[row // COUNT_R][(col + FUDGE) // COUNT_C] < 3:                    turns[0] = True
     else: turns[0] = turns[1] = True
     return turns
 
