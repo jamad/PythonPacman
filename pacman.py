@@ -39,21 +39,20 @@ can_move = [0]*4 # R, L, U, D  open flag for movement
 
 
 # blinky 0  inky 1  pinky 2 clyde 3
-G0_x = 56
-G0_y = 58
-G0_player_dir = 0
+G0_x = 440 + 45
+G0_y = 438
 
 G1_x = 440
 G1_y = 388
-G1_player_dir = 2
 
 G2_x = 440
 G2_y = 438
-G2_player_dir = 2
 
-G3_x = 440
+
+G3_x = 440 - 45
 G3_y = 438
-G3_player_dir = 2
+
+G0_player_dir = G1_player_dir = G2_player_dir = G3_player_dir = 0
 
 counter = 0  # what it is for?
 powerup_show = False
