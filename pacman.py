@@ -869,22 +869,11 @@ while run:
             game_over = True
             moving = False
             startup_counter = 0
-    if powerup and player_circle.colliderect(GHOST[0].rect) and not GHOST[0].dead and not eaten_ghost[0]:
-        G_DEAD[0] = True
-        eaten_ghost[0] = True
-        score += (2 ** eaten_ghost.count(True)) * 100
-    if powerup and player_circle.colliderect(GHOST[1].rect) and not GHOST[1].dead and not eaten_ghost[1]:
-        G_DEAD[1] = True
-        eaten_ghost[1] = True
-        score += (2 ** eaten_ghost.count(True)) * 100
-    if powerup and player_circle.colliderect(GHOST[2].rect) and not GHOST[2].dead and not eaten_ghost[2]:
-        G_DEAD[2] = True
-        eaten_ghost[2] = True
-        score += (2 ** eaten_ghost.count(True)) * 100
-    if powerup and player_circle.colliderect(GHOST[3].rect) and not GHOST[3].dead and not eaten_ghost[3]:
-        G_DEAD[3] = True
-        eaten_ghost[3] = True
-        score += (2 ** eaten_ghost.count(True)) * 100
+
+    for i in range(4):    
+        if powerup and player_circle.colliderect(GHOST[i].rect) and not GHOST[i].dead and not eaten_ghost[i]:
+            G_DEAD[i] = eaten_ghost[i] = True
+            score += (2 ** eaten_ghost.count(True)) * 100
 
     for e in event.get():
         run = (e.type != QUIT) 
