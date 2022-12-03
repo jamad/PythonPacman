@@ -52,11 +52,11 @@ lives = 3
 game_over = game_won = 0
 
 class Ghost:
-    def __init__(self, x_coord, y_coord, target, speed, img, direct, dead, box, id):
-        self.x_pos = x_coord
-        self.y_pos = y_coord
-        self.center_x = self.x_pos + 22
-        self.center_y = self.y_pos + 22
+    def __init__(self, x, y, target, speed, img, direct, dead, box, id):
+        self.x_pos = x
+        self.y_pos = y
+        self.center_x = self.x_pos + 23
+        self.center_y = self.y_pos + 23
         self.target = target
         self.speed = speed
         self.img = img
@@ -68,7 +68,11 @@ class Ghost:
         self.rect = self.draw()
 
     def draw(self):
-        img=self.img if (not powerup and not self.dead) or (eaten_ghost[self.id] and powerup and not self.dead) else spooked_img  if powerup and not self.dead and not eaten_ghost[self.id] else dead_img
+        regular=(not powerup and not self.dead) # no powerup phase 
+        condB=(eaten_ghost[self.id] and powerup and not self.dead)
+        condC=powerup and not self.dead
+        img=self.img if regular or condB else spooked_img  if condC else dead_img
+
         screen.blit(img, (self.x_pos, self.y_pos))
         return rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
 
