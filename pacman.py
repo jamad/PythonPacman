@@ -68,14 +68,12 @@ class Ghost:
         self.rect = self.draw()
 
     def draw(self):
-        if (not powerup and not self.dead) or (eaten_ghost[self.id] and powerup and not self.dead):            screen.blit(self.img, (self.x_pos, self.y_pos))
-        elif powerup and not self.dead and not eaten_ghost[self.id]:            screen.blit(spooked_img, (self.x_pos, self.y_pos))
-        else:            screen.blit(dead_img, (self.x_pos, self.y_pos))
-        ghost_rect = rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
-        return ghost_rect
+        img=self.img if (not powerup and not self.dead) or (eaten_ghost[self.id] and powerup and not self.dead) else spooked_img  if powerup and not self.dead and not eaten_ghost[self.id] else dead_img
+        screen.blit(img, (self.x_pos, self.y_pos))
+        return rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
 
     def check_collisions(self):
-        self.turns = [False, False, False, False]
+        self.turns = [0]*4
 
         if 0 < self.center_x // 30 < 29:
             cellA = level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C]
@@ -560,7 +558,7 @@ class Ghost:
         self.x_pos = (self.x_pos < -30 and 900) or ( self.x_pos > 900 and self.x_pos - 30) or self.x_pos            
         return self.x_pos, self.y_pos, self.dir
 
-        
+
 def draw_misc():
     score_text = font.render(f'Score: {score}', True, 'white')
     screen.blit(score_text, (10, 920))
