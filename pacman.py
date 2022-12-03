@@ -26,16 +26,9 @@ m_color = 'blue'
 # image assets
 img_size=(45, 45)
 player_images = [transform.scale(image.load(f'assets/player_images/{i}.png'),img_size) for i in (1,2,3,2)]# 4 images
-
-G_IMG=[
-    transform.scale(image.load(f'assets/ghost_images/red.png'),img_size),
-    transform.scale(image.load(f'assets/ghost_images/pink.png'),img_size),
-    transform.scale(image.load(f'assets/ghost_images/blue.png'),img_size),
-    transform.scale(image.load(f'assets/ghost_images/orange.png'),img_size),
-]
-
-spooked_img = transform.scale(image.load(f'assets/ghost_images/powerup.png'),img_size)
-dead_img = transform.scale(image.load(f'assets/ghost_images/dead.png'),img_size)
+G_IMG=          [transform.scale(image.load(f'assets/ghost_images/{x}.png'),img_size) for x in 'red pink blue orange'.split()]
+spooked_img =   transform.scale(image.load(f'assets/ghost_images/powerup.png'),img_size)
+dead_img =      transform.scale(image.load(f'assets/ghost_images/dead.png'),img_size)
 
 player_x = 450 - 20 # centerize
 player_y = 663
@@ -50,15 +43,9 @@ eaten_ghost = [0]*4             # which ??
 G_DEAD= [0]*4                   # ghost dead
 G_BOX= [0]*4                    # ghost in spawn box
 
-counter = 0  
-powerup_show = 0
-
+counter = powerup_show = score = powerup = power_counter = moving = 0
 player_speed = 2
-score = 0
-powerup = 0
-power_counter = 0
 targets = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)]
-moving = 0
 ghost_speeds = [2, 2, 2, 2]
 startup_counter = 0
 lives = 3
@@ -105,21 +92,21 @@ class Ghost:
             self.turns[2] = (cellA < 3 or (cellA == 9 and not_alive)) or (cellA == 9)
             self.turns[3] = (cellD < 3 or (cellD == 9 and not_alive))
 
-            if self.dir == 2 or self.dir == 3:
-                if 12 <= self.center_x % COUNT_C <= 18:
-                    if cellA < 3 or (cellA == 9 and not_alive):self.turns[2] = True
-                    if cellD < 3 or (cellD == 9 and not_alive):self.turns[3] = True
+            if self.dir in (2,3):
                 if 12 <= self.center_y % COUNT_R <= 18:
                     if cellF < 3 or (cellF == 9 and not_alive):self.turns[0] = True
                     if cellE < 3 or (cellE == 9 and not_alive):self.turns[1] = True
-
-            if self.dir == 0 or self.dir == 1:
                 if 12 <= self.center_x % COUNT_C <= 18:
                     if cellA < 3 or (cellA == 9 and not_alive):self.turns[2] = True
                     if cellD < 3 or (cellD == 9 and not_alive):self.turns[3] = True
+
+            if self.dir in (0,1):
                 if 12 <= self.center_y % COUNT_R <= 18:
                     if cellC < 3 or (cellC == 9 and not_alive):self.turns[0] = True
                     if cellB < 3 or (cellB == 9 and not_alive):self.turns[1] = True
+                if 12 <= self.center_x % COUNT_C <= 18:
+                    if cellA < 3 or (cellA == 9 and not_alive):self.turns[2] = True
+                    if cellD < 3 or (cellD == 9 and not_alive):self.turns[3] = True
         else: self.turns[0] = self.turns[1] = 1
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
 
