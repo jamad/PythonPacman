@@ -112,131 +112,6 @@ class Ghost:
 
         return self.turns, self.in_box
 
-    def move_G3(self): # GHOST[3] is going to turn whenever advantageous for pursuit
-        if self.dir == 0:
-            if self.target[0] > self.x_pos and self.turns[0]:   self.x_pos += self.speed
-            elif not self.turns[0]:
-                if self.target[1] > self.y_pos and self.turns[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.turns[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.turns[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.turns[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-            elif self.turns[0]:
-                if self.target[1] > self.y_pos and self.turns[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                if self.target[1] < self.y_pos and self.turns[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                else:                    self.x_pos += self.speed
-        elif self.dir == 1:
-            if self.target[1] > self.y_pos and self.turns[3]:   self.dir = 3
-            elif self.target[0] < self.x_pos and self.turns[1]: self.x_pos -= self.speed
-            elif not self.turns[1]:
-                if self.target[1] > self.y_pos and self.turns[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.target[0] > self.x_pos and self.turns[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.turns[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.turns[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.turns[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-            elif self.turns[1]:
-                if self.target[1] > self.y_pos and self.turns[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                if self.target[1] < self.y_pos and self.turns[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                else:   self.x_pos -= self.speed
-        elif self.dir == 2:
-            if self.target[0] < self.x_pos and self.turns[1]:
-                self.dir = 1
-                self.x_pos -= self.speed
-            elif self.target[1] < self.y_pos and self.turns[2]:
-                self.dir = 2
-                self.y_pos -= self.speed
-            elif not self.turns[2]:
-                if self.target[0] > self.x_pos and self.turns[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.target[1] > self.y_pos and self.turns[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.turns[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.turns[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.turns[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-            elif self.turns[2]:
-                if self.target[0] > self.x_pos and self.turns[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                else:                    self.y_pos -= self.speed
-        elif self.dir == 3:
-            if self.target[1] > self.y_pos and self.turns[3]:                self.y_pos += self.speed
-            elif not self.turns[3]:
-                if self.target[0] > self.x_pos and self.turns[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.turns[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.turns[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.turns[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-            elif self.turns[3]:
-                if self.target[0] > self.x_pos and self.turns[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                else:self.y_pos += self.speed
-        self.x_pos = (self.x_pos < -30 and 900) or ( self.x_pos > 900 and self.x_pos - 30) or self.x_pos            
-        return self.x_pos, self.y_pos, self.dir
 
     def move_G0(self):   # GHOST[0] is going to turn whenever colliding with walls, otherwise continue straight
         if self.dir == 0:
@@ -559,6 +434,133 @@ class Ghost:
         elif self.x_pos > 900:            self.x_pos - 30
         return self.x_pos, self.y_pos, self.dir
 
+    def move_G3(self): # GHOST[3] is going to turn whenever advantageous for pursuit
+        if self.dir == 0:
+            if self.target[0] > self.x_pos and self.turns[0]:   self.x_pos += self.speed
+            elif not self.turns[0]:
+                if self.target[1] > self.y_pos and self.turns[3]:
+                    self.dir = 3
+                    self.y_pos += self.speed
+                elif self.target[1] < self.y_pos and self.turns[2]:
+                    self.dir = 2
+                    self.y_pos -= self.speed
+                elif self.target[0] < self.x_pos and self.turns[1]:
+                    self.dir = 1
+                    self.x_pos -= self.speed
+                elif self.turns[3]:
+                    self.dir = 3
+                    self.y_pos += self.speed
+                elif self.turns[2]:
+                    self.dir = 2
+                    self.y_pos -= self.speed
+                elif self.turns[1]:
+                    self.dir = 1
+                    self.x_pos -= self.speed
+            elif self.turns[0]:
+                if self.target[1] > self.y_pos and self.turns[3]:
+                    self.dir = 3
+                    self.y_pos += self.speed
+                if self.target[1] < self.y_pos and self.turns[2]:
+                    self.dir = 2
+                    self.y_pos -= self.speed
+                else:                    self.x_pos += self.speed
+        elif self.dir == 1:
+            if self.target[1] > self.y_pos and self.turns[3]:   self.dir = 3
+            elif self.target[0] < self.x_pos and self.turns[1]: self.x_pos -= self.speed
+            elif not self.turns[1]:
+                if self.target[1] > self.y_pos and self.turns[3]:
+                    self.dir = 3
+                    self.y_pos += self.speed
+                elif self.target[1] < self.y_pos and self.turns[2]:
+                    self.dir = 2
+                    self.y_pos -= self.speed
+                elif self.target[0] > self.x_pos and self.turns[0]:
+                    self.dir = 0
+                    self.x_pos += self.speed
+                elif self.turns[3]:
+                    self.dir = 3
+                    self.y_pos += self.speed
+                elif self.turns[2]:
+                    self.dir = 2
+                    self.y_pos -= self.speed
+                elif self.turns[0]:
+                    self.dir = 0
+                    self.x_pos += self.speed
+            elif self.turns[1]:
+                if self.target[1] > self.y_pos and self.turns[3]:
+                    self.dir = 3
+                    self.y_pos += self.speed
+                if self.target[1] < self.y_pos and self.turns[2]:
+                    self.dir = 2
+                    self.y_pos -= self.speed
+                else:   self.x_pos -= self.speed
+        elif self.dir == 2:
+            if self.target[0] < self.x_pos and self.turns[1]:
+                self.dir = 1
+                self.x_pos -= self.speed
+            elif self.target[1] < self.y_pos and self.turns[2]:
+                self.dir = 2
+                self.y_pos -= self.speed
+            elif not self.turns[2]:
+                if self.target[0] > self.x_pos and self.turns[0]:
+                    self.dir = 0
+                    self.x_pos += self.speed
+                elif self.target[0] < self.x_pos and self.turns[1]:
+                    self.dir = 1
+                    self.x_pos -= self.speed
+                elif self.target[1] > self.y_pos and self.turns[3]:
+                    self.dir = 3
+                    self.y_pos += self.speed
+                elif self.turns[1]:
+                    self.dir = 1
+                    self.x_pos -= self.speed
+                elif self.turns[3]:
+                    self.dir = 3
+                    self.y_pos += self.speed
+                elif self.turns[0]:
+                    self.dir = 0
+                    self.x_pos += self.speed
+            elif self.turns[2]:
+                if self.target[0] > self.x_pos and self.turns[0]:
+                    self.dir = 0
+                    self.x_pos += self.speed
+                elif self.target[0] < self.x_pos and self.turns[1]:
+                    self.dir = 1
+                    self.x_pos -= self.speed
+                else:                    self.y_pos -= self.speed
+        elif self.dir == 3:
+            if self.target[1] > self.y_pos and self.turns[3]:                self.y_pos += self.speed
+            elif not self.turns[3]:
+                if self.target[0] > self.x_pos and self.turns[0]:
+                    self.dir = 0
+                    self.x_pos += self.speed
+                elif self.target[0] < self.x_pos and self.turns[1]:
+                    self.dir = 1
+                    self.x_pos -= self.speed
+                elif self.target[1] < self.y_pos and self.turns[2]:
+                    self.dir = 2
+                    self.y_pos -= self.speed
+                elif self.turns[2]:
+                    self.dir = 2
+                    self.y_pos -= self.speed
+                elif self.turns[1]:
+                    self.dir = 1
+                    self.x_pos -= self.speed
+                elif self.turns[0]:
+                    self.dir = 0
+                    self.x_pos += self.speed
+            elif self.turns[3]:
+                if self.target[0] > self.x_pos and self.turns[0]:
+                    self.dir = 0
+                    self.x_pos += self.speed
+                elif self.target[0] < self.x_pos and self.turns[1]:
+                    self.dir = 1
+                    self.x_pos -= self.speed
+                else:self.y_pos += self.speed
+        self.x_pos = (self.x_pos < -30 and 900) or ( self.x_pos > 900 and self.x_pos - 30) or self.x_pos            
+        return self.x_pos, self.y_pos, self.dir
+
+        
 def draw_misc():
     score_text = font.render(f'Score: {score}', True, 'white')
     screen.blit(score_text, (10, 920))
