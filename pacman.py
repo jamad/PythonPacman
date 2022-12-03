@@ -68,13 +68,9 @@ class Ghost:
         self.rect = self.draw()
 
     def draw(self):
-        img=self.img
-        if powerup_phase:
-            img=spooked_img
-            if eaten_ghost[self.id]:img=self.img # revived in home box
-        if self.dead:img=dead_img # dead is stronger than spook
-            
-            
+        img=self.img # regular
+        if powerup_phase and not eaten_ghost[self.id]:  img=spooked_img # powerup and not eaten yet
+        if self.dead:                                   img=dead_img    # dead condition is the strongest
         
         screen.blit(img, (self.x_pos, self.y_pos))
         return rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
