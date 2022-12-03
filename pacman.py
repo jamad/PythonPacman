@@ -48,7 +48,7 @@ GY=[388, 438, 438, 438]         # ypos
 GD=[0]*4                        #direction
 eaten_ghost = [0]*4             # which ??
 G_DEAD= [0]*4                   # ghost dead
-G_BOX= [0]*4                    # what??
+G_BOX= [0]*4                    # ghost in spawn box
 
 counter = 0  
 powerup_show = 0
@@ -89,6 +89,7 @@ class Ghost:
 
     def check_collisions(self):
         self.turns = [False, False, False, False]
+
         if 0 < self.center_x // 30 < 29:
             cellA = level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C]
             cellB = level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C]
@@ -97,29 +98,31 @@ class Ghost:
             cellE = level[self.center_y // COUNT_R][(self.center_x - COUNT_C) // COUNT_C]
             cellF = level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C]
 
-            if cellA == 9:                self.turns[2] = True
-            if cellB < 3 or (cellB == 9 and (self.in_box or self.dead)):self.turns[1] = True
-            if cellC < 3 or (cellC == 9 and (self.in_box or self.dead)):self.turns[0] = True
-            if cellD < 3 or (cellD == 9 and (self.in_box or self.dead)):self.turns[3] = True
-            if cellA < 3 or (cellA == 9 and (self.in_box or self.dead)):self.turns[2] = True
+            not_alive= (self.in_box or self.dead)
+
+            self.turns[0] = (cellC < 3 or (cellC == 9 and not_alive))
+            self.turns[1] = (cellB < 3 or (cellB == 9 and not_alive))
+            self.turns[2] = (cellA < 3 or (cellA == 9 and not_alive)) or (cellA == 9)
+            self.turns[3] = (cellD < 3 or (cellD == 9 and not_alive))
 
             if self.dir == 2 or self.dir == 3:
                 if 12 <= self.center_x % COUNT_C <= 18:
-                    if cellD < 3 or (cellD == 9 and (self.in_box or self.dead)):self.turns[3] = True
-                    if cellA < 3 or (cellA == 9 and (self.in_box or self.dead)):self.turns[2] = True
+                    if cellA < 3 or (cellA == 9 and not_alive):self.turns[2] = True
+                    if cellD < 3 or (cellD == 9 and not_alive):self.turns[3] = True
                 if 12 <= self.center_y % COUNT_R <= 18:
-                    if cellE < 3 or (cellE == 9 and (self.in_box or self.dead)):self.turns[1] = True
-                    if cellF < 3 or (cellF == 9 and (self.in_box or self.dead)):self.turns[0] = True
+                    if cellF < 3 or (cellF == 9 and not_alive):self.turns[0] = True
+                    if cellE < 3 or (cellE == 9 and not_alive):self.turns[1] = True
 
             if self.dir == 0 or self.dir == 1:
                 if 12 <= self.center_x % COUNT_C <= 18:
-                    if cellD < 3 or (cellD == 9 and (self.in_box or self.dead)):self.turns[3] = True
-                    if cellA < 3 or (cellA == 9 and (self.in_box or self.dead)):self.turns[2] = True
+                    if cellA < 3 or (cellA == 9 and not_alive):self.turns[2] = True
+                    if cellD < 3 or (cellD == 9 and not_alive):self.turns[3] = True
                 if 12 <= self.center_y % COUNT_R <= 18:
-                    if cellB < 3 or (cellB == 9 and (self.in_box or self.dead)):self.turns[1] = True
-                    if cellC < 3 or (cellC == 9 and (self.in_box or self.dead)):self.turns[0] = True
+                    if cellC < 3 or (cellC == 9 and not_alive):self.turns[0] = True
+                    if cellB < 3 or (cellB == 9 and not_alive):self.turns[1] = True
         else: self.turns[0] = self.turns[1] = 1
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
+
         return self.turns, self.in_box
 
     def move_G3(self): # GHOST[3] is going to turn whenever advantageous for pursuit
