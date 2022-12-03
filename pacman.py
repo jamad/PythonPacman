@@ -43,7 +43,7 @@ eaten_ghost = [0]*4             # which ??
 G_DEAD= [0]*4                   # ghost dead
 G_BOX= [0]*4                    # ghost in spawn box
 
-counter = powerup_show = score = powerup = power_counter = moving = 0
+counter = powerup_blink_on = score = powerup_phase = power_counter = moving = 0
 player_speed = 2
 targets = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)]
 ghost_speeds = [2, 2, 2, 2]
@@ -68,11 +68,14 @@ class Ghost:
         self.rect = self.draw()
 
     def draw(self):
-        regular=(not powerup and not self.dead) # no powerup phase 
-        condB=(eaten_ghost[self.id] and powerup and not self.dead)
-        condC=powerup and not self.dead
-        img=self.img if regular or condB else spooked_img  if condC else dead_img
-
+        img=self.img
+        if powerup_phase:
+            img=spooked_img
+            if eaten_ghost[self.id] and not self.dead:img=self.img # revived in home box
+        if self.dead:img=dead_img # dead is stronger than spook
+            
+            
+        
         screen.blit(img, (self.x_pos, self.y_pos))
         return rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
 
@@ -567,7 +570,7 @@ def draw_misc():
     score_text = font.render(f'Score: {score}', True, 'white')
     screen.blit(score_text, (10, 920))
     
-    if powerup:        draw.circle(screen, 'blue', (140, 930), 15)
+    if powerup_phase:        draw.circle(screen, 'blue', (140, 930), 15)
 
     for i in range(lives):        screen.blit(transform.scale(player_images[0], (30, 30)), (650 + i * 40, 915))
     
@@ -604,7 +607,7 @@ def draw_board():
             
             # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
             if cell == 1:                draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 4)
-            if cell == 2 and powerup_show:draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 10)
+            if cell == 2 and powerup_blink_on:draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 10)
             if cell == 3:                draw.line(     screen, m_color, (COUNT_C*jc, i * COUNT_R),  (COUNT_C*jc, (i+1)*COUNT_R), 3)
             if cell == 4:                draw.line(     screen, m_color, (n_col, COUNT_R*ic),  (n_col + COUNT_C, COUNT_R*ic), 3)
             if cell == 5:                draw.arc(      screen, m_color, [(n_col - (COUNT_C * 0.4)) - 2, (COUNT_R*ic), COUNT_C, COUNT_R],0, pi / 2, 3)
@@ -653,7 +656,7 @@ def get_targets(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y):
     if player_y < 450:        runaway_y = 900
     else:        runaway_y = 0
     return_target = (380, 400)
-    if powerup:
+    if powerup_phase:
         if not GHOST[0].dead and not eaten_ghost[0]:            blink_target = (runaway_x, runaway_y)
         elif not GHOST[0].dead and eaten_ghost[0]:  blink_target = (400, 100) if 340 < blink_x < 560 and 340 < blink_y < 500 else  (player_x, player_y)
         else:                                       blink_target = return_target
@@ -699,13 +702,13 @@ while run:
     counter += 1
     counter %= 20
     
-    powerup_show = (7 < counter)
+    powerup_blink_on = (7 < counter)
 
-    if powerup and power_counter < 600:
+    if powerup_phase and power_counter < 600:
         power_counter += 1
-    elif powerup and power_counter >= 600:
+    elif powerup_phase and power_counter >= 600:
         power_counter = 0
-        powerup = False
+        powerup_phase = False
         eaten_ghost = [0]*4
     if startup_counter < 180 and not game_over and not game_won:
         moving = False
@@ -720,7 +723,7 @@ while run:
     center_x = player_x + 23 # due to 45 pixel image
     center_y = player_y + 23 # due to 45 pixel image
 
-    ghost_speeds = [ powerup and 1 or 2]*4
+    ghost_speeds = [ powerup_phase and 1 or 2]*4
     for i in range(4):
         if eaten_ghost[i]:ghost_speeds[i] = 2
         if G_DEAD[i]:ghost_speeds[i] = 4
@@ -759,13 +762,13 @@ while run:
             GX[1], GY[1], GD[1] = GHOST[1].move_G3()
 
         GX[3], GY[3], GD[3] = GHOST[3].move_G3()
-    score, powerup, power_counter, eaten_ghost = check_collisions(score, powerup, power_counter, eaten_ghost)
-    # add to if not powerup to check if eaten ghosts
-    if not powerup:
+    score, powerup_phase, power_counter, eaten_ghost = check_collisions(score, powerup_phase, power_counter, eaten_ghost)
+    # add to if not powerup_phase to check if eaten ghosts
+    if not powerup_phase:
         if any (player_circle.colliderect(x) and not y for x,y in ((GHOST[0].rect, GHOST[0].dead),(GHOST[1].rect, GHOST[1].dead),(GHOST[2].rect, GHOST[2].dead),(GHOST[3].rect, GHOST[3].dead)) ):
             if lives > 0:
                 lives -= 1
-                startup_counter = powerup = power_counter = 0
+                startup_counter = powerup_phase = power_counter = 0
                 
                 player_x = 450
                 player_y = 663
@@ -784,10 +787,10 @@ while run:
 
     # active ghost hit pacman
     for i in range(4):
-        if powerup and player_circle.colliderect(GHOST[i].rect) and not GHOST[i].dead:
+        if powerup_phase and player_circle.colliderect(GHOST[i].rect) and not GHOST[i].dead:
             if eaten_ghost[i]:  # ghost eat pacman , so game reset
                 if lives > 0:
-                    powerup = False
+                    powerup_phase = False
                     power_counter = 0
                     lives -= 1
                     startup_counter = 0
@@ -815,7 +818,7 @@ while run:
             player_dir_command={x:i for i,x in enumerate([K_RIGHT,K_LEFT,K_UP,K_DOWN])}.get(e.key, player_dir_command) # key defines player_dir
 
             if e.key == K_SPACE and (game_over or game_won):
-                powerup = False
+                powerup_phase = False
                 power_counter = 0
                 lives -= 1
                 startup_counter = 0
