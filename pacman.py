@@ -71,7 +71,7 @@ class Ghost:
         img=self.img
         if powerup_phase:
             img=spooked_img
-            if eaten_ghost[self.id] and not self.dead:img=self.img # revived in home box
+            if eaten_ghost[self.id]:img=self.img # revived in home box
         if self.dead:img=dead_img # dead is stronger than spook
             
             
