@@ -1,5 +1,5 @@
 # Build Pac-Man from Scratch in Python with PyGame!!
-# done until 1:26:45  , maybe around 2:02 to start
+# done until 1:26:45  , maybe around 2:02 to start!
 
 import copy
 from board import boards
@@ -43,26 +43,26 @@ player_dir = player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT,
 can_move = [0]*4                    # R, L, U, D  open flag for movement
 
 # ghosts : blinky 0  inky 1  pinky 2 clyde 3           
-GX=[440, 440+45, 440, 440 -45]      
-GY=[388, 438, 438, 438]
-GD=[0]*4
-eaten_ghost = [0]*4
-G_DEAD= [0]*4
-G_BOX= [0]*4
+GX=[440, 440+45, 440, 440 -45]  # xpos      
+GY=[388, 438, 438, 438]         # ypos
+GD=[0]*4                        #direction
+eaten_ghost = [0]*4             # which ??
+G_DEAD= [0]*4                   # ghost dead
+G_BOX= [0]*4                    # what??
 
 counter = 0  
-powerup_show = False
+powerup_show = 0
 
 player_speed = 2
 score = 0
-powerup = False
+powerup = 0
 power_counter = 0
 targets = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)]
-moving = False
+moving = 0
 ghost_speeds = [2, 2, 2, 2]
 startup_counter = 0
 lives = 3
-game_over = game_won = False
+game_over = game_won = 0
 
 class Ghost:
     def __init__(self, x_coord, y_coord, target, speed, img, direct, dead, box, id):
