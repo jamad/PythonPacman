@@ -90,27 +90,34 @@ class Ghost:
     def check_collisions(self):
         self.turns = [False, False, False, False]
         if 0 < self.center_x // 30 < 29:
-            if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9:                self.turns[2] = True
-            if level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
-            if level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
-            if level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
-            if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
+            cellA = level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C]
+            cellB = level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C]
+            cellC = level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C]
+            cellD = level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C]
+            cellE = level[self.center_y // COUNT_R][(self.center_x - COUNT_C) // COUNT_C]
+            cellF = level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C]
+
+            if cellA == 9:                self.turns[2] = True
+            if cellB < 3 or (cellB == 9 and (self.in_box or self.dead)):self.turns[1] = True
+            if cellC < 3 or (cellC == 9 and (self.in_box or self.dead)):self.turns[0] = True
+            if cellD < 3 or (cellD == 9 and (self.in_box or self.dead)):self.turns[3] = True
+            if cellA < 3 or (cellA == 9 and (self.in_box or self.dead)):self.turns[2] = True
 
             if self.dir == 2 or self.dir == 3:
                 if 12 <= self.center_x % COUNT_C <= 18:
-                    if level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
-                    if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
+                    if cellD < 3 or (cellD == 9 and (self.in_box or self.dead)):self.turns[3] = True
+                    if cellA < 3 or (cellA == 9 and (self.in_box or self.dead)):self.turns[2] = True
                 if 12 <= self.center_y % COUNT_R <= 18:
-                    if level[self.center_y // COUNT_R][(self.center_x - COUNT_C) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - COUNT_C) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
-                    if level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
+                    if cellE < 3 or (cellE == 9 and (self.in_box or self.dead)):self.turns[1] = True
+                    if cellF < 3 or (cellF == 9 and (self.in_box or self.dead)):self.turns[0] = True
 
             if self.dir == 0 or self.dir == 1:
                 if 12 <= self.center_x % COUNT_C <= 18:
-                    if level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[3] = True
-                    if level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] < 3 or (level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[2] = True
+                    if cellD < 3 or (cellD == 9 and (self.in_box or self.dead)):self.turns[3] = True
+                    if cellA < 3 or (cellA == 9 and (self.in_box or self.dead)):self.turns[2] = True
                 if 12 <= self.center_y % COUNT_R <= 18:
-                    if level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[1] = True
-                    if level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C] < 3 or (level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C] == 9 and (self.in_box or self.dead)):self.turns[0] = True
+                    if cellB < 3 or (cellB == 9 and (self.in_box or self.dead)):self.turns[1] = True
+                    if cellC < 3 or (cellC == 9 and (self.in_box or self.dead)):self.turns[0] = True
         else: self.turns[0] = self.turns[1] = 1
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
         return self.turns, self.in_box
