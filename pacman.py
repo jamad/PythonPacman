@@ -88,15 +88,12 @@ class Ghost:
 
             not_alive= (self.in_box or self.dead)
 
-            self.turns[0] = (cellC < 3 or (cellC == 9 and not_alive))
-            self.turns[1] = (cellB < 3 or (cellB == 9 and not_alive))
+            self.turns[0] = (cellC < 3 or (cellC == 9 and not_alive)) or (self.dir in (2,3) and (12 <= self.center_y % COUNT_R <= 18)and (cellF < 3 or (cellF == 9 and not_alive)))
+            self.turns[1] = (cellB < 3 or (cellB == 9 and not_alive)) or (self.dir in (2,3) and (12 <= self.center_y % COUNT_R <= 18)and (cellE < 3 or (cellE == 9 and not_alive)))
             self.turns[2] = (cellA < 3 or (cellA == 9 and not_alive)) or (cellA == 9)
             self.turns[3] = (cellD < 3 or (cellD == 9 and not_alive))
 
             if self.dir in (2,3):
-                if 12 <= self.center_y % COUNT_R <= 18:
-                    if cellF < 3 or (cellF == 9 and not_alive):self.turns[0] = True
-                    if cellE < 3 or (cellE == 9 and not_alive):self.turns[1] = True
                 if 12 <= self.center_x % COUNT_C <= 18:
                     if cellA < 3 or (cellA == 9 and not_alive):self.turns[2] = True
                     if cellD < 3 or (cellD == 9 and not_alive):self.turns[3] = True
