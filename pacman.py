@@ -109,32 +109,31 @@ class Ghost:
 
     def move_G(self, index):   # GHOST[0] : clyde doesn't change direction unless hit . random to left or right
         if index==0:
-            # direction : RLUD 
             pacman_x, pacman_y = self.pacman
-
+            
+            # direction : RLUD 
             # direction change if blocked by the wall
             if self.dir == 0 and not self.can_move[0]: # hit the collision
-                if self.can_move[2] and self.can_move[3]:  self.dir=2 if self.y_pos < pacman_y else 3 # if both open ,try to follow pacman
+                if self.can_move[2] and self.can_move[3]:  self.dir=(3,2)[self.y_pos < pacman_y] # if both open ,try to follow pacman  
                 elif self.can_move[2]: self.dir=2 
                 elif self.can_move[3]: self.dir=3
                 else: self.dir = 1    # backward
             elif self.dir == 1 and not self.can_move[1]:
-                if self.can_move[2] and self.can_move[3]:  self.dir=2 if self.y_pos < pacman_y else 3 # if both open ,try to follow pacman
+                if self.can_move[2] and self.can_move[3]:  self.dir=(3,2)[self.y_pos < pacman_y] # if both open ,try to follow pacman  
                 elif self.can_move[2]: self.dir=2 
                 elif self.can_move[3]: self.dir=3
                 else: self.dir = 0    # backward
             elif self.dir == 2 and not self.can_move[2]:
-                if self.can_move[0] and self.can_move[1]:  self.dir=0 if self.x_pos < pacman_x  else 1 # if both open ,try to follow pacman
+                if self.can_move[0] and self.can_move[1]:  self.dir=(1,0)[self.x_pos < pacman_x] # if both open ,try to follow pacman
                 elif self.can_move[0]: self.dir=0 
                 elif self.can_move[1]: self.dir=1
-                elif self.can_move[3]: self.dir=3    # backward
+                else: self.dir=3    # backward
             elif self.dir == 3 and not self.can_move[3]:
-                if self.can_move[0] and self.can_move[1]:  self.dir=0 if self.x_pos < pacman_x  else 1 # if both open ,try to follow pacman
+                if self.can_move[0] and self.can_move[1]:  self.dir=(1,0)[self.x_pos < pacman_x] # if both open ,try to follow pacman
                 elif self.can_move[0]: self.dir=0 
                 elif self.can_move[1]: self.dir=1
-                elif self.can_move[2]: self.dir=2    # backward
-            
-
+                else: self.dir=2    # backward
+                
         if index==1:# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
             if self.dir == 0:
                 if self.pacman[0] > self.x_pos and self.can_move[0]:        self.dir = 0
