@@ -415,14 +415,6 @@ def check_passable(col, row):  # originally check_position
 
     return [tR,tL,tU,tD]
 
-def move_player(play_x, play_y):
-    if can_move[player_dir]:
-        if player_dir == 0:      play_x += player_speed
-        elif player_dir == 1 :   play_x -= player_speed
-        elif player_dir == 2 :   play_y -= player_speed
-        elif player_dir == 3 :   play_y += player_speed
-    return play_x, play_y
-
 def get_pos_goal(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y):
     GHOST_X=[blink_x, ink_x, pink_x, clyd_x]
     GHOST_Y=[blink_y, ink_y, pink_y, clyd_y]
@@ -503,7 +495,13 @@ while run:
     can_move = check_passable(center_x, center_y)
 
     if moving:
-        player_x, player_y = move_player(player_x, player_y) # move pacman
+
+        if can_move[player_dir]:
+            if player_dir == 0:      player_x += player_speed
+            elif player_dir == 1 :   player_x -= player_speed
+            elif player_dir == 2 :   player_y -= player_speed
+            elif player_dir == 3 :   player_y += player_speed
+            
 
         for i in range(3):    GX[i], GY[i], GD[i] = GHOST[i].move_G(i if not G_DEAD[i] and not GHOST[i].in_box else  3)
         GX[3], GY[3], GD[3] = GHOST[3].move_G(3)
