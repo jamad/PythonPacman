@@ -106,13 +106,13 @@ class Ghost:
         return self.turns, self.in_box
 
 
-    def move_G0(self):   # GHOST[0] is going to turn whenever colliding with walls, otherwise continue straight
+    def move_G0(self):   # GHOST[0] : clyde doesn't change direction unless hit
         # RLUD
         target_x,target_y=self.target
 
         # direction change
         if self.dir == 0: # moving Right 
-            if not ( self.turns[0]): # hit the collision
+            if not self.turns[0]: # hit the collision
                 if self.y_pos < target_y and self.turns[3]:     self.dir = 3 # hitting by UP and ghost and can go down
                 elif target_y < self.y_pos and self.turns[2]:   self.dir = 2# hitting by Down and can go up
                 elif target_x < self.x_pos and self.turns[1]:   self.dir = 1 # hitting by Left and can go Left
@@ -120,13 +120,14 @@ class Ghost:
                 elif self.turns[2]:                             self.dir = 2
                 elif self.turns[3]:                             self.dir = 3
         elif self.dir == 1:
-            if not (target_x < self.x_pos and self.turns[1]) and not self.turns[1]:
-                if target_y > self.y_pos and self.turns[3]:     self.dir = 3
-                elif target_y < self.y_pos and self.turns[2]:   self.dir = 2
-                elif target_x > self.x_pos and self.turns[0]:   self.dir = 0
-                elif self.turns[0]:                    self.dir = 0
-                elif self.turns[2]:                    self.dir = 2
-                elif self.turns[3]:                    self.dir = 3
+            if not self.turns[1]:
+                if not (target_x < self.x_pos and self.turns[1]) :
+                    if target_y > self.y_pos and self.turns[3]:     self.dir = 3
+                    elif target_y < self.y_pos and self.turns[2]:   self.dir = 2
+                    elif target_x > self.x_pos and self.turns[0]:   self.dir = 0
+                    elif self.turns[0]:                    self.dir = 0
+                    elif self.turns[2]:                    self.dir = 2
+                    elif self.turns[3]:                    self.dir = 3
         elif self.dir == 2:
             if not (target_y < self.y_pos and self.turns[2]) and not self.turns[2]:
                 if target_x > self.x_pos and self.turns[0]:     self.dir = 0
