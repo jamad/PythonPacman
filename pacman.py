@@ -403,23 +403,14 @@ def get_pos_goal(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y)
     GHOST_GOALS=[ghost_home]*4
 
     if powerup_phase:
-
         for i in range(4):
             if not GHOST[i].dead:
-                if not eaten_ghost[i]:  GHOST_GOALS[i] = (450, 450) if i==3 else (runaway_x, runaway_y) 
-                else:                   GHOST_GOALS[i] = (400, 100) if (340 < GHOST_X[i] < 560)and (340 < GHOST_Y[i] < 500) else  (player_x, player_y)
-                                                          
-                                             
+                if eaten_ghost[i]:  GHOST_GOALS[i] = (400, 100) if (340 < GHOST_X[i] < 560)and (340 < GHOST_Y[i] < 500) else  (player_x, player_y)
+                else: GHOST_GOALS[i] = (450, 450) if i==3 else (runaway_x, runaway_y)
     else:
-        if not GHOST[0].dead:
-            GHOST_GOALS[0] = (400, 100) if 340 < blink_x < 560 and 340 < blink_y < 500 else(player_x, player_y)
-            
-        if not GHOST[1].dead:
-            GHOST_GOALS[1] = (400, 100)if 340 < ink_x < 560 and 340 < ink_y < 500 else (player_x, player_y)
-        if not GHOST[2].dead:
-            GHOST_GOALS[2] = (400, 100)if 340 < pink_x < 560 and 340 < pink_y < 500 else (player_x, player_y)
-        if not GHOST[3].dead:
-            GHOST_GOALS[3] = (400, 100)if 340 < clyd_x < 560 and 340 < clyd_y < 500 else (player_x, player_y)
+        for i in range(4):
+            if not GHOST[i].dead:
+                GHOST_GOALS[i] = (400, 100)if 340 < GHOST_X[i] < 560 and 340 < GHOST_Y[i] < 500 else(player_x, player_y)
 
     return GHOST_GOALS
 
