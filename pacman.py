@@ -580,10 +580,10 @@ def check_collisions(scor, power, power_count, eaten_ghosts):
         idx1=center_y // COUNT_R
         idx2=center_x // COUNT_C
         if level[idx1][idx2] == 1:  # normal dot
-            level[idx1][idx2] = 0
+            level[idx1][idx2] = 0   # remove dot
             scor += 10
         if level[idx1][idx2] == 2:  # power dot
-            level[idx1][idx2] = 0
+            level[idx1][idx2] = 0   # remove dot
             scor += 50
             power = True
             power_count = 0
