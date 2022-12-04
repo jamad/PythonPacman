@@ -332,6 +332,9 @@ class Ghost:
                     elif self.pacman[0] < self.x_pos and self.can_move[1]:  self.dir = 1
                     else:                                                   self.dir = 3
                     
+        # if ghost is dead and the cell below was 9, it should go down!
+        # TODO!
+
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
         if self.dir==1: self.x_pos -= self.speed
@@ -345,13 +348,16 @@ class Ghost:
         return self.x_pos, self.y_pos, self.dir
 
 
-def draw_misc():
+def draw_HUD():
+
     score_text = font.render(f'Score: {score}', True, 'white')
     screen.blit(score_text, (10, 920))
     
-    if powerup_phase:        draw.circle(screen, 'blue', (140, 930), 15)
+    if powerup_phase and debugmode:
+        draw.circle(screen, 'blue', (140, 930), 15) # debug
 
-    for i in range(lives):        screen.blit(transform.scale(player_images[0], (30, 30)), (650 + i * 40, 915))
+    for i in range(lives):
+        screen.blit(transform.scale(player_images[0], (30, 30)), (650 + i * 40, 915))
     
     if game_over or game_won:
         draw.rect(screen, 'white', [50, 200, 800, 300],0, 10)
@@ -476,7 +482,6 @@ while run:
     screen.fill('black')
     
     draw_board()
-
     center_x = player_x + 23 # due to 45 pixel image
     center_y = player_y + 23 # due to 45 pixel image
 
@@ -486,8 +491,15 @@ while run:
         if G_DEAD[i]:ghost_speeds[i] = 4
 
     game_won = True
-    for i in range(len(level)):
-        if 1 in level[i] or 2 in level[i]:game_won = False
+
+    level_1D=sum(level,[])
+    count_dot=level_1D.count(1)
+    count_powerdot=level_1D.count(2)
+
+    if 0< count_dot + count_powerdot: game_won = False
+
+    #for i in range(len(level)):# too long loop! 
+    #    if 1 in level[i] or 2 in level[i]:        game_won = False
 
 
     
@@ -496,7 +508,7 @@ while run:
     
     GHOST=[Ghost(GX[i], GY[i], pos_pacman[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i],G_BOX[i], i) for i in range(4)]
 
-    draw_misc()
+    draw_HUD()
     pos_pacman = get_pos_goal(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3]) # targets
 
     can_move = check_passable(center_x, center_y)
@@ -562,7 +574,8 @@ while run:
     
     # revive the ghosts if in the home box
     for i in range(4):
-        if GHOST[i].in_box and G_DEAD[i]: G_DEAD[i] = False
+        if GHOST[i].in_box and G_DEAD[i]:
+            G_DEAD[i] = False
 
     display.flip()
 
