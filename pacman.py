@@ -39,12 +39,25 @@ player_dir = player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT,
 can_move = [0]*4                    # R, L, U, D  open flag for movement
 
 # ghosts : blinky 0  inky 1  pinky 2 clyde 3           
-GX=[440, 440+45, 440, 440 -45]  # xpos      
-GY=[388, 438, 438, 438]         # ypos
+GX=[0, 0, 0, 0]                          # xpos
+GY=[388, 438, 438, 438]                        # ypos
 GD=[0]*4                        #direction
 eaten_ghost = [0]*4             # which ??
 G_DEAD= [0]*4                   # ghost dead
 G_BOX= [0]*4                    # ghost in spawn box
+
+
+def reset_game():
+    global GX, GY, GD,eaten_ghost, G_DEAD # important!
+    GX=[440, 440+45, 440, 440 -45]  
+    GY=[388, 438, 438, 438]         
+    GD=[0]*4                        
+    eaten_ghost = [0]*4             
+    G_DEAD= [0]*4                   
+
+reset_game()
+
+
 
 counter = powerup_blink_on = score = powerup_phase = power_counter = moving = 0
 player_speed = 2
@@ -476,22 +489,17 @@ while run:
     # add to if not powerup_phase to check if eaten ghosts
     if not powerup_phase:
         
-        if any (player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead for i in range(4)):
-            if lives > 0:
+        if any ( player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead for i in range(4)):
+            if 0 < lives:
                 lives -= 1
                 startup_counter = powerup_phase = power_counter = 0
                 
-                player_x = 450
-                player_y = 663
+                player_x,   player_y  = 450, 663
                 
                 player_dir = player_dir_command = 0
                 
-                GX=[440, 440+45, 440, 440 -45]      
-                GY=[388, 438, 438, 438]
-                GD=[0]*4        
-                
-                eaten_ghost = [0]*4
-                G_DEAD= [0]*4
+                   
+                reset_game()
             else:
                 game_over = 1
                 moving = startup_counter = 0
