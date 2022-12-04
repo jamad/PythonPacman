@@ -143,37 +143,21 @@ class Ghost:
 
         if index==1:# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
             if self.dir == 0:
-                if self.pacman[0] > self.x_pos and self.can_move[0]:                self.x_pos += self.speed
+                if self.pacman[0] > self.x_pos and self.can_move[0]:                self.dir = 0
                 elif not self.can_move[0]:
-                    if self.pacman[1] > self.y_pos and self.can_move[3]:
-                        self.dir = 3
-                        self.y_pos += self.speed
-                    elif self.pacman[1] < self.y_pos and self.can_move[2]:
-                        self.dir = 2
-                        self.y_pos -= self.speed
-                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
-                        self.dir = 1
-                        self.x_pos -= self.speed
-                    elif self.can_move[3]:
-                        self.dir = 3
-                        self.y_pos += self.speed
-                    elif self.can_move[2]:
-                        self.dir = 2
-                        self.y_pos -= self.speed
-                    elif self.can_move[1]:
-                        self.dir = 1
-                        self.x_pos -= self.speed
+                    if self.pacman[1] > self.y_pos and self.can_move[3]:                        self.dir = 3
+                    elif self.pacman[1] < self.y_pos and self.can_move[2]:                        self.dir = 2
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:                        self.dir = 1
+                    elif self.can_move[3]:                        self.dir = 3
+                    elif self.can_move[2]:                        self.dir = 2
+                    elif self.can_move[1]:                        self.dir = 1
                 elif self.can_move[0]:
-                    if self.pacman[1] > self.y_pos and self.can_move[3]:
-                        self.dir = 3
-                        self.y_pos += self.speed
-                    if self.pacman[1] < self.y_pos and self.can_move[2]:
-                        self.dir = 2
-                        self.y_pos -= self.speed
-                    else:                    self.x_pos += self.speed
+                    if self.pacman[1] > self.y_pos and self.can_move[3]:                        self.dir = 3
+                    if self.pacman[1] < self.y_pos and self.can_move[2]:                        self.dir = 2
+                    else:                    self.dir = 0
             elif self.dir == 1:
                 if self.pacman[1] > self.y_pos and self.can_move[3]:                self.dir = 3
-                elif self.pacman[0] < self.x_pos and self.can_move[1]:                self.x_pos -= self.speed
+                elif self.pacman[0] < self.x_pos and self.can_move[1]:                self.dir = 1
                 elif not self.can_move[1]:
                     if self.pacman[1] > self.y_pos and self.can_move[3]:    self.dir = 3
                     elif self.pacman[1] < self.y_pos and self.can_move[2]:  self.dir = 2
@@ -184,7 +168,7 @@ class Ghost:
                 elif self.can_move[1]:
                     if self.pacman[1] > self.y_pos and self.can_move[3]:    self.dir = 3
                     if self.pacman[1] < self.y_pos and self.can_move[2]:    self.dir = 2
-                    else:                    self.x_pos -= self.speed
+                    else:                    self.dir = 1
             elif self.dir == 2:
                 if self.pacman[1] < self.y_pos and self.can_move[2]:        self.dir = 2
                 elif not self.can_move[2]:
@@ -195,7 +179,7 @@ class Ghost:
                     elif self.can_move[3]:                        self.dir = 3
                     elif self.can_move[0]:                        self.dir = 0
                 elif self.can_move[2]:
-                    self.y_pos -= self.speed
+                    self.dir = 2
             elif self.dir == 3:
                 if self.pacman[1] > self.y_pos and self.can_move[3]:        self.dir = 3
                 elif not self.can_move[3]:
@@ -206,7 +190,7 @@ class Ghost:
                     elif self.can_move[1]:                        self.dir = 1
                     elif self.can_move[0]:                        self.dir = 0
                 elif self.can_move[3]:
-                    self.y_pos += self.speed
+                    self.dir = 3
                     
         
         if index==2:# GHOST[2] is going to turn left or right whenever advantageous, but only up or down on collision
@@ -244,9 +228,9 @@ class Ghost:
                 elif self.can_move[2]:
                     if self.pacman[0] > self.x_pos and self.can_move[0]:                        self.dir = 0
                     elif self.pacman[0] < self.x_pos and self.can_move[1]:                        self.dir = 1
-                    else:                    self.y_pos -= self.speed
+                    else:                    self.dir = 2
             elif self.dir == 3:
-                if self.pacman[1] > self.y_pos and self.can_move[3]:                self.y_pos += self.speed
+                if self.pacman[1] > self.y_pos and self.can_move[3]:                self.dir = 3
                 elif not self.can_move[3]:
                     if self.pacman[0] > self.x_pos and self.can_move[0]:                        self.dir = 0
                     elif self.pacman[0] < self.x_pos and self.can_move[1]:                        self.dir = 1
@@ -257,12 +241,12 @@ class Ghost:
                 elif self.can_move[3]:
                     if self.pacman[0] > self.x_pos and self.can_move[0]:                        self.dir = 0
                     elif self.pacman[0] < self.x_pos and self.can_move[1]:                        self.dir = 1
-                    else:                    self.y_pos += self.speed
+                    else:                    self.dir = 3
                     
 
         if index==3:# GHOST[3] is going to turn whenever advantageous for pursuit
             if self.dir == 0:
-                if self.pacman[0] > self.x_pos and self.can_move[0]:   self.x_pos += self.speed
+                if self.pacman[0] > self.x_pos and self.can_move[0]:   self.dir = 0
                 elif not self.can_move[0]:
                     if self.pacman[1] > self.y_pos and self.can_move[3]:                        self.dir = 3
                     elif self.pacman[1] < self.y_pos and self.can_move[2]:                        self.dir = 2
@@ -273,10 +257,10 @@ class Ghost:
                 elif self.can_move[0]:
                     if self.pacman[1] > self.y_pos and self.can_move[3]:                        self.dir = 3
                     if self.pacman[1] < self.y_pos and self.can_move[2]:                        self.dir = 2
-                    else:                    self.x_pos += self.speed
+                    else:                    self.dir = 0
             elif self.dir == 1:
                 if self.pacman[1] > self.y_pos and self.can_move[3]:   self.dir = 3
-                elif self.pacman[0] < self.x_pos and self.can_move[1]: self.x_pos -= self.speed
+                elif self.pacman[0] < self.x_pos and self.can_move[1]: self.dir = 1
                 elif not self.can_move[1]:
                     if self.pacman[1] > self.y_pos and self.can_move[3]:                        self.dir = 3
                     elif self.pacman[1] < self.y_pos and self.can_move[2]:                        self.dir = 2
