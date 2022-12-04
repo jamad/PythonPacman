@@ -108,6 +108,9 @@ class Ghost:
 
 
     def move_G(self, index):   # GHOST[0] : clyde doesn't change direction unless hit . random to left or right
+
+        # if ghost is dead and down is 9 (home entry) > move down to enter ghost home
+
         if index==0:
             pacman_x, pacman_y = self.pacman
             
@@ -388,51 +391,37 @@ def move_player(play_x, play_y):
         elif player_dir == 3 :   play_y += player_speed
     return play_x, play_y
 
-def get_pos_pacman(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y):
-    if player_x < 450:        runaway_x = 900
-    else:        runaway_x = 0
-    if player_y < 450:        runaway_y = 900
-    else:        runaway_y = 0
+def get_pos_goal(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y):
+    GHOST_X=[blink_x, ink_x, pink_x, clyd_x]
+    GHOST_Y=[blink_y, ink_y, pink_y, clyd_y]
+
+    runaway_x = (0,900)[player_x < 450]# away from pacman 
+    runaway_y = (0,900)[player_y < 450]# away from pacman 
     
-    return_pacman = (380, 400)
+    ghost_home = (380, 400) # ghost home box
+    
+    GHOST_GOALS=[ghost_home]*4
 
     if powerup_phase:
-        if not GHOST[0].dead and not eaten_ghost[0]:    blink_pacman = (runaway_x, runaway_y)
-        elif not GHOST[0].dead and eaten_ghost[0]:      blink_pacman = (400, 100) if 340 < blink_x < 560 and 340 < blink_y < 500 else  (player_x, player_y)
-        else:                                           blink_pacman = return_pacman
-        if not GHOST[1].dead and not eaten_ghost[1]:    ink_pacman = (runaway_x, player_y)
-        elif not GHOST[1].dead and eaten_ghost[1]:
-            if 340 < ink_x < 560 and 340 < ink_y < 500: ink_pacman = (400, 100)
-            else:                                       ink_pacman = (player_x, player_y)
-        else:                                           ink_pacman = return_pacman
-        if not GHOST[2].dead:                           pink_pacman = (player_x, runaway_y)
-        elif not GHOST[2].dead and eaten_ghost[2]:
-            if 340 < pink_x < 560 and 340 < pink_y < 500:   pink_pacman = (400, 100)
-            else:                                           pink_pacman = (player_x, player_y)
-        else:                                               pink_pacman = return_pacman
-        if not GHOST[3].dead and not eaten_ghost[3]:        clyd_pacman = (450, 450)
-        elif not GHOST[3].dead and eaten_ghost[3]:
-            if 340 < clyd_x < 560 and 340 < clyd_y < 500:   clyd_pacman = (400, 100)
-            else:                                           clyd_pacman = (player_x, player_y)
-        else:                                               clyd_pacman = return_pacman
+
+        for i in range(4):
+            if not GHOST[i].dead:
+                if not eaten_ghost[i]:  GHOST_GOALS[i] = (450, 450) if i==3 else (runaway_x, runaway_y) 
+                else:                   GHOST_GOALS[i] = (400, 100) if (340 < GHOST_X[i] < 560)and (340 < GHOST_Y[i] < 500) else  (player_x, player_y)
+                                                          
+                                             
     else:
         if not GHOST[0].dead:
-            if 340 < blink_x < 560 and 340 < blink_y < 500:                blink_pacman = (400, 100)
-            else:                blink_pacman = (player_x, player_y)
-        else:            blink_pacman = return_pacman
+            GHOST_GOALS[0] = (400, 100) if 340 < blink_x < 560 and 340 < blink_y < 500 else(player_x, player_y)
+            
         if not GHOST[1].dead:
-            if 340 < ink_x < 560 and 340 < ink_y < 500:                ink_pacman = (400, 100)
-            else:                ink_pacman = (player_x, player_y)
-        else:            ink_pacman = return_pacman
+            GHOST_GOALS[1] = (400, 100)if 340 < ink_x < 560 and 340 < ink_y < 500 else (player_x, player_y)
         if not GHOST[2].dead:
-            if 340 < pink_x < 560 and 340 < pink_y < 500:                pink_pacman = (400, 100)
-            else:                pink_pacman = (player_x, player_y)
-        else:            pink_pacman = return_pacman
+            GHOST_GOALS[2] = (400, 100)if 340 < pink_x < 560 and 340 < pink_y < 500 else (player_x, player_y)
         if not GHOST[3].dead:
-            if 340 < clyd_x < 560 and 340 < clyd_y < 500:                clyd_pacman = (400, 100)
-            else:                clyd_pacman = (player_x, player_y)
-        else:            clyd_pacman = return_pacman
-    return [blink_pacman, ink_pacman, pink_pacman, clyd_pacman]
+            GHOST_GOALS[3] = (400, 100)if 340 < clyd_x < 560 and 340 < clyd_y < 500 else (player_x, player_y)
+
+    return GHOST_GOALS
 
 run = True
 while run:
@@ -477,7 +466,7 @@ while run:
     GHOST=[Ghost(GX[i], GY[i], pos_pacman[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i],G_BOX[i], i) for i in range(4)]
 
     draw_misc()
-    pos_pacman = get_pos_pacman(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3]) # targets
+    pos_pacman = get_pos_goal(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3]) # targets
 
     can_move = check_passable(center_x, center_y)
 
@@ -490,7 +479,8 @@ while run:
     score, powerup_phase, power_counter, eaten_ghost = check_collisions(score, powerup_phase, power_counter, eaten_ghost)
     # add to if not powerup_phase to check if eaten ghosts
     if not powerup_phase:
-        if any (player_circle.colliderect(x) and not y for x,y in ((GHOST[0].rect, GHOST[0].dead),(GHOST[1].rect, GHOST[1].dead),(GHOST[2].rect, GHOST[2].dead),(GHOST[3].rect, GHOST[3].dead)) ):
+        
+        if any (player_circle.colliderect(GHOST[i].rect) and not GHOST[i].dead for i in range(4)):
             if lives > 0:
                 lives -= 1
                 startup_counter = powerup_phase = power_counter = 0
