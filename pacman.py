@@ -90,11 +90,12 @@ class Ghost:
 
             is_dirV=self.dir in (2,3)
             is_dirH=self.dir in (0,1)
+            cellcheck=lambda x:x<3 or (x==9 and not_alive)
 
-            self.turns[0] = (cellC < 3 or (cellC == 9 and not_alive)) or (is_dirV and (12 <= self.center_y % COUNT_R <= 18)and (cellF < 3 or (cellF == 9 and not_alive)))
-            self.turns[1] = (cellB < 3 or (cellB == 9 and not_alive)) or (is_dirV and (12 <= self.center_y % COUNT_R <= 18)and (cellE < 3 or (cellE == 9 and not_alive)))
-            self.turns[2] = (cellA < 3 or (cellA == 9 and not_alive)) or (is_dirV and (12 <= self.center_x % COUNT_C <= 18)and (cellA < 3 or (cellA == 9 and not_alive))) or (cellA == 9)
-            self.turns[3] = (cellD < 3 or (cellD == 9 and not_alive)) or (is_dirV and (12 <= self.center_x % COUNT_C <= 18)and (cellD < 3 or (cellD == 9 and not_alive)))
+            self.turns[0] = cellcheck(cellC) or (is_dirV and (12 <= self.center_y % COUNT_R <= 18)and (cellF < 3 or (cellF == 9 and not_alive)))
+            self.turns[1] = cellcheck(cellB) or (is_dirV and (12 <= self.center_y % COUNT_R <= 18)and (cellE < 3 or (cellE == 9 and not_alive)))
+            self.turns[2] = cellcheck(cellA) or (is_dirV and (12 <= self.center_x % COUNT_C <= 18)and (cellA < 3 or (cellA == 9 and not_alive))) or (cellA == 9)
+            self.turns[3] = cellcheck(cellD) or (is_dirV and (12 <= self.center_x % COUNT_C <= 18)and (cellD < 3 or (cellD == 9 and not_alive)))
 
             if is_dirH:
                 if 12 <= self.center_y % COUNT_R <= 18:
