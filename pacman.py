@@ -652,8 +652,7 @@ while run:
     if startup_counter < 180 and not game_over and not game_won:
         moving = False
         startup_counter += 1
-    else:
-        moving = True
+    else:   moving = True
 
     screen.fill('black')
     
@@ -683,18 +682,9 @@ while run:
     can_move = check_passable(center_x, center_y)
 
     if moving:
-        player_x, player_y = move_player(player_x, player_y)
-        
-        if not G_DEAD[0] and not GHOST[0].in_box:   GX[0], GY[0], GD[0] = GHOST[0].move_G(0)
-        else:                                       GX[0], GY[0], GD[0] = GHOST[0].move_G(3)
-        
-        if not G_DEAD[1] and not GHOST[1].in_box:   GX[1], GY[1], GD[1] = GHOST[1].move_G(1)
-        else:                                       GX[1], GY[1], GD[1] = GHOST[1].move_G(3)
+        player_x, player_y = move_player(player_x, player_y) # move pacman
 
-        if not G_DEAD[2] and not GHOST[2].in_box:   GX[2], GY[2], GD[2] = GHOST[2].move_G(2)
-        else:                                       GX[2], GY[2], GD[2] = GHOST[2].move_G(3)
-        
-
+        for i in range(3):    GX[i], GY[i], GD[i] = GHOST[i].move_G(i if not G_DEAD[i] and not GHOST[i].in_box else  3)
         GX[3], GY[3], GD[3] = GHOST[3].move_G(3)
 
     score, powerup_phase, power_counter, eaten_ghost = check_collisions(score, powerup_phase, power_counter, eaten_ghost)
