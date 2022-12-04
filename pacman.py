@@ -33,22 +33,31 @@ G_IMG=          [transform.scale(image.load(f'assets/ghost_images/{x}.png'),img_
 spooked_img =   transform.scale(image.load(f'assets/ghost_images/powerup.png'),img_size)
 dead_img =      transform.scale(image.load(f'assets/ghost_images/dead.png'),img_size)
 
-player_x = 450 - 20 # centerize
-player_y = 663
-player_dir = player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
-can_move = [0]*4                    # R, L, U, D  open flag for movement
+####################### dummy to reset 
+player_x = 0
+player_y = 0
+player_dir = 0
+player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
 
 # ghosts : blinky 0  inky 1  pinky 2 clyde 3           
-GX=[0, 0, 0, 0]                          # xpos
-GY=[388, 438, 438, 438]                        # ypos
+GX=[0]*4                        # xpos
+GY=[0]*4                        # ypos
 GD=[0]*4                        #direction
 eaten_ghost = [0]*4             # which ??
 G_DEAD= [0]*4                   # ghost dead
+
+can_move = [0]*4                    # R, L, U, D  open flag for movement
 G_BOX= [0]*4                    # ghost in spawn box
 
 
 def reset_game():
-    global GX, GY, GD,eaten_ghost, G_DEAD # important!
+    global player_x, player_y,player_dir, player_dir_command, GX, GY, GD,eaten_ghost, G_DEAD # important!
+    
+    player_x = 450 - 20 # centerize
+    player_y = 663
+    player_dir =0 
+    player_dir_command = 0
+
     GX=[440, 440+45, 440, 440 -45]  
     GY=[388, 438, 438, 438]         
     GD=[0]*4                        
@@ -492,13 +501,7 @@ while run:
         if any ( player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead for i in range(4)):
             if 0 < lives:
                 lives -= 1
-                startup_counter = powerup_phase = power_counter = 0
-                
-                player_x,   player_y  = 450, 663
-                
-                player_dir = player_dir_command = 0
-                
-                   
+                startup_counter = powerup_phase = power_counter = 0               
                 reset_game()
             else:
                 game_over = 1
@@ -513,15 +516,7 @@ while run:
                     power_counter = 0
                     lives -= 1
                     startup_counter = 0
-                    player_x = 450
-                    player_y = 663
-                    player_dir = player_dir_command = 0
-                                
-                    GX=[440, 440+45, 440, 440 -45]      
-                    GY=[388, 438, 438, 438]
-                    GD=[0]*4
-                    eaten_ghost = [0]*4
-                    G_DEAD= [0]*4
+                    reset_game()
                 else:
                     game_over = True
                     moving = False
@@ -541,17 +536,8 @@ while run:
                 power_counter = 0
                 lives -= 1
                 startup_counter = 0
-                player_x = 450
-                player_y = 663
-                player_dir = 0
-                player_dir_command = 0
+                reset_game()
 
-                GX=[440, 440+45, 440, 440 -45]      
-                GY=[388, 438, 438, 438]
-                GD=[0]*4
-                
-                eaten_ghost = [0]*4
-                G_DEAD= [0]*4
                 score = 0
                 lives = 3
                 game_over = game_won = False
