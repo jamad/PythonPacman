@@ -112,44 +112,37 @@ class Ghost:
 
         # direction change
         if self.dir == 0: # moving Right 
-            if self.turns[0]:                self.dir==0# go Right because can go Right 
-            else:# hit the collision
+            if not ( self.turns[0]): # hit the collision
                 if self.y_pos < target_y and self.turns[3]:     self.dir = 3 # hitting by UP and ghost and can go down
                 elif target_y < self.y_pos and self.turns[2]:   self.dir = 2# hitting by Down and can go up
                 elif target_x < self.x_pos and self.turns[1]:   self.dir = 1 # hitting by Left and can go Left
-                elif self.turns[3]:                             self.dir = 3
-                elif self.turns[2]:                             self.dir = 2
                 elif self.turns[1]:                             self.dir = 1     
+                elif self.turns[2]:                             self.dir = 2
+                elif self.turns[3]:                             self.dir = 3
         elif self.dir == 1:
-            if target_x < self.x_pos and self.turns[1]:         self.dir==1
-            elif not self.turns[1]:
+            if not (target_x < self.x_pos and self.turns[1]) and not self.turns[1]:
                 if target_y > self.y_pos and self.turns[3]:     self.dir = 3
-                elif target_y < self.y_pos and self.turns[2]:self.dir = 2
-                elif target_x > self.x_pos and self.turns[0]:self.dir = 0
-                elif self.turns[3]:                    self.dir = 3
-                elif self.turns[2]:                    self.dir = 2
+                elif target_y < self.y_pos and self.turns[2]:   self.dir = 2
+                elif target_x > self.x_pos and self.turns[0]:   self.dir = 0
                 elif self.turns[0]:                    self.dir = 0
-            elif self.turns[1]:                         self.dir==1
+                elif self.turns[2]:                    self.dir = 2
+                elif self.turns[3]:                    self.dir = 3
         elif self.dir == 2:
-            if target_y < self.y_pos and self.turns[2]:self.dir = 2
-            elif not self.turns[2]:
+            if not (target_y < self.y_pos and self.turns[2]) and not self.turns[2]:
                 if target_x > self.x_pos and self.turns[0]:     self.dir = 0
                 elif target_x < self.x_pos and self.turns[1]:   self.dir = 1
-                elif target_y > self.y_pos and self.turns[3]:self.dir = 3
+                elif target_y > self.y_pos and self.turns[3]:   self.dir = 3
+                elif self.turns[0]:                    self.dir = 0
+                elif self.turns[1]:                    self.dir = 1
                 elif self.turns[3]:                    self.dir = 3
-                elif self.turns[0]:                    self.dir = 0
-                elif self.turns[1]:                    self.dir = 1
-            elif self.turns[2]:                         self.dir==2
         elif self.dir == 3:
-            if target_y > self.y_pos and self.turns[3]:                self.dir==3
-            elif not self.turns[3]:
-                if target_x > self.x_pos and self.turns[0]:                    self.dir = 0
-                elif target_x < self.x_pos and self.turns[1]:                    self.dir = 1
-                elif target_y < self.y_pos and self.turns[2]:                    self.dir = 2
-                elif self.turns[2]:                    self.dir = 2
+            if not( target_y > self.y_pos and self.turns[3]) and  not self.turns[3]:
+                if target_x > self.x_pos and self.turns[0]:     self.dir = 0
+                elif target_x < self.x_pos and self.turns[1]:   self.dir = 1
+                elif target_y < self.y_pos and self.turns[2]:   self.dir = 2
                 elif self.turns[0]:                    self.dir = 0
                 elif self.turns[1]:                    self.dir = 1
-            elif self.turns[3]:                self.dir==3
+                elif self.turns[2]:                    self.dir = 2
         
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
@@ -157,8 +150,10 @@ class Ghost:
         if self.dir==2: self.y_pos -= self.speed
         if self.dir==3: self.y_pos += self.speed
 
-        if self.x_pos < -30:            self.x_pos = 900
-        elif self.x_pos > 900:            self.x_pos - 30
+        # warp gate
+        if self.x_pos < -30:    self.x_pos = 900
+        elif self.x_pos > 900:  self.x_pos - 30
+
         return self.x_pos, self.y_pos, self.dir
 
     def move_G1(self):# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
