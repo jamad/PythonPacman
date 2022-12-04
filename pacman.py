@@ -139,7 +139,7 @@ class Ghost:
             self.can_move[2] = cellcheck(cellA) or (cellA == 9)
             self.can_move[3] = cellcheck(cellD) or (cellD == 9) 
 
-            if self.dead and cellD==9:self.dir=3 # if dead and home down, go down
+            if self.dead and cellD==9:self.dir=3 # if ghost is dead and down is 9 (home entry) > move down to enter ghost home ##### BUGFIX
 
         else: self.can_move[0] = self.can_move[1] = 1
 
@@ -151,9 +151,10 @@ class Ghost:
 
         pacman_x, pacman_y = self.pacman
 
+        # direction : RLUD 
+        # direction change if blocked by the wall
+        
         if index==0:
-            # direction : RLUD 
-            # direction change if blocked by the wall
             if self.dir == 0 and not self.can_move[0]: # hit the collision
                 if self.can_move[2] and self.can_move[3]:  self.dir=(3,2)[self.y_pos < pacman_y] # if both open ,try to follow pacman  
                 elif self.can_move[2]: self.dir=2 
@@ -317,11 +318,6 @@ class Ghost:
                 elif self.can_move[3]:
                     if pacman_x > self.x_pos and self.can_move[0]:    self.dir = 0
                     elif pacman_x < self.x_pos and self.can_move[1]:  self.dir = 1
-                    
-        # if ghost is dead and down is 9 (home entry) > move down to enter ghost home
-        # if ghost is dead and the cell below was 9, it should go down!
-        # TODO!
-        #if self.can_move[2] and 
 
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
