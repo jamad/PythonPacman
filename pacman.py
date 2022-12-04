@@ -133,7 +133,7 @@ class Ghost:
                 elif self.can_move[0]: self.dir=0 
                 elif self.can_move[1]: self.dir=1
                 else: self.dir=2    # backward
-                
+
         if index==1:# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
             if self.dir == 0:
                 if self.pacman[0] > self.x_pos and self.can_move[0]:        self.dir = 0
@@ -344,15 +344,15 @@ def draw_board():
             cell=level[i][j]
             
             # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
-            if cell == 1:                draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 4)
-            if cell == 2 and powerup_blink_on:draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 10)
-            if cell == 3:                draw.line(     screen, m_color, (COUNT_C*jc, i * COUNT_R),  (COUNT_C*jc, (i+1)*COUNT_R), 3)
-            if cell == 4:                draw.line(     screen, m_color, (n_col, COUNT_R*ic),  (n_col + COUNT_C, COUNT_R*ic), 3)
-            if cell == 5:                draw.arc(      screen, m_color, [(n_col - (COUNT_C * 0.4)) - 2, (COUNT_R*ic), COUNT_C, COUNT_R],0, pi / 2, 3)
-            if cell == 6:                draw.arc(      screen, m_color, [COUNT_C*jc, COUNT_R*ic, COUNT_C, COUNT_R], pi / 2, pi, 3)
-            if cell == 7:                draw.arc(      screen, m_color, [COUNT_C*jc, (i-.4)*COUNT_R, COUNT_C, COUNT_R], pi, 3* pi / 2, 3)            
-            if cell == 8:                draw.arc(      screen, m_color, [COUNT_C*(j-.4)- 2, (i-.4) * COUNT_R, COUNT_C, COUNT_R], 3 * pi / 2,2 * pi, 3)
-            if cell == 9:                draw.line(     screen, 'white', (n_col, COUNT_R*ic), (n_col + COUNT_C, COUNT_R*ic), 3)
+            if cell == 1:                       draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 4)
+            if cell == 2 and powerup_blink_on:  draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 10)
+            if cell == 3:                       draw.line(     screen, m_color, (COUNT_C*jc, i * COUNT_R),  (COUNT_C*jc, (i+1)*COUNT_R), 3)
+            if cell == 4:                       draw.line(     screen, m_color, (n_col, COUNT_R*ic),  (n_col + COUNT_C, COUNT_R*ic), 3)
+            if cell == 5:                       draw.arc(      screen, m_color, [(n_col - (COUNT_C * 0.4)) - 2, (COUNT_R*ic), COUNT_C, COUNT_R],0, pi / 2, 3)
+            if cell == 6:                       draw.arc(      screen, m_color, [COUNT_C*jc, COUNT_R*ic, COUNT_C, COUNT_R], pi / 2, pi, 3)
+            if cell == 7:                       draw.arc(      screen, m_color, [COUNT_C*jc, (i-.4)*COUNT_R, COUNT_C, COUNT_R], pi, 3* pi / 2, 3)            
+            if cell == 8:                       draw.arc(      screen, m_color, [COUNT_C*(j-.4)- 2, (i-.4) * COUNT_R, COUNT_C, COUNT_R], 3 * pi / 2,2 * pi, 3)
+            if cell == 9:                       draw.line(     screen, 'white', (n_col, COUNT_R*ic), (n_col + COUNT_C, COUNT_R*ic), 3)
 
 def draw_player():
     pos=(player_x, player_y)
@@ -393,26 +393,28 @@ def get_pos_pacman(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_
     else:        runaway_x = 0
     if player_y < 450:        runaway_y = 900
     else:        runaway_y = 0
+    
     return_pacman = (380, 400)
+
     if powerup_phase:
-        if not GHOST[0].dead and not eaten_ghost[0]:            blink_pacman = (runaway_x, runaway_y)
-        elif not GHOST[0].dead and eaten_ghost[0]:  blink_pacman = (400, 100) if 340 < blink_x < 560 and 340 < blink_y < 500 else  (player_x, player_y)
-        else:                                       blink_pacman = return_pacman
-        if not GHOST[1].dead and not eaten_ghost[1]:            ink_pacman = (runaway_x, player_y)
+        if not GHOST[0].dead and not eaten_ghost[0]:    blink_pacman = (runaway_x, runaway_y)
+        elif not GHOST[0].dead and eaten_ghost[0]:      blink_pacman = (400, 100) if 340 < blink_x < 560 and 340 < blink_y < 500 else  (player_x, player_y)
+        else:                                           blink_pacman = return_pacman
+        if not GHOST[1].dead and not eaten_ghost[1]:    ink_pacman = (runaway_x, player_y)
         elif not GHOST[1].dead and eaten_ghost[1]:
-            if 340 < ink_x < 560 and 340 < ink_y < 500:                ink_pacman = (400, 100)
-            else:                ink_pacman = (player_x, player_y)
-        else:            ink_pacman = return_pacman
-        if not GHOST[2].dead:            pink_pacman = (player_x, runaway_y)
+            if 340 < ink_x < 560 and 340 < ink_y < 500: ink_pacman = (400, 100)
+            else:                                       ink_pacman = (player_x, player_y)
+        else:                                           ink_pacman = return_pacman
+        if not GHOST[2].dead:                           pink_pacman = (player_x, runaway_y)
         elif not GHOST[2].dead and eaten_ghost[2]:
-            if 340 < pink_x < 560 and 340 < pink_y < 500:                pink_pacman = (400, 100)
-            else:                pink_pacman = (player_x, player_y)
-        else:            pink_pacman = return_pacman
-        if not GHOST[3].dead and not eaten_ghost[3]:            clyd_pacman = (450, 450)
+            if 340 < pink_x < 560 and 340 < pink_y < 500:   pink_pacman = (400, 100)
+            else:                                           pink_pacman = (player_x, player_y)
+        else:                                               pink_pacman = return_pacman
+        if not GHOST[3].dead and not eaten_ghost[3]:        clyd_pacman = (450, 450)
         elif not GHOST[3].dead and eaten_ghost[3]:
-            if 340 < clyd_x < 560 and 340 < clyd_y < 500:                clyd_pacman = (400, 100)
-            else:                clyd_pacman = (player_x, player_y)
-        else:            clyd_pacman = return_pacman
+            if 340 < clyd_x < 560 and 340 < clyd_y < 500:   clyd_pacman = (400, 100)
+            else:                                           clyd_pacman = (player_x, player_y)
+        else:                                               clyd_pacman = return_pacman
     else:
         if not GHOST[0].dead:
             if 340 < blink_x < 560 and 340 < blink_y < 500:                blink_pacman = (400, 100)
@@ -442,8 +444,7 @@ while run:
     
     powerup_blink_on = (7 < counter)
 
-    if powerup_phase and power_counter < 600:
-        power_counter += 1
+    if powerup_phase and power_counter < 600:        power_counter += 1
     elif powerup_phase and power_counter >= 600:
         power_counter = 0
         powerup_phase = False
