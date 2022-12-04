@@ -46,19 +46,19 @@ G_BOX= [0]*4                    # ghost in spawn box
 
 counter = powerup_blink_on = score = powerup_phase = power_counter = moving = 0
 player_speed = 2
-targets = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)]
+pos_pacman = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)] # ghost has each pacman player position!
 ghost_speeds = [2, 2, 2, 2]
 startup_counter = 0
 lives = 3
 game_over = game_won = 0
 
 class Ghost:
-    def __init__(self, x, y, target, speed, img, direct, dead, box, id):
+    def __init__(self, x, y, pacman, speed, img, direct, dead, box, id):
         self.x_pos = x
         self.y_pos = y
         self.center_x = self.x_pos + 23
         self.center_y = self.y_pos + 23
-        self.target = target
+        self.pacman = pacman
         self.speed = speed
         self.img = img
         self.dir = direct
@@ -107,393 +107,402 @@ class Ghost:
         return self.can_move, self.in_box
 
 
-    def move_G0(self):   # GHOST[0] : clyde doesn't change direction unless hit . random to left or right
-        # direction : RLUD 
-        # direction change if blocked by the wall
-        if self.dir == 0 and not self.can_move[0]: # hit the collision
-            if self.can_move[2] and self.can_move[3]:  self.dir=randint(2,3)# if both open UP or # DOWN
-            elif self.can_move[2]: self.dir=2 
-            elif self.can_move[3]: self.dir=3
-            else: self.dir = 1    # backward
-        elif self.dir == 1 and not self.can_move[1]:
-            if self.can_move[2] and self.can_move[3]:  self.dir=randint(2,3)# if both open UP or # DOWN
-            elif self.can_move[2]: self.dir=2 
-            elif self.can_move[3]: self.dir=3
-            else: self.dir = 0    # backward
-        elif self.dir == 2 and not self.can_move[2]:
-            if self.can_move[0] and self.can_move[1]:  self.dir=randint(0,1)#LEFT or RIGHT
-            elif self.can_move[0]: self.dir=0 
-            elif self.can_move[1]: self.dir=1
-            elif self.can_move[3]: self.dir=3    # backward
-        elif self.dir == 3 and not self.can_move[3]:
-            if self.can_move[0] and self.can_move[1]:  self.dir=randint(0,1)#LEFT or RIGHT
-            elif self.can_move[0]: self.dir=0 
-            elif self.can_move[1]: self.dir=1
-            elif self.can_move[2]: self.dir=2    # backward
+    def move_G(self, index):   # GHOST[0] : clyde doesn't change direction unless hit . random to left or right
+        if index==0:
+            # direction : RLUD 
+            pacman_x, pacman_y = self.pacman
+
+            # first, try to follow pacman
+            if      self.dir==0 and self.x_pos < pacman_x and self.can_move[0]: self.dir=0 # no change to follow
+            elif    self.dir==1 and pacman_x < self.x_pos and self.can_move[1]: self.dir=1 # no change to follow
+            elif    self.dir==2 and self.y_pos < pacman_y and self.can_move[2]: self.dir=2 # no change to follow
+            elif    self.dir==3 and pacman_y < self.y_pos and self.can_move[3]: self.dir=3 # no change to follow
+
+            # direction change if blocked by the wall
+            elif self.dir == 0 and not self.can_move[0]: # hit the collision
+                if self.can_move[2] and self.can_move[3]:  self.dir=randint(2,3)# if both open UP or # DOWN
+                elif self.can_move[2]: self.dir=2 
+                elif self.can_move[3]: self.dir=3
+                else: self.dir = 1    # backward
+            elif self.dir == 1 and not self.can_move[1]:
+                if self.can_move[2] and self.can_move[3]:  self.dir=randint(2,3)# if both open UP or # DOWN
+                elif self.can_move[2]: self.dir=2 
+                elif self.can_move[3]: self.dir=3
+                else: self.dir = 0    # backward
+            elif self.dir == 2 and not self.can_move[2]:
+                if self.can_move[0] and self.can_move[1]:  self.dir=randint(0,1)#LEFT or RIGHT
+                elif self.can_move[0]: self.dir=0 
+                elif self.can_move[1]: self.dir=1
+                elif self.can_move[3]: self.dir=3    # backward
+            elif self.dir == 3 and not self.can_move[3]:
+                if self.can_move[0] and self.can_move[1]:  self.dir=randint(0,1)#LEFT or RIGHT
+                elif self.can_move[0]: self.dir=0 
+                elif self.can_move[1]: self.dir=1
+                elif self.can_move[2]: self.dir=2    # backward
+            
+            # move by direction 
+            if self.dir==0: self.x_pos += self.speed
+            if self.dir==1: self.x_pos -= self.speed
+            if self.dir==2: self.y_pos -= self.speed
+            if self.dir==3: self.y_pos += self.speed
+
+            # warp gate
+            if self.x_pos < -30:    self.x_pos = 900
+            elif self.x_pos > 900:  self.x_pos - 30
+
+            return self.x_pos, self.y_pos, self.dir
+
+        if index==1:# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
+            if self.dir == 0:
+                if self.pacman[0] > self.x_pos and self.can_move[0]:                self.x_pos += self.speed
+                elif not self.can_move[0]:
+                    if self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                elif self.can_move[0]:
+                    if self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    if self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    else:                    self.x_pos += self.speed
+            elif self.dir == 1:
+                if self.pacman[1] > self.y_pos and self.can_move[3]:                self.dir = 3
+                elif self.pacman[0] < self.x_pos and self.can_move[1]:                self.x_pos -= self.speed
+                elif not self.can_move[1]:
+                    if self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                elif self.can_move[1]:
+                    if self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    if self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    else:                    self.x_pos -= self.speed
+            elif self.dir == 2:
+                if self.pacman[1] < self.y_pos and self.can_move[2]:
+                    self.dir = 2
+                    self.y_pos -= self.speed
+                elif not self.can_move[2]:
+                    if self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                elif self.can_move[2]:
+                    self.y_pos -= self.speed
+            elif self.dir == 3:
+                if self.pacman[1] > self.y_pos and self.can_move[3]:
+                    self.y_pos += self.speed
+                elif not self.can_move[3]:
+                    if self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                elif self.can_move[3]:
+                    self.y_pos += self.speed
+            if self.x_pos < -30:            self.x_pos = 900
+            elif self.x_pos > 900:            self.x_pos - 30
+            return self.x_pos, self.y_pos, self.dir
         
-        # move by direction 
-        if self.dir==0: self.x_pos += self.speed
-        if self.dir==1: self.x_pos -= self.speed
-        if self.dir==2: self.y_pos -= self.speed
-        if self.dir==3: self.y_pos += self.speed
+        if index==2:# GHOST[2] is going to turn left or right whenever advantageous, but only up or down on collision
+            if self.dir == 0:
+                if self.pacman[0] > self.x_pos and self.can_move[0]:                self.x_pos += self.speed
+                elif not self.can_move[0]:
+                    if self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                elif self.can_move[0]:                self.x_pos += self.speed
+            elif self.dir == 1:
+                if self.pacman[1] > self.y_pos and self.can_move[3]:                self.dir = 3
+                elif self.pacman[0] < self.x_pos and self.can_move[1]:                self.x_pos -= self.speed
+                elif not self.can_move[1]:
+                    if self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                elif self.can_move[1]:                self.x_pos -= self.speed
+            elif self.dir == 2:
+                if self.pacman[0] < self.x_pos and self.can_move[1]:
+                    self.dir = 1
+                    self.x_pos -= self.speed
+                elif self.pacman[1] < self.y_pos and self.can_move[2]:
+                    self.dir = 2
+                    self.y_pos -= self.speed
+                elif not self.can_move[2]:
+                    if self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                elif self.can_move[2]:
+                    if self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    else:                    self.y_pos -= self.speed
+            elif self.dir == 3:
+                if self.pacman[1] > self.y_pos and self.can_move[3]:                self.y_pos += self.speed
+                elif not self.can_move[3]:
+                    if self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                elif self.can_move[3]:
+                    if self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    else:                    self.y_pos += self.speed
+            if self.x_pos < -30:            self.x_pos = 900
+            elif self.x_pos > 900:            self.x_pos - 30
+            return self.x_pos, self.y_pos, self.dir
 
-        # warp gate
-        if self.x_pos < -30:    self.x_pos = 900
-        elif self.x_pos > 900:  self.x_pos - 30
-
-        return self.x_pos, self.y_pos, self.dir
-
-    def move_G1(self):# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
-        if self.dir == 0:
-            if self.target[0] > self.x_pos and self.can_move[0]:                self.x_pos += self.speed
-            elif not self.can_move[0]:
-                if self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-            elif self.can_move[0]:
-                if self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                if self.target[1] < self.y_pos and self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                else:                    self.x_pos += self.speed
-        elif self.dir == 1:
-            if self.target[1] > self.y_pos and self.can_move[3]:                self.dir = 3
-            elif self.target[0] < self.x_pos and self.can_move[1]:                self.x_pos -= self.speed
-            elif not self.can_move[1]:
-                if self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
+        if index==3:# GHOST[3] is going to turn whenever advantageous for pursuit
+            if self.dir == 0:
+                if self.pacman[0] > self.x_pos and self.can_move[0]:   self.x_pos += self.speed
+                elif not self.can_move[0]:
+                    if self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
                 elif self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-            elif self.can_move[1]:
-                if self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                if self.target[1] < self.y_pos and self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                else:                    self.x_pos -= self.speed
-        elif self.dir == 2:
-            if self.target[1] < self.y_pos and self.can_move[2]:
-                self.dir = 2
-                self.y_pos -= self.speed
-            elif not self.can_move[2]:
-                if self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
+                    if self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    if self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    else:                    self.x_pos += self.speed
+            elif self.dir == 1:
+                if self.pacman[1] > self.y_pos and self.can_move[3]:   self.dir = 3
+                elif self.pacman[0] < self.x_pos and self.can_move[1]: self.x_pos -= self.speed
+                elif not self.can_move[1]:
+                    if self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
                 elif self.can_move[1]:
+                    if self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    if self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    else:   self.x_pos -= self.speed
+            elif self.dir == 2:
+                if self.pacman[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-            elif self.can_move[2]:
-                self.y_pos -= self.speed
-        elif self.dir == 3:
-            if self.target[1] > self.y_pos and self.can_move[3]:
-                self.y_pos += self.speed
-            elif not self.can_move[3]:
-                if self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.target[1] < self.y_pos and self.can_move[2]:
+                elif self.pacman[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
+                elif not self.can_move[2]:
+                    if self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.pacman[1] > self.y_pos and self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.can_move[3]:
+                        self.dir = 3
+                        self.y_pos += self.speed
+                    elif self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
                 elif self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-            elif self.can_move[3]:
-                self.y_pos += self.speed
-        if self.x_pos < -30:            self.x_pos = 900
-        elif self.x_pos > 900:            self.x_pos - 30
-        return self.x_pos, self.y_pos, self.dir
-
-    def move_G2(self):# GHOST[2] is going to turn left or right whenever advantageous, but only up or down on collision
-        if self.dir == 0:
-            if self.target[0] > self.x_pos and self.can_move[0]:                self.x_pos += self.speed
-            elif not self.can_move[0]:
-                if self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
+                    if self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    else:                    self.y_pos -= self.speed
+            elif self.dir == 3:
+                if self.pacman[1] > self.y_pos and self.can_move[3]:                self.y_pos += self.speed
+                elif not self.can_move[3]:
+                    if self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.pacman[1] < self.y_pos and self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.can_move[2]:
+                        self.dir = 2
+                        self.y_pos -= self.speed
+                    elif self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    elif self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
                 elif self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-            elif self.can_move[0]:                self.x_pos += self.speed
-        elif self.dir == 1:
-            if self.target[1] > self.y_pos and self.can_move[3]:                self.dir = 3
-            elif self.target[0] < self.x_pos and self.can_move[1]:                self.x_pos -= self.speed
-            elif not self.can_move[1]:
-                if self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-            elif self.can_move[1]:                self.x_pos -= self.speed
-        elif self.dir == 2:
-            if self.target[0] < self.x_pos and self.can_move[1]:
-                self.dir = 1
-                self.x_pos -= self.speed
-            elif self.target[1] < self.y_pos and self.can_move[2]:
-                self.dir = 2
-                self.y_pos -= self.speed
-            elif not self.can_move[2]:
-                if self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-            elif self.can_move[2]:
-                if self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                else:                    self.y_pos -= self.speed
-        elif self.dir == 3:
-            if self.target[1] > self.y_pos and self.can_move[3]:                self.y_pos += self.speed
-            elif not self.can_move[3]:
-                if self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.target[1] < self.y_pos and self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-            elif self.can_move[3]:
-                if self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                else:                    self.y_pos += self.speed
-        if self.x_pos < -30:            self.x_pos = 900
-        elif self.x_pos > 900:            self.x_pos - 30
-        return self.x_pos, self.y_pos, self.dir
-
-    def move_G3(self): # GHOST[3] is going to turn whenever advantageous for pursuit
-        if self.dir == 0:
-            if self.target[0] > self.x_pos and self.can_move[0]:   self.x_pos += self.speed
-            elif not self.can_move[0]:
-                if self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-            elif self.can_move[0]:
-                if self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                if self.target[1] < self.y_pos and self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                else:                    self.x_pos += self.speed
-        elif self.dir == 1:
-            if self.target[1] > self.y_pos and self.can_move[3]:   self.dir = 3
-            elif self.target[0] < self.x_pos and self.can_move[1]: self.x_pos -= self.speed
-            elif not self.can_move[1]:
-                if self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-            elif self.can_move[1]:
-                if self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                if self.target[1] < self.y_pos and self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                else:   self.x_pos -= self.speed
-        elif self.dir == 2:
-            if self.target[0] < self.x_pos and self.can_move[1]:
-                self.dir = 1
-                self.x_pos -= self.speed
-            elif self.target[1] < self.y_pos and self.can_move[2]:
-                self.dir = 2
-                self.y_pos -= self.speed
-            elif not self.can_move[2]:
-                if self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.target[1] > self.y_pos and self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.can_move[3]:
-                    self.dir = 3
-                    self.y_pos += self.speed
-                elif self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-            elif self.can_move[2]:
-                if self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                else:                    self.y_pos -= self.speed
-        elif self.dir == 3:
-            if self.target[1] > self.y_pos and self.can_move[3]:                self.y_pos += self.speed
-            elif not self.can_move[3]:
-                if self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.target[1] < self.y_pos and self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.can_move[2]:
-                    self.dir = 2
-                    self.y_pos -= self.speed
-                elif self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                elif self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-            elif self.can_move[3]:
-                if self.target[0] > self.x_pos and self.can_move[0]:
-                    self.dir = 0
-                    self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.can_move[1]:
-                    self.dir = 1
-                    self.x_pos -= self.speed
-                else:self.y_pos += self.speed
-        self.x_pos = (self.x_pos < -30 and 900) or ( self.x_pos > 900 and self.x_pos - 30) or self.x_pos            
-        return self.x_pos, self.y_pos, self.dir
+                    if self.pacman[0] > self.x_pos and self.can_move[0]:
+                        self.dir = 0
+                        self.x_pos += self.speed
+                    elif self.pacman[0] < self.x_pos and self.can_move[1]:
+                        self.dir = 1
+                        self.x_pos -= self.speed
+                    else:self.y_pos += self.speed
+            self.x_pos = (self.x_pos < -30 and 900) or ( self.x_pos > 900 and self.x_pos - 30) or self.x_pos            
+            return self.x_pos, self.y_pos, self.dir
 
 
 def draw_misc():
@@ -580,49 +589,49 @@ def move_player(play_x, play_y):
         elif player_dir == 3 :   play_y += player_speed
     return play_x, play_y
 
-def get_targets(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y):
+def get_pos_pacman(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y):
     if player_x < 450:        runaway_x = 900
     else:        runaway_x = 0
     if player_y < 450:        runaway_y = 900
     else:        runaway_y = 0
-    return_target = (380, 400)
+    return_pacman = (380, 400)
     if powerup_phase:
-        if not GHOST[0].dead and not eaten_ghost[0]:            blink_target = (runaway_x, runaway_y)
-        elif not GHOST[0].dead and eaten_ghost[0]:  blink_target = (400, 100) if 340 < blink_x < 560 and 340 < blink_y < 500 else  (player_x, player_y)
-        else:                                       blink_target = return_target
-        if not GHOST[1].dead and not eaten_ghost[1]:            ink_target = (runaway_x, player_y)
+        if not GHOST[0].dead and not eaten_ghost[0]:            blink_pacman = (runaway_x, runaway_y)
+        elif not GHOST[0].dead and eaten_ghost[0]:  blink_pacman = (400, 100) if 340 < blink_x < 560 and 340 < blink_y < 500 else  (player_x, player_y)
+        else:                                       blink_pacman = return_pacman
+        if not GHOST[1].dead and not eaten_ghost[1]:            ink_pacman = (runaway_x, player_y)
         elif not GHOST[1].dead and eaten_ghost[1]:
-            if 340 < ink_x < 560 and 340 < ink_y < 500:                ink_target = (400, 100)
-            else:                ink_target = (player_x, player_y)
-        else:            ink_target = return_target
-        if not GHOST[2].dead:            pink_target = (player_x, runaway_y)
+            if 340 < ink_x < 560 and 340 < ink_y < 500:                ink_pacman = (400, 100)
+            else:                ink_pacman = (player_x, player_y)
+        else:            ink_pacman = return_pacman
+        if not GHOST[2].dead:            pink_pacman = (player_x, runaway_y)
         elif not GHOST[2].dead and eaten_ghost[2]:
-            if 340 < pink_x < 560 and 340 < pink_y < 500:                pink_target = (400, 100)
-            else:                pink_target = (player_x, player_y)
-        else:            pink_target = return_target
-        if not GHOST[3].dead and not eaten_ghost[3]:            clyd_target = (450, 450)
+            if 340 < pink_x < 560 and 340 < pink_y < 500:                pink_pacman = (400, 100)
+            else:                pink_pacman = (player_x, player_y)
+        else:            pink_pacman = return_pacman
+        if not GHOST[3].dead and not eaten_ghost[3]:            clyd_pacman = (450, 450)
         elif not GHOST[3].dead and eaten_ghost[3]:
-            if 340 < clyd_x < 560 and 340 < clyd_y < 500:                clyd_target = (400, 100)
-            else:                clyd_target = (player_x, player_y)
-        else:            clyd_target = return_target
+            if 340 < clyd_x < 560 and 340 < clyd_y < 500:                clyd_pacman = (400, 100)
+            else:                clyd_pacman = (player_x, player_y)
+        else:            clyd_pacman = return_pacman
     else:
         if not GHOST[0].dead:
-            if 340 < blink_x < 560 and 340 < blink_y < 500:                blink_target = (400, 100)
-            else:                blink_target = (player_x, player_y)
-        else:            blink_target = return_target
+            if 340 < blink_x < 560 and 340 < blink_y < 500:                blink_pacman = (400, 100)
+            else:                blink_pacman = (player_x, player_y)
+        else:            blink_pacman = return_pacman
         if not GHOST[1].dead:
-            if 340 < ink_x < 560 and 340 < ink_y < 500:                ink_target = (400, 100)
-            else:                ink_target = (player_x, player_y)
-        else:            ink_target = return_target
+            if 340 < ink_x < 560 and 340 < ink_y < 500:                ink_pacman = (400, 100)
+            else:                ink_pacman = (player_x, player_y)
+        else:            ink_pacman = return_pacman
         if not GHOST[2].dead:
-            if 340 < pink_x < 560 and 340 < pink_y < 500:                pink_target = (400, 100)
-            else:                pink_target = (player_x, player_y)
-        else:            pink_target = return_target
+            if 340 < pink_x < 560 and 340 < pink_y < 500:                pink_pacman = (400, 100)
+            else:                pink_pacman = (player_x, player_y)
+        else:            pink_pacman = return_pacman
         if not GHOST[3].dead:
-            if 340 < clyd_x < 560 and 340 < clyd_y < 500:                clyd_target = (400, 100)
-            else:                clyd_target = (player_x, player_y)
-        else:            clyd_target = return_target
-    return [blink_target, ink_target, pink_target, clyd_target]
+            if 340 < clyd_x < 560 and 340 < clyd_y < 500:                clyd_pacman = (400, 100)
+            else:                clyd_pacman = (player_x, player_y)
+        else:            clyd_pacman = return_pacman
+    return [blink_pacman, ink_pacman, pink_pacman, clyd_pacman]
 
 run = True
 while run:
@@ -666,32 +675,28 @@ while run:
 
     draw_player()
     
-    GHOST=[Ghost(GX[i], GY[i], targets[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i],G_BOX[i], i) for i in range(4)]
+    GHOST=[Ghost(GX[i], GY[i], pos_pacman[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i],G_BOX[i], i) for i in range(4)]
 
     draw_misc()
-    targets = get_targets(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3])
+    pos_pacman = get_pos_pacman(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3]) # targets
 
     can_move = check_passable(center_x, center_y)
 
     if moving:
         player_x, player_y = move_player(player_x, player_y)
         
-        if not G_DEAD[0] and not GHOST[0].in_box:
-            GX[0], GY[0], GD[0] = GHOST[0].move_G0()
-        else:            
-            GX[0], GY[0], GD[0] = GHOST[0].move_G3()
+        if not G_DEAD[0] and not GHOST[0].in_box:   GX[0], GY[0], GD[0] = GHOST[0].move_G(0)
+        else:                                       GX[0], GY[0], GD[0] = GHOST[0].move_G(3)
         
-        if not G_DEAD[2] and not GHOST[2].in_box:            
-            GX[2], GY[2], GD[2] = GHOST[2].move_G2()
-        else:            
-            GX[2], GY[2], GD[2] = GHOST[2].move_G3()
-        
-        if not G_DEAD[1] and not GHOST[1].in_box:            
-            GX[1], GY[1], GD[1] = GHOST[1].move_G1()
-        else:            
-            GX[1], GY[1], GD[1] = GHOST[1].move_G3()
+        if not G_DEAD[1] and not GHOST[1].in_box:   GX[1], GY[1], GD[1] = GHOST[1].move_G(1)
+        else:                                       GX[1], GY[1], GD[1] = GHOST[1].move_G(3)
 
-        GX[3], GY[3], GD[3] = GHOST[3].move_G3()
+        if not G_DEAD[2] and not GHOST[2].in_box:   GX[2], GY[2], GD[2] = GHOST[2].move_G(2)
+        else:                                       GX[2], GY[2], GD[2] = GHOST[2].move_G(3)
+        
+
+        GX[3], GY[3], GD[3] = GHOST[3].move_G(3)
+
     score, powerup_phase, power_counter, eaten_ghost = check_collisions(score, powerup_phase, power_counter, eaten_ghost)
     # add to if not powerup_phase to check if eaten ghosts
     if not powerup_phase:
