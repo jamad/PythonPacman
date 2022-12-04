@@ -65,7 +65,7 @@ class Ghost:
         self.dead = dead
         self.in_box = box
         self.id = id
-        self.turns, self.in_box = self.check_collisions()
+        self.can_move, self.in_box = self.check_collisions()
         self.rect = self.draw()
 
     def draw(self):
@@ -77,7 +77,7 @@ class Ghost:
         return rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
 
     def check_collisions(self):
-        self.turns = [0]*4
+        self.can_move = [0]*4
 
         if 0 < self.center_x // 30 < 29:
             cellA = level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C]
@@ -95,35 +95,41 @@ class Ghost:
             in_sweetspot_V= (12 <= self.center_y % COUNT_R <= 18)
             in_sweetspot_H= (12 <= self.center_x % COUNT_C <= 18)
 
-            self.turns[0] = cellcheck(cellC) or (is_dirV and in_sweetspot_V and cellcheck(cellF)) #or (is_dirH and in_sweetspot_V and cellcheck(cellC))
-            self.turns[1] = cellcheck(cellB) or (is_dirV and in_sweetspot_V and cellcheck(cellE)) #or (is_dirH and in_sweetspot_V and cellcheck(cellB))
-            self.turns[2] = cellcheck(cellA) or (cellA == 9)
-            self.turns[3] = cellcheck(cellD) or (is_dirV and in_sweetspot_H and cellcheck(cellD)) #or (is_dirH and in_sweetspot_H and cellcheck(cellD))
+            self.can_move[0] = cellcheck(cellC) or (is_dirV and in_sweetspot_V and cellcheck(cellF)) #or (is_dirH and in_sweetspot_V and cellcheck(cellC))
+            self.can_move[1] = cellcheck(cellB) or (is_dirV and in_sweetspot_V and cellcheck(cellE)) #or (is_dirH and in_sweetspot_V and cellcheck(cellB))
+            self.can_move[2] = cellcheck(cellA) or (cellA == 9)
+            self.can_move[3] = cellcheck(cellD) or (is_dirV and in_sweetspot_H and cellcheck(cellD)) #or (is_dirH and in_sweetspot_H and cellcheck(cellD))
 
-        else: self.turns[0] = self.turns[1] = 1
+        else: self.can_move[0] = self.can_move[1] = 1
 
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
 
-        return self.turns, self.in_box
+        return self.can_move, self.in_box
 
 
     def move_G0(self):   # GHOST[0] : clyde doesn't change direction unless hit . random to left or right
-        # RLUD
-        target_x,target_y=self.target
-
-        # direction change
-        if self.dir == 0 and not self.turns[0]: # hit the collision
-            if self.turns[2] or self.turns[3]:  self.dir=randint(2,3)#UP or # DOWN
+        # direction : RLUD 
+        # direction change if blocked by the wall
+        if self.dir == 0 and not self.can_move[0]: # hit the collision
+            if self.can_move[2] and self.can_move[3]:  self.dir=randint(2,3)# if both open UP or # DOWN
+            elif self.can_move[2]: self.dir=2 
+            elif self.can_move[3]: self.dir=3
             else: self.dir = 1    # backward
-        elif self.dir == 1 and not self.turns[1]:
-            if self.turns[2] or self.turns[3]:  self.dir=randint(2,3)#UP or # DOWN
+        elif self.dir == 1 and not self.can_move[1]:
+            if self.can_move[2] and self.can_move[3]:  self.dir=randint(2,3)# if both open UP or # DOWN
+            elif self.can_move[2]: self.dir=2 
+            elif self.can_move[3]: self.dir=3
             else: self.dir = 0    # backward
-        elif self.dir == 2 and not self.turns[2]:
-            if self.turns[0] or self.turns[1]:  self.dir=randint(0,1)#LEFT or RIGHT
-            elif self.turns[3]: self.dir = 3    # backward
-        elif self.dir == 3 and not self.turns[3]:
-            if self.turns[0] or self.turns[1]:  self.dir=randint(0,1)#LEFT or RIGHT
-            elif self.turns[2]: self.dir = 2    # backward
+        elif self.dir == 2 and not self.can_move[2]:
+            if self.can_move[0] and self.can_move[1]:  self.dir=randint(0,1)#LEFT or RIGHT
+            elif self.can_move[0]: self.dir=0 
+            elif self.can_move[1]: self.dir=1
+            elif self.can_move[3]: self.dir=3    # backward
+        elif self.dir == 3 and not self.can_move[3]:
+            if self.can_move[0] and self.can_move[1]:  self.dir=randint(0,1)#LEFT or RIGHT
+            elif self.can_move[0]: self.dir=0 
+            elif self.can_move[1]: self.dir=1
+            elif self.can_move[2]: self.dir=2    # backward
         
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
@@ -139,112 +145,112 @@ class Ghost:
 
     def move_G1(self):# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
         if self.dir == 0:
-            if self.target[0] > self.x_pos and self.turns[0]:                self.x_pos += self.speed
-            elif not self.turns[0]:
-                if self.target[1] > self.y_pos and self.turns[3]:
+            if self.target[0] > self.x_pos and self.can_move[0]:                self.x_pos += self.speed
+            elif not self.can_move[0]:
+                if self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
+                elif self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.turns[3]:
+                elif self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.turns[2]:
+                elif self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.turns[1]:
+                elif self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-            elif self.turns[0]:
-                if self.target[1] > self.y_pos and self.turns[3]:
+            elif self.can_move[0]:
+                if self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                if self.target[1] < self.y_pos and self.turns[2]:
+                if self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
                 else:                    self.x_pos += self.speed
         elif self.dir == 1:
-            if self.target[1] > self.y_pos and self.turns[3]:                self.dir = 3
-            elif self.target[0] < self.x_pos and self.turns[1]:                self.x_pos -= self.speed
-            elif not self.turns[1]:
-                if self.target[1] > self.y_pos and self.turns[3]:
+            if self.target[1] > self.y_pos and self.can_move[3]:                self.dir = 3
+            elif self.target[0] < self.x_pos and self.can_move[1]:                self.x_pos -= self.speed
+            elif not self.can_move[1]:
+                if self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
+                elif self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.target[0] > self.x_pos and self.turns[0]:
+                elif self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.turns[3]:
+                elif self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.turns[2]:
+                elif self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.turns[0]:
+                elif self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-            elif self.turns[1]:
-                if self.target[1] > self.y_pos and self.turns[3]:
+            elif self.can_move[1]:
+                if self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                if self.target[1] < self.y_pos and self.turns[2]:
+                if self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
                 else:                    self.x_pos -= self.speed
         elif self.dir == 2:
-            if self.target[1] < self.y_pos and self.turns[2]:
+            if self.target[1] < self.y_pos and self.can_move[2]:
                 self.dir = 2
                 self.y_pos -= self.speed
-            elif not self.turns[2]:
-                if self.target[0] > self.x_pos and self.turns[0]:
+            elif not self.can_move[2]:
+                if self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.target[1] > self.y_pos and self.turns[3]:
+                elif self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.turns[1]:
+                elif self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.turns[3]:
+                elif self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.turns[0]:
+                elif self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-            elif self.turns[2]:
+            elif self.can_move[2]:
                 self.y_pos -= self.speed
         elif self.dir == 3:
-            if self.target[1] > self.y_pos and self.turns[3]:
+            if self.target[1] > self.y_pos and self.can_move[3]:
                 self.y_pos += self.speed
-            elif not self.turns[3]:
-                if self.target[0] > self.x_pos and self.turns[0]:
+            elif not self.can_move[3]:
+                if self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
+                elif self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.turns[2]:
+                elif self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.turns[1]:
+                elif self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.turns[0]:
+                elif self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-            elif self.turns[3]:
+            elif self.can_move[3]:
                 self.y_pos += self.speed
         if self.x_pos < -30:            self.x_pos = 900
         elif self.x_pos > 900:            self.x_pos - 30
@@ -252,110 +258,110 @@ class Ghost:
 
     def move_G2(self):# GHOST[2] is going to turn left or right whenever advantageous, but only up or down on collision
         if self.dir == 0:
-            if self.target[0] > self.x_pos and self.turns[0]:                self.x_pos += self.speed
-            elif not self.turns[0]:
-                if self.target[1] > self.y_pos and self.turns[3]:
+            if self.target[0] > self.x_pos and self.can_move[0]:                self.x_pos += self.speed
+            elif not self.can_move[0]:
+                if self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
+                elif self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.turns[3]:
+                elif self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.turns[2]:
+                elif self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.turns[1]:
+                elif self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-            elif self.turns[0]:                self.x_pos += self.speed
+            elif self.can_move[0]:                self.x_pos += self.speed
         elif self.dir == 1:
-            if self.target[1] > self.y_pos and self.turns[3]:                self.dir = 3
-            elif self.target[0] < self.x_pos and self.turns[1]:                self.x_pos -= self.speed
-            elif not self.turns[1]:
-                if self.target[1] > self.y_pos and self.turns[3]:
+            if self.target[1] > self.y_pos and self.can_move[3]:                self.dir = 3
+            elif self.target[0] < self.x_pos and self.can_move[1]:                self.x_pos -= self.speed
+            elif not self.can_move[1]:
+                if self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
+                elif self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.target[0] > self.x_pos and self.turns[0]:
+                elif self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.turns[3]:
+                elif self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.turns[2]:
+                elif self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.turns[0]:
+                elif self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-            elif self.turns[1]:                self.x_pos -= self.speed
+            elif self.can_move[1]:                self.x_pos -= self.speed
         elif self.dir == 2:
-            if self.target[0] < self.x_pos and self.turns[1]:
+            if self.target[0] < self.x_pos and self.can_move[1]:
                 self.dir = 1
                 self.x_pos -= self.speed
-            elif self.target[1] < self.y_pos and self.turns[2]:
+            elif self.target[1] < self.y_pos and self.can_move[2]:
                 self.dir = 2
                 self.y_pos -= self.speed
-            elif not self.turns[2]:
-                if self.target[0] > self.x_pos and self.turns[0]:
+            elif not self.can_move[2]:
+                if self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.target[1] > self.y_pos and self.turns[3]:
+                elif self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.turns[1]:
+                elif self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.turns[3]:
+                elif self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.turns[0]:
+                elif self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-            elif self.turns[2]:
-                if self.target[0] > self.x_pos and self.turns[0]:
+            elif self.can_move[2]:
+                if self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
                 else:                    self.y_pos -= self.speed
         elif self.dir == 3:
-            if self.target[1] > self.y_pos and self.turns[3]:                self.y_pos += self.speed
-            elif not self.turns[3]:
-                if self.target[0] > self.x_pos and self.turns[0]:
+            if self.target[1] > self.y_pos and self.can_move[3]:                self.y_pos += self.speed
+            elif not self.can_move[3]:
+                if self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
+                elif self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.turns[2]:
+                elif self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.turns[1]:
+                elif self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.turns[0]:
+                elif self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-            elif self.turns[3]:
-                if self.target[0] > self.x_pos and self.turns[0]:
+            elif self.can_move[3]:
+                if self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
                 else:                    self.y_pos += self.speed
@@ -365,124 +371,124 @@ class Ghost:
 
     def move_G3(self): # GHOST[3] is going to turn whenever advantageous for pursuit
         if self.dir == 0:
-            if self.target[0] > self.x_pos and self.turns[0]:   self.x_pos += self.speed
-            elif not self.turns[0]:
-                if self.target[1] > self.y_pos and self.turns[3]:
+            if self.target[0] > self.x_pos and self.can_move[0]:   self.x_pos += self.speed
+            elif not self.can_move[0]:
+                if self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
+                elif self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.turns[3]:
+                elif self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.turns[2]:
+                elif self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.turns[1]:
+                elif self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-            elif self.turns[0]:
-                if self.target[1] > self.y_pos and self.turns[3]:
+            elif self.can_move[0]:
+                if self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                if self.target[1] < self.y_pos and self.turns[2]:
+                if self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
                 else:                    self.x_pos += self.speed
         elif self.dir == 1:
-            if self.target[1] > self.y_pos and self.turns[3]:   self.dir = 3
-            elif self.target[0] < self.x_pos and self.turns[1]: self.x_pos -= self.speed
-            elif not self.turns[1]:
-                if self.target[1] > self.y_pos and self.turns[3]:
+            if self.target[1] > self.y_pos and self.can_move[3]:   self.dir = 3
+            elif self.target[0] < self.x_pos and self.can_move[1]: self.x_pos -= self.speed
+            elif not self.can_move[1]:
+                if self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
+                elif self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.target[0] > self.x_pos and self.turns[0]:
+                elif self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.turns[3]:
+                elif self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.turns[2]:
+                elif self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.turns[0]:
+                elif self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-            elif self.turns[1]:
-                if self.target[1] > self.y_pos and self.turns[3]:
+            elif self.can_move[1]:
+                if self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                if self.target[1] < self.y_pos and self.turns[2]:
+                if self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
                 else:   self.x_pos -= self.speed
         elif self.dir == 2:
-            if self.target[0] < self.x_pos and self.turns[1]:
+            if self.target[0] < self.x_pos and self.can_move[1]:
                 self.dir = 1
                 self.x_pos -= self.speed
-            elif self.target[1] < self.y_pos and self.turns[2]:
+            elif self.target[1] < self.y_pos and self.can_move[2]:
                 self.dir = 2
                 self.y_pos -= self.speed
-            elif not self.turns[2]:
-                if self.target[0] > self.x_pos and self.turns[0]:
+            elif not self.can_move[2]:
+                if self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.target[1] > self.y_pos and self.turns[3]:
+                elif self.target[1] > self.y_pos and self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.turns[1]:
+                elif self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.turns[3]:
+                elif self.can_move[3]:
                     self.dir = 3
                     self.y_pos += self.speed
-                elif self.turns[0]:
+                elif self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-            elif self.turns[2]:
-                if self.target[0] > self.x_pos and self.turns[0]:
+            elif self.can_move[2]:
+                if self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
                 else:                    self.y_pos -= self.speed
         elif self.dir == 3:
-            if self.target[1] > self.y_pos and self.turns[3]:                self.y_pos += self.speed
-            elif not self.turns[3]:
-                if self.target[0] > self.x_pos and self.turns[0]:
+            if self.target[1] > self.y_pos and self.can_move[3]:                self.y_pos += self.speed
+            elif not self.can_move[3]:
+                if self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.target[1] < self.y_pos and self.turns[2]:
+                elif self.target[1] < self.y_pos and self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.turns[2]:
+                elif self.can_move[2]:
                     self.dir = 2
                     self.y_pos -= self.speed
-                elif self.turns[1]:
+                elif self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
-                elif self.turns[0]:
+                elif self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-            elif self.turns[3]:
-                if self.target[0] > self.x_pos and self.turns[0]:
+            elif self.can_move[3]:
+                if self.target[0] > self.x_pos and self.can_move[0]:
                     self.dir = 0
                     self.x_pos += self.speed
-                elif self.target[0] < self.x_pos and self.turns[1]:
+                elif self.target[0] < self.x_pos and self.can_move[1]:
                     self.dir = 1
                     self.x_pos -= self.speed
                 else:self.y_pos += self.speed
