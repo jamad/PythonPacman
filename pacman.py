@@ -91,19 +91,14 @@ class Ghost:
             is_dirV=self.dir in (2,3)
             is_dirH=self.dir in (0,1)
             cellcheck=lambda x:x<3 or (x==9 and not_alive)
+            in_sweetspot_V= (12 <= self.center_y % COUNT_R <= 18)
+            in_sweetspot_H= (12 <= self.center_x % COUNT_C <= 18)
 
-            self.turns[0] = cellcheck(cellC) or (is_dirV and (12 <= self.center_y % COUNT_R <= 18)and cellcheck(cellF))
-            self.turns[1] = cellcheck(cellB) or (is_dirV and (12 <= self.center_y % COUNT_R <= 18)and cellcheck(cellE))
+            self.turns[0] = cellcheck(cellC) or (is_dirV and in_sweetspot_V and cellcheck(cellF)) #or (is_dirH and in_sweetspot_V and cellcheck(cellC))
+            self.turns[1] = cellcheck(cellB) or (is_dirV and in_sweetspot_V and cellcheck(cellE)) #or (is_dirH and in_sweetspot_V and cellcheck(cellB))
             self.turns[2] = cellcheck(cellA) or (cellA == 9)
-            self.turns[3] = cellcheck(cellD) or (is_dirV and (12 <= self.center_x % COUNT_C <= 18)and (cellD < 3 or (cellD == 9 and not_alive)))
+            self.turns[3] = cellcheck(cellD) or (is_dirV and in_sweetspot_H and cellcheck(cellD)) #or (is_dirH and in_sweetspot_H and cellcheck(cellD))
 
-            if is_dirH:
-                if 12 <= self.center_y % COUNT_R <= 18:
-                    if cellC < 3 or (cellC == 9 and not_alive):self.turns[0] = True
-                    if cellB < 3 or (cellB == 9 and not_alive):self.turns[1] = True
-                if 12 <= self.center_x % COUNT_C <= 18:
-                    if cellA < 3 or (cellA == 9 and not_alive):self.turns[2] = True
-                    if cellD < 3 or (cellD == 9 and not_alive):self.turns[3] = True
         else: self.turns[0] = self.turns[1] = 1
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
 
