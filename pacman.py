@@ -66,15 +66,24 @@ def reset_game():
 
 reset_game()
 
-
-
 counter = powerup_blink_on = score = powerup_phase = power_counter = moving = 0
 player_speed = 2
 pos_pacman = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)] # ghost has each pacman player position!
 ghost_speeds = [2, 2, 2, 2]
+
 startup_counter = 0
 lives = 3
-game_over = game_won = 0
+game_over = 0
+game_won = 0
+
+
+def handle_game_over():
+    global game_over, moving, startup_counter
+    
+    game_over = 1
+    moving = 0
+    startup_counter = 0
+
 
 class Ghost:
     def __init__(self, x, y, pacman, speed, img, direct, dead, box, id):
@@ -497,33 +506,33 @@ while run:
     score, powerup_phase, power_counter, eaten_ghost = check_collisions(score, powerup_phase, power_counter, eaten_ghost)
     # add to if not powerup_phase to check if eaten ghosts
     if not powerup_phase:
-        
         if any ( player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead for i in range(4)):
             if 0 < lives:
                 lives -= 1
-                startup_counter = powerup_phase = power_counter = 0               
+                startup_counter = 0 
+                powerup_phase = 0
+                power_counter = 0               
                 reset_game()
             else:
-                game_over = 1
-                moving = startup_counter = 0
+                handle_game_over()
+    else: # i.e. powerup_phase
 
-    # active ghost hit pacman
-    for i in range(4):
-        if powerup_phase and player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead:
-            if eaten_ghost[i]:  # ghost eat pacman , so game reset
-                if lives > 0:
-                    powerup_phase = False
-                    power_counter = 0
-                    lives -= 1
-                    startup_counter = 0
-                    reset_game()
-                else:
-                    game_over = True
-                    moving = False
-                    startup_counter = 0
-            else: # pacman eat ghost
-                G_DEAD[i] = eaten_ghost[i] = True
-                score += (2 ** eaten_ghost.count(True)) * 100
+        # active ghost hit pacman
+        for i in range(4):
+            if player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead:
+                if eaten_ghost[i]:  # ghost eat pacman , so game reset
+                    if 0 < lives:
+                        lives -= 1
+                        startup_counter = 0
+                        powerup_phase = 0
+                        power_counter = 0
+                        reset_game()
+                    else:
+                        handle_game_over()
+                        
+                else: # pacman eat ghost
+                    G_DEAD[i] = eaten_ghost[i] = True
+                    score += (2 ** eaten_ghost.count(True)) * 100
 
     for e in event.get():
         run = (e.type != QUIT) 
