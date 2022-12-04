@@ -126,6 +126,7 @@ class Ghost:
             cellF = level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C]
 
             not_alive= (self.in_box or self.dead)
+
             cellcheck=lambda x:x<3 or (x==9 and not_alive)
 
             is_dirH=self.dir in (0,1)
@@ -138,6 +139,8 @@ class Ghost:
             self.can_move[2] = cellcheck(cellA) or (cellA == 9)
             self.can_move[3] = cellcheck(cellD) or (cellD == 9) 
 
+            if self.dead and cellD==9:self.dir=3 # if dead and home down, go down
+
         else: self.can_move[0] = self.can_move[1] = 1
 
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480) # ghost is in box or not
@@ -149,7 +152,6 @@ class Ghost:
         pacman_x, pacman_y = self.pacman
 
         if index==0:
-            
             # direction : RLUD 
             # direction change if blocked by the wall
             if self.dir == 0 and not self.can_move[0]: # hit the collision
@@ -222,7 +224,6 @@ class Ghost:
                     elif self.can_move[0]:                                  self.dir = 0
                 elif self.can_move[3]:                                      self.dir = 3
                     
-        
         if index==2:# GHOST[2] is going to turn left or right whenever advantageous, but only up or down on collision
             if self.dir == 0:
                 if pacman_x > self.x_pos and self.can_move[0]:        self.dir = 0
@@ -273,7 +274,6 @@ class Ghost:
                     elif pacman_x < self.x_pos and self.can_move[1]:  self.dir = 1
                     else:                                                   self.dir = 3
                     
-
         if index==3:# GHOST[3] is going to turn whenever advantageous for pursuit
             if self.dir == 0:
                 if pacman_x > self.x_pos and self.can_move[0]:   self.dir = 0
@@ -343,7 +343,7 @@ class Ghost:
 
         # warp gate
         if self.x_pos < -30:    self.x_pos = 900
-        elif self.x_pos > 900:  self.x_pos - 30
+        elif self.x_pos > 900:  self.x_pos = 30
 
         return self.x_pos, self.y_pos, self.dir
 
