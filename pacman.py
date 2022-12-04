@@ -88,7 +88,7 @@ class Ghost:
 
             not_alive= (self.in_box or self.dead)
             cellcheck=lambda x:x<3 or (x==9 and not_alive)
-            
+
             is_dirV=self.dir in (2,3)
             is_dirH=self.dir in (0,1)
             in_sweetspot_V= (12 <= self.center_y % COUNT_R <= 18)
@@ -107,9 +107,10 @@ class Ghost:
 
 
     def move_G0(self):   # GHOST[0] is going to turn whenever colliding with walls, otherwise continue straight
-        if self.dir == 0:
-            if self.target[0] > self.x_pos and self.turns[0]:                self.x_pos += self.speed
-            elif not self.turns[0]:
+        if self.dir == 0: # moving Right 
+            if self.turns[0]:
+                self.x_pos += self.speed# go Right because can go Right 
+            else:
                 if self.target[1] > self.y_pos and self.turns[3]:
                     self.dir = 3
                     self.y_pos += self.speed
@@ -127,8 +128,7 @@ class Ghost:
                     self.y_pos -= self.speed
                 elif self.turns[1]:
                     self.dir = 1
-                    self.x_pos -= self.speed
-            elif self.turns[0]:                self.x_pos += self.speed
+                    self.x_pos -= self.speed         
         elif self.dir == 1:
             if self.target[0] < self.x_pos and self.turns[1]:                self.x_pos -= self.speed
             elif not self.turns[1]:
