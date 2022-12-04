@@ -45,7 +45,6 @@ GY=[0]*4                        # ypos
 GD=[0]*4                        #direction
 G_EATEN = [0]*4             # which ??
 G_DEAD= [0]*4                   # ghost dead
-
 can_move = [0]*4                    # R, L, U, D  open flag for movement
 G_BOX= [0]*4                    # ghost in spawn box
 
@@ -560,11 +559,10 @@ while run:
 
     if player_x > 900:      player_x = -50+3
     elif player_x < -50:    player_x = 900-3
-
-    if GHOST[0].in_box and G_DEAD[0]:   G_DEAD[0] = False
-    if GHOST[1].in_box and G_DEAD[1]:   G_DEAD[1] = False
-    if GHOST[2].in_box and G_DEAD[2]:   G_DEAD[2] = False
-    if GHOST[3].in_box and G_DEAD[3]:   G_DEAD[3] = False
+    
+    # revive the ghosts if in the home box
+    for i in range(4):
+        if GHOST[i].in_box and G_DEAD[i]: G_DEAD[i] = False
 
     display.flip()
 
