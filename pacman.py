@@ -77,32 +77,33 @@ class Ghost:
         return rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
 
     def check_collisions(self):
-        self.can_move = [0]*4
+        self.can_move = [0]*4 #RLUD
 
         if 0 < self.center_x // 30 < 29:
-            cellA = level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C]
-            cellB = level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C]
-            cellC = level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C]
-            cellD = level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C]
+            cellA = level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C]    # up
+            cellB = level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C]    # left
+            cellC = level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C]    # right
+            cellD = level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C]    # down
+            
             cellE = level[self.center_y // COUNT_R][(self.center_x - COUNT_C) // COUNT_C]
             cellF = level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C]
 
             not_alive= (self.in_box or self.dead)
             cellcheck=lambda x:x<3 or (x==9 and not_alive)
 
-            is_dirV=self.dir in (2,3)
             is_dirH=self.dir in (0,1)
+            is_dirV=self.dir in (2,3)
             in_sweetspot_V= (12 <= self.center_y % COUNT_R <= 18)
             in_sweetspot_H= (12 <= self.center_x % COUNT_C <= 18)
 
             self.can_move[0] = cellcheck(cellC) or (is_dirV and in_sweetspot_V and cellcheck(cellF)) #or (is_dirH and in_sweetspot_V and cellcheck(cellC))
             self.can_move[1] = cellcheck(cellB) or (is_dirV and in_sweetspot_V and cellcheck(cellE)) #or (is_dirH and in_sweetspot_V and cellcheck(cellB))
             self.can_move[2] = cellcheck(cellA) or (cellA == 9)
-            self.can_move[3] = cellcheck(cellD) or (is_dirV and in_sweetspot_H and cellcheck(cellD)) #or (is_dirH and in_sweetspot_H and cellcheck(cellD))
+            self.can_move[3] = cellcheck(cellD) or (cellD == 9) 
 
         else: self.can_move[0] = self.can_move[1] = 1
 
-        self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
+        self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480) # ghost is in box or not
 
         return self.can_move, self.in_box
 
