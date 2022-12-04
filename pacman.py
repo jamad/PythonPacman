@@ -6,6 +6,7 @@ from board import boards
 
 from pygame import init, display, time, font, transform, image, rect, event, QUIT, KEYDOWN, KEYUP, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_SPACE, draw
 from math import pi
+from random import randint
 
 init()
 
@@ -106,41 +107,23 @@ class Ghost:
         return self.turns, self.in_box
 
 
-    def move_G0(self):   # GHOST[0] : clyde doesn't change direction unless hit
+    def move_G0(self):   # GHOST[0] : clyde doesn't change direction unless hit . random to left or right
         # RLUD
         target_x,target_y=self.target
 
         # direction change
-        if self.dir == 0: # moving Right 
-            if not self.turns[0]: # hit the collision
-                if self.turns[2]:   self.dir = 2   
-                elif self.turns[3]: self.dir = 3
-                elif self.turns[1]: self.dir = 1
-        elif self.dir == 1:
-            if not self.turns[1]:
-                if not (target_x < self.x_pos and self.turns[1]) :
-                    if target_y > self.y_pos and self.turns[3]:     self.dir = 3
-                    elif target_y < self.y_pos and self.turns[2]:   self.dir = 2
-                    elif target_x > self.x_pos and self.turns[0]:   self.dir = 0
-                    elif self.turns[0]:                    self.dir = 0
-                    elif self.turns[2]:                    self.dir = 2
-                    elif self.turns[3]:                    self.dir = 3
-        elif self.dir == 2:
-            if not (target_y < self.y_pos and self.turns[2]) and not self.turns[2]:
-                if target_x > self.x_pos and self.turns[0]:     self.dir = 0
-                elif target_x < self.x_pos and self.turns[1]:   self.dir = 1
-                elif target_y > self.y_pos and self.turns[3]:   self.dir = 3
-                elif self.turns[0]:                    self.dir = 0
-                elif self.turns[1]:                    self.dir = 1
-                elif self.turns[3]:                    self.dir = 3
-        elif self.dir == 3:
-            if not( target_y > self.y_pos and self.turns[3]) and  not self.turns[3]:
-                if target_x > self.x_pos and self.turns[0]:     self.dir = 0
-                elif target_x < self.x_pos and self.turns[1]:   self.dir = 1
-                elif target_y < self.y_pos and self.turns[2]:   self.dir = 2
-                elif self.turns[0]:                    self.dir = 0
-                elif self.turns[1]:                    self.dir = 1
-                elif self.turns[2]:                    self.dir = 2
+        if self.dir == 0 and not self.turns[0]: # hit the collision
+            if self.turns[2] or self.turns[3]:  self.dir=randint(2,3)#UP or # DOWN
+            else: self.dir = 1    # backward
+        elif self.dir == 1 and not self.turns[1]:
+            if self.turns[2] or self.turns[3]:  self.dir=randint(2,3)#UP or # DOWN
+            else: self.dir = 0    # backward
+        elif self.dir == 2 and not self.turns[2]:
+            if self.turns[0] or self.turns[1]:  self.dir=randint(0,1)#LEFT or RIGHT
+            elif self.turns[3]: self.dir = 3    # backward
+        elif self.dir == 3 and not self.turns[3]:
+            if self.turns[0] or self.turns[1]:  self.dir=randint(0,1)#LEFT or RIGHT
+            elif self.turns[2]: self.dir = 2    # backward
         
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
