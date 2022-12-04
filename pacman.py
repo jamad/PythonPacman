@@ -8,15 +8,17 @@ from pygame import init, display, time, font, transform, image, rect, event, QUI
 from math import pi
 from random import randint
 
+debugmode=0
+
 init()
 
 fps = 60
 WIDTH = 900
 HEIGHT = 950
 
-COUNT_R = (HEIGHT - 50) // 32   # grid row count
+COUNT_R = (HEIGHT - 50) // 32   # grid row count    ( originally  num1)
 COUNT_C = (WIDTH // 30)         # grid column count
-RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall
+RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
 
 screen = display.set_mode([WIDTH, HEIGHT])
 timer = time.Clock()
@@ -80,7 +82,7 @@ class Ghost:
         self.can_move = [0]*4 #RLUD
 
         if 0 < self.center_x // 30 < 29:
-            cellA = level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C]    # up
+            cellA = level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C]    # up   RADIUS aka num3, COUNT_R aka num1, COUNT_C aka num2
             cellB = level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C]    # left
             cellC = level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C]    # right
             cellD = level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C]    # down
@@ -405,8 +407,9 @@ def get_pos_goal(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y)
 
     if powerup_phase:
         for i in range(4):
+            at_ghost_home_door= (340 < GHOST_X[i] < 560)and (340 < GHOST_Y[i] < 500)
             if not GHOST[i].dead:
-                if eaten_ghost[i]:  GHOST_GOALS[i] = (400, 100) if (340 < GHOST_X[i] < 560)and (340 < GHOST_Y[i] < 500) else  (player_x, player_y)
+                if eaten_ghost[i]:  GHOST_GOALS[i] = (400, 100) if at_ghost_home_door else  (player_x, player_y)
                 else: GHOST_GOALS[i] = (450, 450) if i==3 else (runaway_x, runaway_y)
     else:
         for i in range(4):
@@ -451,8 +454,9 @@ while run:
     for i in range(len(level)):
         if 1 in level[i] or 2 in level[i]:game_won = False
 
-    player_circle = draw.circle(screen, 'black', (center_x, center_y), 20, 2)
 
+    
+    player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
     draw_player()
     
     GHOST=[Ghost(GX[i], GY[i], pos_pacman[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i],G_BOX[i], i) for i in range(4)]
@@ -472,7 +476,7 @@ while run:
     # add to if not powerup_phase to check if eaten ghosts
     if not powerup_phase:
         
-        if any (player_circle.colliderect(GHOST[i].rect) and not GHOST[i].dead for i in range(4)):
+        if any (player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead for i in range(4)):
             if lives > 0:
                 lives -= 1
                 startup_counter = powerup_phase = power_counter = 0
@@ -494,7 +498,7 @@ while run:
 
     # active ghost hit pacman
     for i in range(4):
-        if powerup_phase and player_circle.colliderect(GHOST[i].rect) and not GHOST[i].dead:
+        if powerup_phase and player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead:
             if eaten_ghost[i]:  # ghost eat pacman , so game reset
                 if lives > 0:
                     powerup_phase = False
