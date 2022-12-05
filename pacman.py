@@ -1,14 +1,11 @@
 # Build Pac-Man from Scratch in Python with PyGame!!
 # done until 1:26:45  , maybe around 3:40 to start then come back with shorter code 
 
-import copy
-
 from pygame import init, display, time, font, transform, image, rect, event, QUIT, KEYDOWN, KEYUP, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_SPACE, draw
+import copy
 from math import pi
-from random import randint
 
 # 0 = empty, 1 = dot, 2 = big dot, 3 = lineV, 4 = lineH, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right,  9 = gate
-
 boards_data='''\
 644444444444444444444444444445
 364444444444445644444444444453
@@ -101,10 +98,7 @@ reset_game()
         
 player_can_move = [0]*4                    # R, L, U, D  open flag for movement
 
-
 counter = powerup_blink_on = score = powerup_phase = power_counter = 0
-
-pause = 1
 
 player_speed = 2
 pos_pacman = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)] # ghost has each pacman player position!
@@ -114,7 +108,6 @@ lives = 2
 
 game_over = 0
 game_won = 0
-
 
 def handle_game_over():
     global game_over, moving, startup_counter
@@ -506,7 +499,6 @@ while run:
 
     counter += 1
     counter %= 20
-    #print(timer, counter)
     
     powerup_blink_on = (7 < counter)
 
