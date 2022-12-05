@@ -52,7 +52,7 @@ debugmode=0
 init()
 
 # constants
-FPS = 240 # 60 , 240
+FPS = 120 # 60 , 240
 WIDTH = 900
 HEIGHT = 950
 RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
@@ -100,7 +100,7 @@ def reset_game():
 reset_game()
         
 player_can_move = [0]*4                    # R, L, U, D  open flag for movement
-G_BOX= [0]*4                    # ghost in spawn box
+
 
 counter = powerup_blink_on = score = powerup_phase = power_counter = 0
 
@@ -544,7 +544,7 @@ while run:
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
     draw_player()
     
-    GHOST=[Ghost(GX[i], GY[i], pos_pacman[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i],G_BOX[i], i) for i in range(4)]
+    GHOST=[Ghost(GX[i], GY[i], pos_pacman[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i],0, i) for i in range(4)]
 
     draw_HUD()
     pos_pacman = get_pos_goal(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3]) # targets
