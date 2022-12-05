@@ -555,11 +555,11 @@ while run:
         if GHOST[i].in_box and G_DEAD[i]:
             G_DEAD[i] = False
 
-    # fps display
+    # fps display  ### https://stackoverflow.com/questions/67946230/show-fps-in-pygame
     clock.tick()
-    my_fps = str(int(clock.get_fps()))
-    fps_t = font.render(my_fps , 1, "RED")
+    fps_t = font.render(f'FPS: {clock.get_fps():.3f}' , 1, "green")
     screen.blit(fps_t,(0,0))
+
 
     display.flip()
 
