@@ -187,15 +187,15 @@ class Ghost:
         cond2=pacman_y < self.y_pos and self.can_move[2] #  NB!!!!!! for pygame, smaller number means upper!!!! becaue topleft is (0,0)!
         cond3=pacman_y > self.y_pos and self.can_move[3]
         
-        if index==0:  # GHOST[0] : clyde doesn't change direction unless hit . if multiple candidates to turn, follow pacman
-            if any( (self.dir== i and not self.can_move[i]) for i in (0,1)): #blocked
-                if cond2:self.dir=2 # if can follow pacman above, go up
-                elif cond3:self.dir=3
-                else:self.dir=(0,1)[self.dir==0] # backward
-            elif any( (self.dir== i and not self.can_move[i]) for i in (2,3) ):
-                if cond0:self.dir=0
-                elif cond1:self.dir=1
-                else:self.dir=(2,3)[self.dir==2] # backward
+        #if index==0:  # GHOST[0] : clyde doesn't change direction unless hit . if multiple candidates to turn, follow pacman
+        if any( (self.dir== i and not self.can_move[i]) for i in (0,1)): #blocked
+            if cond2:self.dir=2 # if can follow pacman above, go up
+            elif cond3:self.dir=3
+            else:self.dir=(0,1)[self.dir==0] # backward
+        elif any( (self.dir== i and not self.can_move[i]) for i in (2,3) ):
+            if cond0:self.dir=0
+            elif cond1:self.dir=1
+            else:self.dir=(2,3)[self.dir==2] # backward
 
         if index==1:# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
             if self.dir == 0:
