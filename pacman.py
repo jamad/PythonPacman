@@ -50,6 +50,17 @@ G_DEAD= [0]*4                   # ghost dead
 can_move = [0]*4                    # R, L, U, D  open flag for movement
 G_BOX= [0]*4                    # ghost in spawn box
 
+counter = powerup_blink_on = score = powerup_phase = power_counter = 0
+moving = 0
+
+player_speed = 2
+pos_pacman = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)] # ghost has each pacman player position!
+ghost_speeds = [2]*4
+
+lives = 3
+startup_counter = 0
+game_over = 0
+game_won = 0
 
 def reset_game():
     global startup_counter, power_counter, powerup_phase
@@ -71,18 +82,6 @@ def reset_game():
     G_DEAD= [0]*4                   
 
 reset_game()
-
-counter = powerup_blink_on = score = powerup_phase = power_counter = 0
-moving = 0
-
-player_speed = 2
-pos_pacman = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)] # ghost has each pacman player position!
-ghost_speeds = [2]*4
-
-lives = 3
-startup_counter = 0
-game_over = 0
-game_won = 0
 
 def handle_game_over():
     global game_over, moving, startup_counter
@@ -462,7 +461,6 @@ def player_direction_update():
 
     for i in range(4):
         if player_dir_command == i and can_move[i]: player_dir = i
-
 
 def display_FPS():
     # fps display  ### https://stackoverflow.com/questions/67946230/show-fps-in-pygame
