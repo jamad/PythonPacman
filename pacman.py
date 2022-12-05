@@ -8,19 +8,19 @@ from pygame import init, display, time, font, transform, image, rect, event, QUI
 from math import pi
 from random import randint
 
+# variable difinition F12
 debugmode=0
 
 init()
 
-clock = time.Clock()
-
-fps = 60
+# constants
+FPS = 240
 WIDTH = 900
 HEIGHT = 950
+RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
 
 COUNT_R = (HEIGHT - 50) // 32   # grid row count    ( originally  num1)
 COUNT_C = (WIDTH // 30)         # grid column count
-RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
 
 screen = display.set_mode([WIDTH, HEIGHT])
 timer = time.Clock()
@@ -57,7 +57,7 @@ player_speed = 2
 pos_pacman = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)] # ghost has each pacman player position!
 ghost_speeds = [2]*4
 
-lives = 3
+lives = 2
 startup_counter = 0
 game_over = 0
 game_won = 0
@@ -448,7 +448,7 @@ def player_direction_update():
                 reset_game()
 
                 score = 0
-                lives = 3
+                lives = 2
                 game_over = game_won = False
                 level = copy.deepcopy(boards)
 
@@ -464,14 +464,14 @@ def player_direction_update():
 
 def display_FPS():
     # fps display  ### https://stackoverflow.com/questions/67946230/show-fps-in-pygame
-    clock.tick()
-    fps_t = font.render(f'FPS: {clock.get_fps():.3f}' , 1, "green")
-    screen.blit(fps_t,(0,0))
+    #clock.tick()
+    _fps_t = font.render(f'FPS: {timer.get_fps():.3f}' , 1, "green")
+    screen.blit(_fps_t,(0,0))
 
 run = True
 while run:
     
-    timer.tick(fps)
+    timer.tick(FPS)
 
     counter += 1
     counter %= 20
