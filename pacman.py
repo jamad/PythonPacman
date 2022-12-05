@@ -467,19 +467,11 @@ while run:
         if G_EATEN[i]:  ghost_speeds[i] = 2 # slower when spooked
         if G_DEAD[i]:   ghost_speeds[i] = 4 # faster when dead
 
-    game_won = True
-
     level_1D=sum(level,[])
     count_dot=level_1D.count(1)
     count_powerdot=level_1D.count(2)
+    game_won = (count_dot + count_powerdot == 0)
 
-    if 0< count_dot + count_powerdot: game_won = False
-
-    #for i in range(len(level)):# too long loop! 
-    #    if 1 in level[i] or 2 in level[i]:        game_won = False
-
-
-    
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
     draw_player()
     
@@ -498,7 +490,6 @@ while run:
             elif player_dir == 2 :   player_y -= player_speed
             elif player_dir == 3 :   player_y += player_speed
             
-
         for i in range(3):    GX[i], GY[i], GD[i] = GHOST[i].move_G(i if not G_DEAD[i] and not GHOST[i].in_box else  3)
         GX[3], GY[3], GD[3] = GHOST[3].move_G(3)
 
@@ -564,3 +555,4 @@ while run:
     display.flip()
 
 quit()
+
