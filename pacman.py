@@ -560,7 +560,6 @@ while run:
     fps_t = font.render(f'FPS: {clock.get_fps():.3f}' , 1, "green")
     screen.blit(fps_t,(0,0))
 
-
     display.flip()
 
 quit()
