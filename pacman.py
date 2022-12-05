@@ -135,8 +135,8 @@ class Ghost:
         self.dir = direct
         self.dead = dead
         self.id = id
-        self.in_box =0
-        self.can_move, self.in_box = self.check_collisions()
+        self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
+        self.can_move  = self.check_collisions()
         self.rect = self.draw()
 
     def draw(self):
@@ -177,9 +177,8 @@ class Ghost:
 
         else: self.can_move[0] = self.can_move[1] = 1
 
-        self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480) # ghost is in box or not
 
-        return self.can_move, self.in_box
+        return self.can_move
 
     def move_G(self, index):   # GHOST[0] : clyde doesn't change direction unless hit . random to left or right
 
