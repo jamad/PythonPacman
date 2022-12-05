@@ -173,12 +173,20 @@ class Ghost:
 
         return self.can_move
 
-    def move_G(self, index):   # GHOST[0] : clyde doesn't change direction unless hit . random to left or right
+    def move_G(self, index):   # GHOST[0] : clyde doesn't change direction unless hit . if multiple candidates to turn, toward the pacman
 
         pacman_x, pacman_y = self.pacman
 
         # direction : RLUD 
         # direction change if blocked by the wall
+
+        # default movement regardless index
+
+        cond0=pacman_x > self.x_pos and self.can_move[0]
+        cond1=pacman_x < self.x_pos and self.can_move[1]
+        cond2=pacman_y < self.y_pos and self.can_move[2]
+        cond3=pacman_y > self.y_pos and self.can_move[3]
+        
         
         if index==0:
             if self.dir == 0 and not self.can_move[0]: # hit the collision
@@ -202,10 +210,6 @@ class Ghost:
                 elif self.can_move[1]: self.dir=1
                 else: self.dir=2    # backward
 
-        cond0=pacman_x > self.x_pos and self.can_move[0]
-        cond1=pacman_x < self.x_pos and self.can_move[1]
-        cond2=pacman_y < self.y_pos and self.can_move[2]
-        cond3=pacman_y > self.y_pos and self.can_move[3]
 
         if index==1:# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
             if self.dir == 0:
