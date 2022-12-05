@@ -12,6 +12,8 @@ debugmode=0
 
 init()
 
+clock = time.Clock()
+
 fps = 60
 WIDTH = 900
 HEIGHT = 950
@@ -552,6 +554,12 @@ while run:
     for i in range(4):
         if GHOST[i].in_box and G_DEAD[i]:
             G_DEAD[i] = False
+
+    # fps display
+    clock.tick()
+    my_fps = str(int(clock.get_fps()))
+    fps_t = font.render(my_fps , 1, "RED")
+    screen.blit(fps_t,(0,0))
 
     display.flip()
 
