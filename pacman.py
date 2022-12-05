@@ -124,7 +124,7 @@ def handle_game_over():
     startup_counter = 0
 
 class Ghost:
-    def __init__(self, x, y, pacman, speed, img, direct, dead, box, id):
+    def __init__(self, x, y, pacman, speed, img, direct, dead,id):
         self.x_pos = x
         self.y_pos = y
         self.center_x = self.x_pos + 23
@@ -134,8 +134,8 @@ class Ghost:
         self.img = img
         self.dir = direct
         self.dead = dead
-        self.in_box = box
         self.id = id
+        self.in_box =0
         self.can_move, self.in_box = self.check_collisions()
         self.rect = self.draw()
 
@@ -544,7 +544,7 @@ while run:
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
     draw_player()
     
-    GHOST=[Ghost(GX[i], GY[i], pos_pacman[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i],0, i) for i in range(4)]
+    GHOST=[Ghost(GX[i], GY[i], pos_pacman[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i], i) for i in range(4)]
 
     draw_HUD()
     pos_pacman = get_pos_goal(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3]) # targets
