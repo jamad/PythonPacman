@@ -1,7 +1,7 @@
 # Build Pac-Man from Scratch in Python with PyGame!!
 # done until 1:26:45  , maybe around 3:40 to start then come back with shorter code 
 
-from pygame import init, display, time, font, transform, image, rect, event, QUIT, KEYDOWN, KEYUP, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_SPACE, draw
+from pygame import init, display, time, font, transform, image, rect, event, QUIT, KEYDOWN, KEYUP, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_SPACE, draw , Rect
 import copy
 from math import pi
 
@@ -44,7 +44,7 @@ boards_data='''\
 boards=[list(map(int,s)) for s in boards_data.split()]
 
 # variable difinition F12
-debugmode=0
+debugmode=1
 
 init()
 
@@ -52,6 +52,7 @@ init()
 FPS = 120 # 60 , 240
 WIDTH = 900
 HEIGHT = 950
+
 RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
 
 COUNT_R = (HEIGHT - 50) // 32   # grid row count    ( originally  num1)
@@ -80,7 +81,7 @@ def reset_game():
     powerup_phase = 0
     power_counter = 0       
     
-    player_x = 450 - 20 # centerize
+    player_x = 450 - RADIUS*2 # centerize
     player_y = 663
     player_dir =0 
     player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
@@ -95,13 +96,15 @@ def reset_game():
     level = copy.deepcopy(boards)
 
 reset_game()
-        
+
+gate_position=(440  ,0 )
+
 player_can_move = [0]*4                    # R, L, U, D  open flag for movement
 
 counter = powerup_blink_on = score = powerup_phase = power_counter = 0
 
 player_speed = 2
-pos_pacman = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)] # ghost has each pacman player position!
+pos_ghost_targets = [(player_x, player_y) for _ in range(4)] # ghost has each pacman player position!
 ghost_speeds = [2]*4
 
 lives = 2
@@ -117,20 +120,24 @@ def handle_game_over():
     startup_counter = 0
 
 class Ghost:
-    def __init__(self, x, y, pacman, speed, img, direct, dead,id):
+    def __init__(self, x, y, pacman, speed, img, dir, dead, id):
         self.x_pos = x
         self.y_pos = y
         self.center_x = self.x_pos + 23
         self.center_y = self.y_pos + 23
-        self.pacman = pacman
+        self.ghost_target = pacman
         self.speed = speed
         self.img = img
-        self.dir = direct
+        self.dir = dir
         self.dead = dead
         self.id = id
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
         self.can_move  = self.check_collisions()
         self.rect = self.draw()
+
+        if debugmode:
+            draw.circle(screen, 'green', (self.x_pos + 22, self.y_pos + 22), 20, 1) 
+            draw.rect(screen, color='red', rect=self.rect, width=1 )
 
     def draw(self):
         img=self.img # regular
@@ -138,12 +145,15 @@ class Ghost:
         if self.dead:                                   img=dead_img    # dead condition is the strongest
         
         screen.blit(img, (self.x_pos, self.y_pos))
+
+            
         return rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
 
     def check_collisions(self):
         self.can_move = [0]*4 #RLUD
 
         if 0 < self.center_x // 30 < 29:
+
             cellA = level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C]    # up   RADIUS aka num3, COUNT_R aka num1, COUNT_C aka num2
             cellB = level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C]    # left
             cellC = level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C]    # right
@@ -173,29 +183,31 @@ class Ghost:
 
     def move_G(self, index):  
 
-        pacman_x, pacman_y = self.pacman
+        ghost_target_x,ghost_target_y = gate_position if self.in_box else self.ghost_target # packman or home gate
 
         # direction : RLUD 
         # direction change if blocked by the wall
 
         # default movement regardless index
 
-        cond0=self.x_pos < pacman_x and self.can_move[0] # goal is right and can move right
-        cond1=pacman_x < self.x_pos and self.can_move[1] # goal is left and can move left
-        cond2=pacman_y < self.y_pos and self.can_move[2] #  NB!!!!!! for pygame, smaller number means upper!!!! becaue topleft is (0,0)!
-        cond3=pacman_y > self.y_pos and self.can_move[3] # goal is down and can move down
+        cond0=self.x_pos < ghost_target_x and self.can_move[0] # goal is right and can move right
+        cond1=ghost_target_x < self.x_pos and self.can_move[1] # goal is left and can move left
+
+        #  NB!!!!!!!!!!!!    for pygame, smaller number means upper!!!! becaue topleft is (0,0)!
+        cond2=ghost_target_y < self.y_pos and self.can_move[2] # goal is up and can move up
+        cond3=ghost_target_y > self.y_pos and self.can_move[3] # goal is down and can move down
         CONDS=[cond0,cond1,cond2,cond3]
 
         # default behavior
         #if index==0:  # GHOST[0] : clyde doesn't change direction unless hit . if multiple candidates to turn, follow pacman
-        if any( (self.dir== i and not self.can_move[i]) for i in (0,1)): #blocked
+        if any( (self.dir== i and not self.can_move[i]) for i in (0,1)): # blocked horizontal
             if cond2:self.dir=2 # if can follow pacman above, go up
             elif cond3:self.dir=3
-            else:self.dir=(0,1)[self.dir==0] # backward
-        elif any( (self.dir== i and not self.can_move[i]) for i in (2,3) ):
+            else: self.dir=(1 - self.dir) # backward direction 
+        elif any( (self.dir== i and not self.can_move[i]) for i in (2,3) ): # blocked vertical
             if cond0:self.dir=0
             elif cond1:self.dir=1
-            else:self.dir=(2,3)[self.dir==2] # backward
+            else:self.dir= (5 - self.dir)  # backward  if 3 then 2. if 2 then 3
 
         def decide_dir(a,b,c):
             for i in (a,b,c):
@@ -203,80 +215,14 @@ class Ghost:
             for i in (a,b,c):
                 if CONDS[i]:self.dir=i
 
-        if index==1:# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
-            if self.dir == 0 and not cond0:
-                if self.can_move[0]:
-                    if cond3:    self.dir = 3
-                    if cond2:    self.dir = 2
-                else:
-                    decide_dir(1,2,3)
-            elif self.dir == 1:
-                if cond3:        self.dir = 3
-                else:
-                    if self.can_move[1]:
-                        if cond2:    self.dir = 2
-                    else:
-                        decide_dir(0,2,3)
-
-            elif self.dir == 2:
-                if not cond2 and not self.can_move[2]:
-                    decide_dir(0,3,1)
-
-            elif self.dir == 3:
-                if not cond3 and not self.can_move[3]:
-                    decide_dir(0,1,2)
+        if index==2 or index==3:# GHOST[2] GHOST[3] is going to turn left or right whenever advantageous
+            if cond1:   self.dir = 1
+            if cond0:   self.dir = 0
                     
-        if index==2:# GHOST[2] is going to turn left or right whenever advantageous, but only up or down on collision
-            if self.dir == 0:
-                if not cond0 and not self.can_move[0]:
-                    decide_dir(1,2,3)
-            elif self.dir == 1:
-                if cond3:                self.dir = 3 # priority
-                elif not self.can_move[1]:
-                    decide_dir(0,2,3)
-
-            elif self.dir == 2:
-                if cond1:self.dir = 1
-                else:
-                    if self.can_move[2]:
-                        if cond0:self.dir = 0
-                    else:decide_dir(0,3,1)
-
-            elif self.dir == 3:
-                if not cond3:
-                    if self.can_move[3]:
-                        if cond1:   self.dir = 1
-                        if cond0:   self.dir = 0
-                    else:
-                        decide_dir(0,1,2)
-                    
-        if index==3:# GHOST[3] is going to turn whenever advantageous for pursuit
-            if self.dir == 0:
-                if not cond0:
-                    if not self.can_move[0]:
-                        decide_dir(1,2,3)
-                    elif self.can_move[0]:
-                        if cond3:   self.dir = 3
-                        if cond2:   self.dir = 2
-            elif self.dir == 1:
-                if cond3:   self.dir = 3
-                elif not self.can_move[1]:
-                    decide_dir(0,2,3)
-                elif self.can_move[1]:
-                    if cond2:    self.dir = 2
-            elif self.dir == 2:
-                if cond1:        self.dir = 1
-                elif not self.can_move[2]:
-                    decide_dir(0,3,1)
-                elif self.can_move[2]:
-                    if cond0:    self.dir = 0
-            elif self.dir == 3:
-                if not cond3:
-                    if not self.can_move[3]:
-                        decide_dir(0,1,2)
-                    elif self.can_move[3]:
-                        if cond0:    self.dir = 0
-                        elif cond1:  self.dir = 1
+        if index==1 or index==3:# GHOST[1] GHOST[3] turns up or down at any point to pursue
+            if cond3:    self.dir = 3
+            if cond2:    self.dir = 2
+            
 
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
@@ -326,21 +272,31 @@ def check_collisions(scor, power, power_count, G_EATENs):
 def draw_board():
     for i in range(len(level)):
         ic=i+.5 # centrized
-        for j in range(len(level[i])):
+        for j in range(len(level[0])):
+            
+            if debugmode:
+                draw.rect(screen,color=(0,32,0),rect=(i*COUNT_C, j*COUNT_R, COUNT_C,COUNT_R), width=1)
+            
+
             n_col=j * COUNT_C
             jc=j+.5 # centrized
+
+            
+
             cell=level[i][j]
             
             # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
-            if cell == 1:                       draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 4)
-            if cell == 2 and powerup_blink_on:  draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 10)
-            if cell == 3:                       draw.line(     screen, m_color, (COUNT_C*jc, i * COUNT_R),  (COUNT_C*jc, (i+1)*COUNT_R), 3)
-            if cell == 4:                       draw.line(     screen, m_color, (n_col, COUNT_R*ic),  (n_col + COUNT_C, COUNT_R*ic), 3)
-            if cell == 5:                       draw.arc(      screen, m_color, [(n_col - (COUNT_C * 0.4)) - 2, (COUNT_R*ic), COUNT_C, COUNT_R],0, pi / 2, 3)
-            if cell == 6:                       draw.arc(      screen, m_color, [COUNT_C*jc, COUNT_R*ic, COUNT_C, COUNT_R], pi / 2, pi, 3)
-            if cell == 7:                       draw.arc(      screen, m_color, [COUNT_C*jc, (i-.4)*COUNT_R, COUNT_C, COUNT_R], pi, 3* pi / 2, 3)            
-            if cell == 8:                       draw.arc(      screen, m_color, [COUNT_C*(j-.4)- 2, (i-.4) * COUNT_R, COUNT_C, COUNT_R], 3 * pi / 2,2 * pi, 3)
-            if cell == 9:                       draw.line(     screen, 'white', (n_col, COUNT_R*ic), (n_col + COUNT_C, COUNT_R*ic), 3)
+            if cell == 1:   draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 4)
+            if cell == 2:   draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 10 if powerup_blink_on else 5)
+            if cell == 3:   draw.line(     screen, m_color, (COUNT_C*jc, i * COUNT_R),  (COUNT_C*jc, (i+1)*COUNT_R), 3)
+            if cell == 4:   draw.line(     screen, m_color, (n_col, COUNT_R*ic),  (n_col + COUNT_C, COUNT_R*ic), 3)
+            if cell == 5:   draw.arc(      screen, m_color, [(n_col - (COUNT_C * 0.4)) - 2, (COUNT_R*ic), COUNT_C, COUNT_R],0, pi / 2, 3)
+            if cell == 6:   draw.arc(      screen, m_color, [COUNT_C*jc, COUNT_R*ic, COUNT_C, COUNT_R], pi / 2, pi, 3)
+            if cell == 7:   draw.arc(      screen, m_color, [COUNT_C*jc, (i-.4)*COUNT_R, COUNT_C, COUNT_R], pi, 3* pi / 2, 3)            
+            if cell == 8:   draw.arc(      screen, m_color, [COUNT_C*(j-.4)- 2, (i-.4) * COUNT_R, COUNT_C, COUNT_R], 3 * pi / 2,2 * pi, 3)
+            if cell == 9:   draw.line(     screen, 'white', (n_col, COUNT_R*ic), (n_col + COUNT_C, COUNT_R*ic), 3)
+            
+            
 
 def draw_player():
     pos=(player_x, player_y)
@@ -368,28 +324,35 @@ def check_passable(col, row):  # originally check_position
 
     return [tR,tL,tU,tD]
 
-def get_pos_goal(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y):
-    GHOST_X=[blink_x, ink_x, pink_x, clyd_x]
-    GHOST_Y=[blink_y, ink_y, pink_y, clyd_y]
-
-    runaway_x = (0,900)[player_x < 450]# away from pacman 
-    runaway_y = (0,900)[player_y < 450]# away from pacman 
+def get_pos_goal(gR_x, gR_y, gP_x, gP_y, gB_x, gB_y, gY_x, gY_y):
+    GHOST_X=[gR_x, gP_x, gB_x, gY_x]
+    GHOST_Y=[gR_y, gP_y, gB_y, gY_y]
     
-    ghost_home = (380, 400) # ghost home box
-    
-    GHOST_GOALS=[ghost_home]*4
+    GHOST_GOALS=[(380, 400)]*4 # ghost home box  as default
 
-    if powerup_phase:
-        for i in range(4):
-            at_ghost_home_door= (340 < GHOST_X[i] < 560)and (340 < GHOST_Y[i] < 500)
-            if not GHOST[i].dead:
-                if G_EATEN[i]:  GHOST_GOALS[i] = (400, 100) if at_ghost_home_door else  (player_x, player_y)
-                else: GHOST_GOALS[i] = (450, 450) if i==3 else (runaway_x, runaway_y)
-    else:
-        for i in range(4):
-            if not GHOST[i].dead:
-                GHOST_GOALS[i] = (400, 100)if 340 < GHOST_X[i] < 560 and 340 < GHOST_Y[i] < 500 else(player_x, player_y)
+    # update ghost's target (pacman, home or  runaway corner)
+    for i in range(4):
+        in_ghost_home= (350 < GHOST_X[i] < 350  + 200  )and (385 - RADIUS*3 < GHOST_Y[i] < 385 + 100)
+        if not GHOST[i].dead:
+            if powerup_phase:
+                if G_EATEN[i]:  # dead ghost
+                    GHOST_GOALS[i] = ((player_x, player_y), (450, 200)) [in_ghost_home]
+                else: # spooked ghost
+                    GHOST_GOALS[i] = (450, 450) if i==3 else ((0,900)[player_x < 450], (0,900)[player_y < 450])# away from pacman 
+            else:
+                GHOST_GOALS[i] = (400, 100) if in_ghost_home else (player_x + 22, player_y + 22)
+        
+        if in_ghost_home:
+            GHOST_GOALS[i] = (440, 388-100)
 
+
+    if debugmode:# draw home collision
+        draw.rect(screen, color='green', rect=Rect(350 , 385  ,200, 100),width=1) # box collision
+        draw.circle(screen, color='red', center=(380, 400), radius=5 ,width=0) # ghost home
+        draw.circle(screen, color='red', center=(450,100), radius=5 ,width=0) # gate target
+        for i,goal in enumerate(GHOST_GOALS):
+            draw.circle(screen, color=('red','pink','cyan','orange')[i], center=goal, radius=i*2 ,width=1)
+            
     return GHOST_GOALS
 
 def player_direction_update():
@@ -424,6 +387,10 @@ def display_FPS():
     #clock.tick()
     _fps_t = myfont.render(f'FPS: {timer.get_fps():.3f}' , 1, "green")
     screen.blit(_fps_t,(0,0))
+
+def update_ghost_target():
+    global pos_ghost_targets
+    pos_ghost_targets = get_pos_goal(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3]) 
 
 run = True
 while run:
@@ -469,10 +436,13 @@ while run:
     draw_player()
     
     # ghost update
-    GHOST=[Ghost(GX[i], GY[i], pos_pacman[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i], i) for i in range(4)]
+    GHOST=[Ghost(GX[i], GY[i], pos_ghost_targets[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i], i) for i in range(4)]
 
     draw_HUD()
-    pos_pacman = get_pos_goal(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3]) # targets
+
+    # Ghost target update
+    update_ghost_target()
+    
 
     player_can_move = check_passable(center_x, center_y)
 
@@ -484,8 +454,13 @@ while run:
             elif player_dir == 2 :   player_y -= player_speed
             elif player_dir == 3 :   player_y += player_speed
             
-        for i in range(3):    GX[i], GY[i], GD[i] = GHOST[i].move_G(i if not G_DEAD[i] and not GHOST[i].in_box else  3)
-        GX[3], GY[3], GD[3] = GHOST[3].move_G(3)
+        for i in range(4):    
+            if GHOST[i].in_box or G_DEAD[i]: # if 
+                GX[i], GY[i], GD[i] = GHOST[i].move_G(3)
+            else:
+                GX[i], GY[i], GD[i] = GHOST[i].move_G(i)
+
+
 
     score, powerup_phase, power_counter, G_EATEN = check_collisions(score, powerup_phase, power_counter, G_EATEN)
     # add to if not powerup_phase to check if eaten ghosts
