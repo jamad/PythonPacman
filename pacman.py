@@ -167,9 +167,7 @@ class Ghost:
             self.can_move[3] = cellcheck(cellD) or (cellD == 9) 
 
             if self.dead and cellD==9:self.dir=3 # if ghost is dead and down is 9 (home entry) > move down to enter ghost home ##### BUGFIX
-
         else: self.can_move[0] = self.can_move[1] = 1
-
 
         return self.can_move
 
@@ -215,10 +213,10 @@ class Ghost:
             elif self.dir == 1:
                 if cond3:        self.dir = 3
                 else:
-                    if not self.can_move[1]:
-                        decide_dir(0,2,3)
-                    elif self.can_move[1]:
+                    if self.can_move[1]:
                         if cond2:    self.dir = 2
+                    else:
+                        decide_dir(0,2,3)
 
             elif self.dir == 2:
                 if not cond2 and not self.can_move[2]:
@@ -238,19 +236,19 @@ class Ghost:
                     decide_dir(0,2,3)
 
             elif self.dir == 2:
-                if cond1:                    self.dir = 1
-                elif not self.can_move[2]:
-                    decide_dir(0,3,1)
-                elif self.can_move[2]:
-                    if cond0:               self.dir = 0
+                if cond1:self.dir = 1
+                else:
+                    if self.can_move[2]:
+                        if cond0:self.dir = 0
+                    else:decide_dir(0,3,1)
 
             elif self.dir == 3:
                 if not cond3:
-                    if not self.can_move[3]:
+                    if self.can_move[3]:
+                        if cond1:   self.dir = 1
+                        if cond0:   self.dir = 0
+                    else:
                         decide_dir(0,1,2)
-                    elif self.can_move[3]:
-                        if cond0:    self.dir = 0
-                        elif cond1:  self.dir = 1
                     
         if index==3:# GHOST[3] is going to turn whenever advantageous for pursuit
             if self.dir == 0:
@@ -258,8 +256,8 @@ class Ghost:
                     if not self.can_move[0]:
                         decide_dir(1,2,3)
                     elif self.can_move[0]:
-                        if cond3:               self.dir = 3
-                        if cond2:               self.dir = 2
+                        if cond3:   self.dir = 3
+                        if cond2:   self.dir = 2
             elif self.dir == 1:
                 if cond3:   self.dir = 3
                 elif not self.can_move[1]:
