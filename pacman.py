@@ -202,47 +202,50 @@ class Ghost:
                 elif self.can_move[1]: self.dir=1
                 else: self.dir=2    # backward
 
+        cond2=pacman_y < self.y_pos and self.can_move[2]
+        cond3=pacman_y > self.y_pos and self.can_move[3]
+        
         if index==1:# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
             if self.dir == 0:
                 if pacman_x > self.x_pos and self.can_move[0]:        pass
                 elif not self.can_move[0]:
-                    if pacman_y > self.y_pos and self.can_move[3]:    self.dir = 3
-                    elif pacman_y < self.y_pos and self.can_move[2]:  self.dir = 2
+                    if cond3:    self.dir = 3
+                    elif cond2:  self.dir = 2
                     elif pacman_x < self.x_pos and self.can_move[1]:  self.dir = 1
                     elif self.can_move[3]:                        self.dir = 3
                     elif self.can_move[2]:                        self.dir = 2
                     elif self.can_move[1]:                        self.dir = 1
                 elif self.can_move[0]:
-                    if pacman_y > self.y_pos and self.can_move[3]:    self.dir = 3
-                    if pacman_y < self.y_pos and self.can_move[2]:    self.dir = 2
+                    if cond3:    self.dir = 3
+                    if cond2:    self.dir = 2
             elif self.dir == 1:
-                if pacman_y > self.y_pos and self.can_move[3]:        self.dir = 3
+                if cond3:        self.dir = 3
                 elif pacman_x < self.x_pos and self.can_move[1]:      pass
                 elif not self.can_move[1]:
-                    if pacman_y > self.y_pos and self.can_move[3]:    self.dir = 3
-                    elif pacman_y < self.y_pos and self.can_move[2]:  self.dir = 2
+                    if cond3:    self.dir = 3
+                    elif cond2:  self.dir = 2
                     elif pacman_x > self.x_pos and self.can_move[0]:  self.dir = 0
                     elif self.can_move[3]:                                  self.dir = 3
                     elif self.can_move[2]:                                  self.dir = 2
                     elif self.can_move[0]:                                  self.dir = 0
                 elif self.can_move[1]:
-                    if pacman_y > self.y_pos and self.can_move[3]:    self.dir = 3
-                    if pacman_y < self.y_pos and self.can_move[2]:    self.dir = 2
+                    if cond3:    self.dir = 3
+                    if cond2:    self.dir = 2
             elif self.dir == 2:
-                if pacman_y < self.y_pos and self.can_move[2]:        pass
+                if cond2:        pass
                 elif not self.can_move[2]:
                     if pacman_x > self.x_pos and self.can_move[0]:    self.dir = 0
                     elif pacman_x < self.x_pos and self.can_move[1]:  self.dir = 1
-                    elif pacman_y > self.y_pos and self.can_move[3]:  self.dir = 3
+                    elif cond3:  self.dir = 3
                     elif self.can_move[1]:                                  self.dir = 1
                     elif self.can_move[3]:                                  self.dir = 3
                     elif self.can_move[0]:                                  self.dir = 0
             elif self.dir == 3:
-                if pacman_y > self.y_pos and self.can_move[3]:        pass
+                if cond3:        pass
                 elif not self.can_move[3]:
                     if pacman_x > self.x_pos and self.can_move[0]:    self.dir = 0
                     elif pacman_x < self.x_pos and self.can_move[1]:  self.dir = 1
-                    elif pacman_y < self.y_pos and self.can_move[2]:  self.dir = 2
+                    elif cond2:  self.dir = 2
                     elif self.can_move[2]:                                  self.dir = 2
                     elif self.can_move[1]:                                  self.dir = 1
                     elif self.can_move[0]:                                  self.dir = 0
@@ -251,29 +254,29 @@ class Ghost:
             if self.dir == 0:
                 if pacman_x > self.x_pos and self.can_move[0]:        pass
                 elif not self.can_move[0]:
-                    if pacman_y > self.y_pos and self.can_move[3]:    self.dir = 3
-                    elif pacman_y < self.y_pos and self.can_move[2]:  self.dir = 2
+                    if cond3:    self.dir = 3
+                    elif cond2:  self.dir = 2
                     elif pacman_x < self.x_pos and self.can_move[1]:  self.dir = 1
                     elif self.can_move[3]:                        self.dir = 3
                     elif self.can_move[2]:                        self.dir = 2
                     elif self.can_move[1]:                        self.dir = 1
             elif self.dir == 1:
-                if pacman_y > self.y_pos and self.can_move[3]:                self.dir = 3
+                if cond3:                self.dir = 3
                 elif pacman_x < self.x_pos and self.can_move[1]:              pass
                 elif not self.can_move[1]:
-                    if pacman_y > self.y_pos and self.can_move[3]:                        self.dir = 3
-                    elif pacman_y < self.y_pos and self.can_move[2]:                        self.dir = 2
+                    if cond3:                        self.dir = 3
+                    elif cond2:                        self.dir = 2
                     elif pacman_x > self.x_pos and self.can_move[0]:                        self.dir = 0
                     elif self.can_move[3]:                        self.dir = 3
                     elif self.can_move[2]:                        self.dir = 2
                     elif self.can_move[0]:                        self.dir = 0
             elif self.dir == 2:
                 if pacman_x < self.x_pos and self.can_move[1]:                    self.dir = 1
-                elif pacman_y < self.y_pos and self.can_move[2]:                    pass
+                elif cond2:                    pass
                 elif not self.can_move[2]:
                     if pacman_x > self.x_pos and self.can_move[0]:                        self.dir = 0
                     elif pacman_x < self.x_pos and self.can_move[1]:                        self.dir = 1
-                    elif pacman_y > self.y_pos and self.can_move[3]:                        self.dir = 3
+                    elif cond3:                        self.dir = 3
                     elif self.can_move[1]:                        self.dir = 1
                     elif self.can_move[3]:                        self.dir = 3
                     elif self.can_move[0]:                        self.dir = 0
@@ -281,11 +284,11 @@ class Ghost:
                     if pacman_x > self.x_pos and self.can_move[0]:                        self.dir = 0
                     elif pacman_x < self.x_pos and self.can_move[1]:                        self.dir = 1
             elif self.dir == 3:
-                if pacman_y > self.y_pos and self.can_move[3]:                pass
+                if cond3:                pass
                 elif not self.can_move[3]:
                     if pacman_x > self.x_pos and self.can_move[0]:                        self.dir = 0
                     elif pacman_x < self.x_pos and self.can_move[1]:                        self.dir = 1
-                    elif pacman_y < self.y_pos and self.can_move[2]:                        self.dir = 2
+                    elif cond2:                        self.dir = 2
                     elif self.can_move[2]:                        self.dir = 2
                     elif self.can_move[1]:                        self.dir = 1
                     elif self.can_move[0]:                        self.dir = 0
@@ -297,35 +300,35 @@ class Ghost:
             if self.dir == 0:
                 if pacman_x > self.x_pos and self.can_move[0]:   pass
                 elif not self.can_move[0]:
-                    if pacman_y > self.y_pos and self.can_move[3]:                        self.dir = 3
-                    elif pacman_y < self.y_pos and self.can_move[2]:                        self.dir = 2
+                    if cond3:                        self.dir = 3
+                    elif cond2:                        self.dir = 2
                     elif pacman_x < self.x_pos and self.can_move[1]:                        self.dir = 1
                     elif self.can_move[3]:                        self.dir = 3
                     elif self.can_move[2]:                        self.dir = 2
                     elif self.can_move[1]:                        self.dir = 1
                 elif self.can_move[0]:
-                    if pacman_y > self.y_pos and self.can_move[3]:                        self.dir = 3
-                    if pacman_y < self.y_pos and self.can_move[2]:                        self.dir = 2
+                    if cond3:                        self.dir = 3
+                    if cond2:                        self.dir = 2
             elif self.dir == 1:
-                if pacman_y > self.y_pos and self.can_move[3]:   self.dir = 3
+                if cond3:   self.dir = 3
                 elif pacman_x < self.x_pos and self.can_move[1]: pass
                 elif not self.can_move[1]:
-                    if pacman_y > self.y_pos and self.can_move[3]:                        self.dir = 3
-                    elif pacman_y < self.y_pos and self.can_move[2]:                        self.dir = 2
+                    if cond3:                        self.dir = 3
+                    elif cond2:                        self.dir = 2
                     elif pacman_x > self.x_pos and self.can_move[0]:                        self.dir = 0
                     elif self.can_move[3]:                        self.dir = 3
                     elif self.can_move[2]:                        self.dir = 2
                     elif self.can_move[0]:                        self.dir = 0
                 elif self.can_move[1]:
-                    if pacman_y > self.y_pos and self.can_move[3]:    self.dir = 3
-                    if pacman_y < self.y_pos and self.can_move[2]:    self.dir = 2
+                    if cond3:    self.dir = 3
+                    if cond2:    self.dir = 2
             elif self.dir == 2:
                 if pacman_x < self.x_pos and self.can_move[1]:        self.dir = 1
-                elif pacman_y < self.y_pos and self.can_move[2]:      pass
+                elif cond2:      pass
                 elif not self.can_move[2]:
                     if pacman_x > self.x_pos and self.can_move[0]:    self.dir = 0
                     elif pacman_x < self.x_pos and self.can_move[1]:  self.dir = 1
-                    elif pacman_y > self.y_pos and self.can_move[3]:  self.dir = 3
+                    elif cond3:  self.dir = 3
                     elif self.can_move[1]:                        self.dir = 1
                     elif self.can_move[3]:                        self.dir = 3
                     elif self.can_move[0]:                        self.dir = 0
@@ -333,11 +336,11 @@ class Ghost:
                     if pacman_x > self.x_pos and self.can_move[0]:    self.dir = 0
                     elif pacman_x < self.x_pos and self.can_move[1]:  self.dir = 1
             elif self.dir == 3:
-                if pacman_y > self.y_pos and self.can_move[3]:                            pass
+                if cond3:                            pass
                 elif not self.can_move[3]:
                     if pacman_x > self.x_pos and self.can_move[0]:                        self.dir = 0
                     elif pacman_x < self.x_pos and self.can_move[1]:self.dir = 1
-                    elif pacman_y < self.y_pos and self.can_move[2]:self.dir = 2
+                    elif cond2:self.dir = 2
                     elif self.can_move[2]:                        self.dir = 2
                     elif self.can_move[1]:                        self.dir = 1
                     elif self.can_move[0]:                        self.dir = 0
@@ -535,6 +538,7 @@ while run:
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
     draw_player()
     
+    # ghost update
     GHOST=[Ghost(GX[i], GY[i], pos_pacman[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i], i) for i in range(4)]
 
     draw_HUD()
