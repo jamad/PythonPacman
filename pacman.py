@@ -7,9 +7,7 @@ from pygame import init, display, time, font, transform, image, rect, event, QUI
 from math import pi
 from random import randint
 
-# 0 = empty black rectangle, 1 = dot, 2 = big dot, 3 = vertical line,
-# 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right
-# 9 = gate
+# 0 = empty, 1 = dot, 2 = big dot, 3 = lineV, 4 = lineH, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right,  9 = gate
 
 boards_data='''\
 644444444444444444444444444445
@@ -47,8 +45,6 @@ boards_data='''\
 744444444444444444444444444448'''
 
 boards=[list(map(int,s)) for s in boards_data.split()]
-
-#for R in boards:    print(''.join(map(str,R)))
 
 # variable difinition F12
 debugmode=0
@@ -103,7 +99,7 @@ def reset_game():
 
 reset_game()
         
-can_move = [0]*4                    # R, L, U, D  open flag for movement
+player_can_move = [0]*4                    # R, L, U, D  open flag for movement
 G_BOX= [0]*4                    # ghost in spawn box
 
 counter = powerup_blink_on = score = powerup_phase = power_counter = 0
@@ -496,7 +492,7 @@ def player_direction_update():
             if e.key == K_DOWN and player_dir_command == 3:  player_dir_command = player_dir
 
     for i in range(4):
-        if player_dir_command == i and can_move[i]: player_dir = i
+        if player_dir_command == i and player_can_move[i]: player_dir = i
 
 def display_FPS():
     # fps display  ### https://stackoverflow.com/questions/67946230/show-fps-in-pygame
@@ -553,11 +549,11 @@ while run:
     draw_HUD()
     pos_pacman = get_pos_goal(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3]) # targets
 
-    can_move = check_passable(center_x, center_y)
+    player_can_move = check_passable(center_x, center_y)
 
     if moving:
 
-        if can_move[player_dir]:
+        if player_can_move[player_dir]:
             if player_dir == 0:      player_x += player_speed
             elif player_dir == 1 :   player_x -= player_speed
             elif player_dir == 2 :   player_y -= player_speed
