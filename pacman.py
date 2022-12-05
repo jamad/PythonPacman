@@ -435,6 +435,12 @@ def get_pos_goal(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y)
 
     return GHOST_GOALS
 
+def display_FPS():
+    # fps display  ### https://stackoverflow.com/questions/67946230/show-fps-in-pygame
+    clock.tick()
+    fps_t = font.render(f'FPS: {clock.get_fps():.3f}' , 1, "green")
+    screen.blit(fps_t,(0,0))
+
 run = True
 while run:
     
@@ -555,10 +561,7 @@ while run:
         if GHOST[i].in_box and G_DEAD[i]:
             G_DEAD[i] = False
 
-    # fps display  ### https://stackoverflow.com/questions/67946230/show-fps-in-pygame
-    clock.tick()
-    fps_t = font.render(f'FPS: {clock.get_fps():.3f}' , 1, "green")
-    screen.blit(fps_t,(0,0))
+    display_FPS()
 
     display.flip()
 
