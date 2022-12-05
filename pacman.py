@@ -186,7 +186,9 @@ class Ghost:
         cond1=pacman_x < self.x_pos and self.can_move[1]
         cond2=pacman_y < self.y_pos and self.can_move[2] #  NB!!!!!! for pygame, smaller number means upper!!!! becaue topleft is (0,0)!
         cond3=pacman_y > self.y_pos and self.can_move[3]
-        
+        CONDS=[cond0,cond1,cond2,cond3]
+
+        # default behavior
         #if index==0:  # GHOST[0] : clyde doesn't change direction unless hit . if multiple candidates to turn, follow pacman
         if any( (self.dir== i and not self.can_move[i]) for i in (0,1)): #blocked
             if cond2:self.dir=2 # if can follow pacman above, go up
@@ -198,28 +200,26 @@ class Ghost:
             else:self.dir=(2,3)[self.dir==2] # backward
 
         if index==1:# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
-            if self.dir == 0:
-                if not cond0:
-                    if not self.can_move[0]:
-                        if cond3:    self.dir = 3
-                        elif cond2:  self.dir = 2
-                        elif cond1:  self.dir = 1
-                        elif self.can_move[3]:  self.dir = 3
-                        elif self.can_move[2]:  self.dir = 2
-                        elif self.can_move[1]:  self.dir = 1
-                    else:
-                        if cond3:    self.dir = 3
-                        if cond2:    self.dir = 2
+            if self.dir == 0 and not cond0:
+                if self.can_move[0]:
+                    if cond3:    self.dir = 3
+                    if cond2:    self.dir = 2
+                else:
+                    for i in (1,2,3):
+                        if self.can_move[i]:self.dir=i
+                    for i in (1,2,3):
+                        if CONDS[i]:self.dir=i
             elif self.dir == 1:
                 if cond3:        self.dir = 3
-                elif not self.can_move[1]:
-                    if cond2:  self.dir = 2
-                    elif cond0:  self.dir = 0
-                    elif self.can_move[3]:  self.dir = 3
-                    elif self.can_move[2]:  self.dir = 2
-                    elif self.can_move[0]:  self.dir = 0
-                elif self.can_move[1]:
-                    if cond2:    self.dir = 2
+                else:
+                    if not self.can_move[1]:
+                        if cond2:  self.dir = 2
+                        elif cond0:  self.dir = 0
+                        elif self.can_move[3]:  self.dir = 3
+                        elif self.can_move[2]:  self.dir = 2
+                        elif self.can_move[0]:  self.dir = 0
+                    elif self.can_move[1]:
+                        if cond2:    self.dir = 2
 
             elif self.dir == 2:
                 if not cond2 and not self.can_move[2]:
