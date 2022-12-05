@@ -286,69 +286,67 @@ class Ghost:
                     if cond0:               self.dir = 0
                     elif cond1:             self.dir = 1
             elif self.dir == 3:
-                if cond3:                pass
-                elif not self.can_move[3]:
-                    if cond0:                        self.dir = 0
-                    elif cond1:                        self.dir = 1
-                    elif cond2:                        self.dir = 2
-                    elif self.can_move[2]:  self.dir = 2
-                    elif self.can_move[1]:  self.dir = 1
-                    elif self.can_move[0]:  self.dir = 0
-                elif self.can_move[3]:
-                    if cond0:    self.dir = 0
-                    elif cond1:  self.dir = 1
+                if not cond3:
+                    if not self.can_move[3]:
+                        if cond0:   self.dir = 0
+                        elif cond1: self.dir = 1
+                        elif cond2: self.dir = 2
+                        elif self.can_move[2]:  self.dir = 2
+                        elif self.can_move[1]:  self.dir = 1
+                        elif self.can_move[0]:  self.dir = 0
+                    elif self.can_move[3]:
+                        if cond0:    self.dir = 0
+                        elif cond1:  self.dir = 1
                     
         if index==3:# GHOST[3] is going to turn whenever advantageous for pursuit
             if self.dir == 0:
-                if cond0:   pass
-                elif not self.can_move[0]:
-                    if cond3:                        self.dir = 3
-                    elif cond2:                        self.dir = 2
-                    elif cond1:                        self.dir = 1
-                    elif self.can_move[3]:                        self.dir = 3
-                    elif self.can_move[2]:                        self.dir = 2
-                    elif self.can_move[1]:                        self.dir = 1
-                elif self.can_move[0]:
-                    if cond3:                        self.dir = 3
-                    if cond2:                        self.dir = 2
+                if not cond0:
+                    if not self.can_move[0]:
+                        if cond3:               self.dir = 3
+                        elif cond2:             self.dir = 2
+                        elif cond1:             self.dir = 1
+                        elif self.can_move[3]:  self.dir = 3
+                        elif self.can_move[2]:  self.dir = 2
+                        elif self.can_move[1]:  self.dir = 1
+                    elif self.can_move[0]:
+                        if cond3:                        self.dir = 3
+                        if cond2:                        self.dir = 2
             elif self.dir == 1:
                 if cond3:   self.dir = 3
-                elif cond1: pass
                 elif not self.can_move[1]:
-                    if cond3:                        self.dir = 3
-                    elif cond2:                        self.dir = 2
-                    elif cond0:                        self.dir = 0
-                    elif self.can_move[3]:                        self.dir = 3
-                    elif self.can_move[2]:                        self.dir = 2
-                    elif self.can_move[0]:                        self.dir = 0
+                    if cond3:                   self.dir = 3
+                    elif cond2:                 self.dir = 2
+                    elif cond0:                 self.dir = 0
+                    elif self.can_move[3]:      self.dir = 3
+                    elif self.can_move[2]:      self.dir = 2
+                    elif self.can_move[0]:      self.dir = 0
                 elif self.can_move[1]:
                     if cond3:    self.dir = 3
                     if cond2:    self.dir = 2
             elif self.dir == 2:
                 if cond1:        self.dir = 1
-                elif cond2:      pass
                 elif not self.can_move[2]:
                     if cond0:    self.dir = 0
                     elif cond1:  self.dir = 1
                     elif cond3:  self.dir = 3
-                    elif self.can_move[1]:                        self.dir = 1
-                    elif self.can_move[3]:                        self.dir = 3
-                    elif self.can_move[0]:                        self.dir = 0
+                    elif self.can_move[1]:      self.dir = 1
+                    elif self.can_move[3]:      self.dir = 3
+                    elif self.can_move[0]:      self.dir = 0
                 elif self.can_move[2]:
                     if cond0:    self.dir = 0
                     elif cond1:  self.dir = 1
             elif self.dir == 3:
-                if cond3:                            pass
-                elif not self.can_move[3]:
-                    if cond0:                        self.dir = 0
-                    elif cond1:self.dir = 1
-                    elif cond2:self.dir = 2
-                    elif self.can_move[2]:                        self.dir = 2
-                    elif self.can_move[1]:                        self.dir = 1
-                    elif self.can_move[0]:                        self.dir = 0
-                elif self.can_move[3]:
-                    if cond0:    self.dir = 0
-                    elif cond1:  self.dir = 1
+                if not cond3:
+                    if not self.can_move[3]:
+                        if cond0:               self.dir = 0
+                        elif cond1:self.dir = 1
+                        elif cond2:self.dir = 2
+                        elif self.can_move[2]:  self.dir = 2
+                        elif self.can_move[1]:  self.dir = 1
+                        elif self.can_move[0]:  self.dir = 0
+                    elif self.can_move[3]:
+                        if cond0:    self.dir = 0
+                        elif cond1:  self.dir = 1
 
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
