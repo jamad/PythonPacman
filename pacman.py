@@ -14,7 +14,7 @@ debugmode=0
 init()
 
 # constants
-FPS = 240
+FPS = 240 # 60 , 240
 WIDTH = 900
 HEIGHT = 950
 RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
@@ -35,35 +35,9 @@ G_IMG=          [transform.scale(image.load(f'assets/ghost_images/{x}.png'),img_
 spooked_img =   transform.scale(image.load(f'assets/ghost_images/powerup.png'),img_size)
 dead_img =      transform.scale(image.load(f'assets/ghost_images/dead.png'),img_size)
 
-####################### dummy to reset 
-player_x = 0
-player_y = 0
-player_dir = 0
-player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
-
-# ghosts : blinky 0  inky 1  pinky 2 clyde 3           
-GX=[0]*4                        # xpos
-GY=[0]*4                        # ypos
-GD=[0]*4                        #direction
-G_EATEN = [0]*4             # which ??
-G_DEAD= [0]*4                   # ghost dead
-can_move = [0]*4                    # R, L, U, D  open flag for movement
-G_BOX= [0]*4                    # ghost in spawn box
-
-counter = powerup_blink_on = score = powerup_phase = power_counter = 0
-moving = 0
-
-player_speed = 2
-pos_pacman = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)] # ghost has each pacman player position!
-ghost_speeds = [2]*4
-
-lives = 2
-startup_counter = 0
-game_over = 0
-game_won = 0
-
+# initial declaration
 def reset_game():
-    global startup_counter, power_counter, powerup_phase
+    global startup_counter, power_counter, powerup_phase # can be first variable 
     global player_x, player_y,player_dir, player_dir_command, GX, GY, GD,G_EATEN, G_DEAD # important!
     
     startup_counter = 0 
@@ -73,15 +47,33 @@ def reset_game():
     player_x = 450 - 20 # centerize
     player_y = 663
     player_dir =0 
-    player_dir_command = 0
+    player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
 
-    GX=[440, 440+45, 440, 440 -45]  
-    GY=[388, 438, 438, 438]         
-    GD=[0]*4                        
-    G_EATEN = [0]*4             
-    G_DEAD= [0]*4                   
+    # ghosts : blinky 0  inky 1  pinky 2 clyde 3   
+    GX=[440, 440+45, 440, 440 -45]  # xpos
+    GY=[388, 438, 438, 438]         # ypos
+    GD=[0]*4                        #direction
+    G_EATEN = [0]*4                 # which ??
+    G_DEAD= [0]*4                   # ghost dead
 
 reset_game()
+        
+can_move = [0]*4                    # R, L, U, D  open flag for movement
+G_BOX= [0]*4                    # ghost in spawn box
+
+counter = powerup_blink_on = score = powerup_phase = power_counter = 0
+
+pause = 1
+
+player_speed = 2
+pos_pacman = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)] # ghost has each pacman player position!
+ghost_speeds = [2]*4
+
+lives = 2
+
+game_over = 0
+game_won = 0
+
 
 def handle_game_over():
     global game_over, moving, startup_counter
@@ -470,11 +462,12 @@ def display_FPS():
 
 run = True
 while run:
-    
-    timer.tick(FPS)
+
+    timer.tick(FPS)# clock
 
     counter += 1
     counter %= 20
+    #print(timer, counter)
     
     powerup_blink_on = (7 < counter)
 
@@ -485,12 +478,12 @@ while run:
             powerup_phase = 0
             G_EATEN = [0]*4     
 
-    if startup_counter < 180 and not game_over and not game_won:
+    moving = True
+    #if startup_counter < 180 and not game_over and not game_won:
+    if startup_counter < 180:
         moving = False
         startup_counter += 1
         
-    else:   moving = True
-
     screen.fill('black')
     
     draw_board()
