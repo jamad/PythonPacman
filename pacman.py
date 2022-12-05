@@ -70,16 +70,17 @@ def reset_game():
 
 reset_game()
 
-counter = powerup_blink_on = score = powerup_phase = power_counter = moving = 0
+counter = powerup_blink_on = score = powerup_phase = power_counter = 0
+moving = 0
+
 player_speed = 2
 pos_pacman = [(player_x, player_y), (player_x, player_y), (player_x, player_y), (player_x, player_y)] # ghost has each pacman player position!
-ghost_speeds = [2, 2, 2, 2]
+ghost_speeds = [2]*4
 
-startup_counter = 0
 lives = 3
+startup_counter = 0
 game_over = 0
 game_won = 0
-
 
 def handle_game_over():
     global game_over, moving, startup_counter
@@ -87,7 +88,6 @@ def handle_game_over():
     game_over = 1
     moving = 0
     startup_counter = 0
-
 
 class Ghost:
     def __init__(self, x, y, pacman, speed, img, direct, dead, box, id):
@@ -331,9 +331,7 @@ class Ghost:
 
         return self.x_pos, self.y_pos, self.dir
 
-
 def draw_HUD():
-
     score_text = font.render(f'Score: {score}', True, 'white')
     screen.blit(score_text, (10, 920))
     
@@ -445,14 +443,17 @@ while run:
     
     powerup_blink_on = (7 < counter)
 
-    if powerup_phase and power_counter < 600:        power_counter += 1
-    elif powerup_phase and power_counter >= 600:
-        power_counter = 0
-        powerup_phase = False
-        G_EATEN = [0]*4
+    if powerup_phase:
+        power_counter += 1
+        power_counter %= 600
+        if power_counter==0:
+            powerup_phase = 0
+            G_EATEN = [0]*4     
+
     if startup_counter < 180 and not game_over and not game_won:
         moving = False
         startup_counter += 1
+        
     else:   moving = True
 
     screen.fill('black')
@@ -555,4 +556,3 @@ while run:
     display.flip()
 
 quit()
-
