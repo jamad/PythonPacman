@@ -173,7 +173,7 @@ class Ghost:
 
         return self.can_move
 
-    def move_G(self, index):   # GHOST[0] : clyde doesn't change direction unless hit . if multiple candidates to turn, toward the pacman
+    def move_G(self, index):  
 
         pacman_x, pacman_y = self.pacman
 
@@ -184,32 +184,16 @@ class Ghost:
 
         cond0=pacman_x > self.x_pos and self.can_move[0]
         cond1=pacman_x < self.x_pos and self.can_move[1]
-        cond2=pacman_y < self.y_pos and self.can_move[2]
+        cond2=pacman_y < self.y_pos and self.can_move[2] #  NB!!!!!! for pygame, smaller number means upper!!!! becaue topleft is (0,0)!
         cond3=pacman_y > self.y_pos and self.can_move[3]
         
-        
-        if index==0:
-            if self.dir == 0 and not self.can_move[0]: # hit the collision
-                if self.can_move[2] and self.can_move[3]:  self.dir=(3,2)[self.y_pos < pacman_y] # if both open ,try to follow pacman  
-                elif self.can_move[2]: self.dir=2 
-                elif self.can_move[3]: self.dir=3
-                else: self.dir = 1    # backward
-            elif self.dir == 1 and not self.can_move[1]:
-                if self.can_move[2] and self.can_move[3]:  self.dir=(3,2)[self.y_pos < pacman_y] # if both open ,try to follow pacman  
-                elif self.can_move[2]: self.dir=2 
-                elif self.can_move[3]: self.dir=3
-                else: self.dir = 0    # backward
-            elif self.dir == 2 and not self.can_move[2]:
-                if self.can_move[0] and self.can_move[1]:  self.dir=(1,0)[self.x_pos < pacman_x] # if both open ,try to follow pacman
-                elif self.can_move[0]: self.dir=0 
-                elif self.can_move[1]: self.dir=1
-                else: self.dir=3    # backward
-            elif self.dir == 3 and not self.can_move[3]:
-                if self.can_move[0] and self.can_move[1]:  self.dir=(1,0)[self.x_pos < pacman_x] # if both open ,try to follow pacman
-                elif self.can_move[0]: self.dir=0 
-                elif self.can_move[1]: self.dir=1
-                else: self.dir=2    # backward
-
+        if index==0:  # GHOST[0] : clyde doesn't change direction unless hit . if multiple candidates to turn, follow pacman
+            if any( (self.dir== i and not self.can_move[i]) for i in (0,1)): #blocked
+                if cond2:self.dir=2 # if can follow pacman above, go up
+                else:self.dir=3
+            if any( (self.dir== i and not self.can_move[i]) for i in (2,3) ):
+                if cond0:self.dir=0
+                else:self.dir=1
 
         if index==1:# GHOST[1] turns up or down at any point to pursue, but left and right only on collision
             if self.dir == 0:
