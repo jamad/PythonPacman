@@ -435,6 +435,35 @@ def get_pos_goal(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y)
 
     return GHOST_GOALS
 
+def player_direction_update():
+    global player_dir_command, player_dir, game_over, game_won, lives
+
+    for e in event.get():
+        run = (e.type != QUIT) 
+
+        if e.type == KEYDOWN:
+            player_dir_command={x:i for i,x in enumerate([K_RIGHT,K_LEFT,K_UP,K_DOWN])}.get(e.key, player_dir_command) # key defines player_dir
+
+            if e.key == K_SPACE and (game_over or game_won):
+                lives -= 1
+                reset_game()
+
+                score = 0
+                lives = 3
+                game_over = game_won = False
+                level = copy.deepcopy(boards)
+
+        # player_dir : RLUD
+        if e.type == KEYUP:
+            if e.key == K_RIGHT and player_dir_command == 0: player_dir_command = player_dir
+            if e.key == K_LEFT and player_dir_command == 1:  player_dir_command = player_dir
+            if e.key == K_UP and player_dir_command == 2:    player_dir_command = player_dir
+            if e.key == K_DOWN and player_dir_command == 3:  player_dir_command = player_dir
+
+    for i in range(4):
+        if player_dir_command == i and can_move[i]: player_dir = i
+
+
 def display_FPS():
     # fps display  ### https://stackoverflow.com/questions/67946230/show-fps-in-pygame
     clock.tick()
@@ -527,30 +556,7 @@ while run:
                     G_DEAD[i] = G_EATEN[i] = True
                     score += (2 ** G_EATEN.count(True)) * 100
 
-    for e in event.get():
-        run = (e.type != QUIT) 
-
-        if e.type == KEYDOWN:
-            player_dir_command={x:i for i,x in enumerate([K_RIGHT,K_LEFT,K_UP,K_DOWN])}.get(e.key, player_dir_command) # key defines player_dir
-
-            if e.key == K_SPACE and (game_over or game_won):
-                lives -= 1
-                reset_game()
-
-                score = 0
-                lives = 3
-                game_over = game_won = False
-                level = copy.deepcopy(boards)
-
-        # player_dir : RLUD
-        if e.type == KEYUP:
-            if e.key == K_RIGHT and player_dir_command == 0: player_dir_command = player_dir
-            if e.key == K_LEFT and player_dir_command == 1:  player_dir_command = player_dir
-            if e.key == K_UP and player_dir_command == 2:    player_dir_command = player_dir
-            if e.key == K_DOWN and player_dir_command == 3:  player_dir_command = player_dir
-
-    for i in range(4):
-        if player_dir_command == i and can_move[i]: player_dir = i
+    player_direction_update()
 
     # player warp gate
     if player_x > 900:      player_x = -50+3
