@@ -180,10 +180,10 @@ class Ghost:
 
         # default movement regardless index
 
-        cond0=pacman_x > self.x_pos and self.can_move[0]
-        cond1=pacman_x < self.x_pos and self.can_move[1]
+        cond0=self.x_pos < pacman_x and self.can_move[0] # goal is right and can move right
+        cond1=pacman_x < self.x_pos and self.can_move[1] # goal is left and can move left
         cond2=pacman_y < self.y_pos and self.can_move[2] #  NB!!!!!! for pygame, smaller number means upper!!!! becaue topleft is (0,0)!
-        cond3=pacman_y > self.y_pos and self.can_move[3]
+        cond3=pacman_y > self.y_pos and self.can_move[3] # goal is down and can move down
         CONDS=[cond0,cond1,cond2,cond3]
 
         # default behavior
