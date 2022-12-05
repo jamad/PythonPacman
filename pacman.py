@@ -436,7 +436,7 @@ def get_pos_goal(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y)
     return GHOST_GOALS
 
 def player_direction_update():
-    global player_dir_command, player_dir, game_over, game_won, lives
+    global player_dir_command, player_dir, game_over, game_won, lives, run
 
     for e in event.get():
         run = (e.type != QUIT) 
