@@ -372,15 +372,6 @@ def mainloop_event():
 
         # player_dir : RLUD
         if e.type == KEYUP:
-            #player_want_to_go = player_dir # player cancelled his wish
-            
-            # the following is better feeling. need to learn why.
-            if e.key == K_RIGHT and player_dir_wish == 0: player_dir_wish = player_dir
-            if e.key == K_LEFT and player_dir_wish == 1:  player_dir_wish = player_dir
-            if e.key == K_UP and player_dir_wish == 2:    player_dir_wish = player_dir
-            if e.key == K_DOWN and player_dir_wish == 3:  player_dir_wish = player_dir
-
-
             if e.key == K_SPACE and (game_over or game_won):
                 lives -= 1
                 reset_game()
@@ -389,15 +380,21 @@ def mainloop_event():
                 lives = 2
                 game_over = game_won = False
 
+            # first thought the following was enough
+            #   player_want_to_go = player_dir # player cancelled his wish
+            # but, the following was better feeling. need to learn why.
+            if e.key == K_RIGHT and player_dir_wish == 0:   player_dir_wish = player_dir
+            if e.key == K_LEFT and player_dir_wish  == 1:   player_dir_wish = player_dir
+            if e.key == K_UP and player_dir_wish    == 2:   player_dir_wish = player_dir
+            if e.key == K_DOWN and player_dir_wish  == 3:   player_dir_wish = player_dir
+
     for i in range(4):
         if player_dir_wish == i and player_can_move[i]: 
             player_dir = i
 
     return True
 
-def display_FPS():
-    # fps display  ### https://stackoverflow.com/questions/67946230/show-fps-in-pygame
-    #clock.tick()
+def display_FPS(): # fps display  ### https://stackoverflow.com/questions/67946230/show-fps-in-pygame
     _fps_t = myfont.render(f'FPS: {timer.get_fps():.3f}' , 1, "green")
     screen.blit(_fps_t,(0,0))
 
@@ -424,7 +421,6 @@ def update_ghost_target():
             GHOST_GOALS[i] = (440, 388-100)
 
     if debugmode:# draw home collision
-        #GRID_W*
         draw.rect(screen, color='green', rect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3),width=1) # box collision
         draw.circle(screen, color='red', center=(380, 400), radius=5 ,width=0) # ghost home
         draw.circle(screen, color='red', center=(450,100), radius=5 ,width=0) # gate target
