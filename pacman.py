@@ -78,7 +78,7 @@ dead_img      = load_image('ghost','dead')
 # initial declaration
 def reset_game():
     global level,startup_counter, power_counter, powerup_phase # can be first variable 
-    global player_x, player_y,player_dir, player_dir_command, GHOST_posX, GHOST_posY, GHOST_dir,GHOST_eaten, GHOST_dead # important!
+    global player_x, player_y,player_dir, player_want_to_go, GHOST_posX, GHOST_posY, GHOST_dir,GHOST_eaten, GHOST_dead # important!
     
     startup_counter = 0 
     powerup_phase = 0
@@ -87,7 +87,7 @@ def reset_game():
     player_x = (GRID_W*count_C/2) #450 #- GAP_H*2 # centerize
     player_y = 663
     player_dir =0 # right 
-    player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
+    player_want_to_go = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
 
     # ghosts : blinky 0  inky 1  pinky 2 clyde 3   
     GHOST_posX=[GRID_W*14, GRID_W*16, GRID_W*14, GRID_W*12]  # xpos
@@ -361,31 +361,41 @@ def check_passable(col, row):  # originally check_position
     return [tR,tL,tU,tD]
 
 def mainloop_event():
-    global player_dir_command, player_dir, game_over, game_won, lives
-
+    global player_want_to_go, player_dir, game_over, game_won, lives
+    print(player_want_to_go, player_dir)
     for e in event.get():
+
         if e.type==QUIT: return False # exit main loop
 
-        if e.type == KEYDOWN:
-            player_dir_command={x:i for i,x in enumerate([K_RIGHT,K_LEFT,K_UP,K_DOWN])}.get(e.key, player_dir_command) # key defines player_dir
+        if e.type==KEYDOWN or e.type==KEYUP:
+            key_is_R=(e.key==K_RIGHT)
+            key_is_L=(e.key==K_LEFT)
+            key_is_U=(e.key==K_UP)
+            key_is_D=(e.key==K_DOWN)
 
-        # player_dir : RLUD
-        if e.type == KEYUP:
-            if e.key == K_RIGHT and player_dir_command == 0: player_dir_command = player_dir
-            if e.key == K_LEFT and player_dir_command == 1:  player_dir_command = player_dir
-            if e.key == K_UP and player_dir_command == 2:    player_dir_command = player_dir
-            if e.key == K_DOWN and player_dir_command == 3:  player_dir_command = player_dir
+            if e.type == KEYDOWN: # key defines player_dir
+                if key_is_R:player_want_to_go=0
+                if key_is_L:player_want_to_go=1
+                if key_is_U:player_want_to_go=2
+                if key_is_D:player_want_to_go=3
 
-            if e.key == K_SPACE and (game_over or game_won):
-                lives -= 1
-                reset_game()
+            # player_dir : RLUD
+            if e.type == KEYUP:
+                if key_is_R and player_want_to_go == 0: player_want_to_go = player_dir
+                if key_is_L and player_want_to_go == 1: player_want_to_go = player_dir
+                if key_is_U and player_want_to_go == 2: player_want_to_go = player_dir
+                if key_is_D and player_want_to_go == 3: player_want_to_go = player_dir
 
-                score = 0
-                lives = 2
-                game_over = game_won = False
+                if e.key == K_SPACE and (game_over or game_won):
+                    lives -= 1
+                    reset_game()
+
+                    score = 0
+                    lives = 2
+                    game_over = game_won = False
 
     for i in range(4):
-        if player_dir_command == i and player_can_move[i]: 
+        if player_want_to_go == i and player_can_move[i]: 
             player_dir = i
 
     return True
@@ -428,7 +438,6 @@ def update_ghost_target():
             
     return GHOST_GOALS
 
-
 while mainloop_event():
 
     timer.tick(FPS)# clock
@@ -451,7 +460,6 @@ while mainloop_event():
         moving = False
         startup_counter += 1
         
-
     ghost_speeds = [ (2,1)[powerup_phase] ]*4
 
     for i in range(4):
