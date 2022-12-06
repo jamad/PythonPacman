@@ -6,6 +6,7 @@ import copy
 from math import pi
 
 # 0 = empty, 1 = dot, 2 = big dot, 3 = lineV, 4 = lineH, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right,  9 = gate
+
 boards_data='''\
 644444444444444444444444444445
 364444444444445644444444444453
@@ -42,7 +43,9 @@ boards_data='''\
 744444444444444444444444444448'''
 
 boards=[list(map(int,s)) for s in boards_data.split()]
-print(len(boards),len(boards[0]))
+
+count_R,count_C=len(boards),len(boards[0])
+#print('len R','len C',count_R,count_C) # 33 row, 30 columns
 
 # variable difinition F12
 debugmode=1
@@ -51,14 +54,16 @@ init()
 
 # constants
 FPS = 120 # 60 , 240
+
+INFO_HEIGHT=50
 HEIGHT = 950
 WIDTH = 900
 
 RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
 
-GRID_H = (HEIGHT - 50) // 32   # grid cell height : originally num1
-GRID_W = (WIDTH // 30)         # grid cell width  : originally num2
-print(GRID_H,GRID_W)
+GRID_H = (HEIGHT - INFO_HEIGHT) // (count_R - 1)   # grid cell height : originally num1
+GRID_W = (WIDTH // count_C)         # grid cell width  : originally num2
+#print(GRID_H,GRID_W) # 28,30
 
 screen = display.set_mode([WIDTH, HEIGHT])
 timer = time.Clock()
@@ -300,7 +305,7 @@ def draw_board():
                 
                 _mytext=mydebugfont.render(f'{j},{i}',1, (0,128,0))      
                 _myrect=Rect(j*GRID_W +2 , i*GRID_H +10, 20,20)
-                #screen.blit(_mytext,_myrect)
+                screen.blit(_mytext,_myrect)
                 
                 _mytext=mydebugfont.render(f'{cell}',1, (0,128,0))      
                 _myrect=Rect(j*GRID_W +2 , i*GRID_H +20, 20,20)
