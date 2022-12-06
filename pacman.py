@@ -375,7 +375,7 @@ def mainloop_event():
         if e.type == KEYUP:
             #player_want_to_go = player_dir # player cancelled his wish
             
-            # the following is better feeling. why???
+            # the following is better feeling. need to learn why.
             if e.key == K_RIGHT and player_dir_wish == 0: player_dir_wish = player_dir
             if e.key == K_LEFT and player_dir_wish == 1:  player_dir_wish = player_dir
             if e.key == K_UP and player_dir_wish == 2:    player_dir_wish = player_dir
