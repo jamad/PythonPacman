@@ -1,7 +1,7 @@
 # Build Pac-Man from Scratch in Python with PyGame!!
 # done until 1:26:45  , maybe around 3:40 to start then come back with shorter code 
 
-from pygame import init, display, time, font, transform, image, rect, event, QUIT, KEYDOWN, KEYUP, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_SPACE, draw , Rect
+from pygame import init, display, time, font, transform, image, rect, event, draw , Rect, QUIT, KEYDOWN, KEYUP, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_SPACE
 import copy
 from math import pi
 
@@ -47,7 +47,7 @@ count_R,count_C=len(boards),len(boards[0]) # 33 row, 30 columns
 init() # pygame init
 
 # shortcut for debugging F2 to rename variables , F12 to check all usage
-debugmode=1
+debugmode=0
 
 # constants
 FPS = 120 # 60 , 240
@@ -304,22 +304,20 @@ def draw_board():
     for i in range(len(level)):
         ic=i+.5 # centrized
         for j in range(len(level[0])):
-            
-            n_col=j * GRID_W
             jc=j+.5 # centrized
             
             cell=level[i][j]
             
             # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
-            if cell == 1:   draw.circle(   screen, 'white', (GRID_W*jc, GRID_H*ic), 4)
-            if cell == 2:   draw.circle(   screen, 'white', (GRID_W*jc, GRID_H*ic), 10 if powerup_blink_on else 5)
-            if cell == 3:   draw.line(     screen, COLOR_WALL, (GRID_W*jc, i * GRID_H),  (GRID_W*jc, (i+1)*GRID_H), 3)
-            if cell == 4:   draw.line(     screen, COLOR_WALL, (n_col, GRID_H*ic),  (n_col + GRID_W, GRID_H*ic), 3)
-            if cell == 5:   draw.arc(      screen, COLOR_WALL, [(n_col - (GRID_W * 0.4)) - 2, (GRID_H*ic), GRID_W, GRID_H],0, pi / 2, 3)
-            if cell == 6:   draw.arc(      screen, COLOR_WALL, [GRID_W*jc, GRID_H*ic, GRID_W, GRID_H], pi / 2, pi, 3)
-            if cell == 7:   draw.arc(      screen, COLOR_WALL, [GRID_W*jc, (i-.4)*GRID_H, GRID_W, GRID_H], pi, 3* pi / 2, 3)            
-            if cell == 8:   draw.arc(      screen, COLOR_WALL, [GRID_W*(j-.4)- 2, (i-.4) * GRID_H, GRID_W, GRID_H], 3 * pi / 2,2 * pi, 3)
-            if cell == 9:   draw.line(     screen, 'white', (n_col, GRID_H*ic), (n_col + GRID_W, GRID_H*ic), 3)
+            if cell == 1:draw.circle(   screen, 'white',    (GRID_W*jc, GRID_H*ic), 4)
+            if cell == 2:draw.circle(   screen, 'white',    (GRID_W*jc, GRID_H*ic), 10 if powerup_blink_on else 8)
+            if cell == 3:draw.line(     screen, COLOR_WALL, (GRID_W*jc, i * GRID_H),(GRID_W*jc, (i+1)*GRID_H),  3)
+            if cell == 4:draw.line(     screen, COLOR_WALL, (GRID_W*j,  GRID_H*ic),     (GRID_W*j + GRID_W, GRID_H*ic),3)
+            if cell == 5:draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,  GRID_H*ic, GRID_W, GRID_H),0, pi / 2, 3)
+            if cell == 6:draw.arc(      screen, COLOR_WALL, (GRID_W*jc,         GRID_H*ic,      GRID_W, GRID_H), pi / 2, pi, 3)
+            if cell == 7:draw.arc(      screen, COLOR_WALL, (GRID_W*jc,         GRID_H*(i-.4),  GRID_W, GRID_H), pi, 3* pi / 2, 3)            
+            if cell == 8:draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,  GRID_H*(i-.4),  GRID_W, GRID_H), 3 * pi / 2,2 * pi, 3)
+            if cell == 9:draw.line(     screen, 'white',    (GRID_W*j, GRID_H*ic), (GRID_W*j + GRID_W, GRID_H*ic), 3)
             
             if debugmode:
                 draw.rect(screen,color=(0,32,0),rect=(j*GRID_W, i*GRID_H, GRID_W,GRID_H), width=1) # grid cell draw 
