@@ -55,6 +55,9 @@ init()
 # constants
 FPS = 120 # 60 , 240
 
+IMG_W = 45 #pixel size
+IMG_H = 45
+
 INFO_HEIGHT=50
 HEIGHT = 950
 WIDTH = 900
@@ -70,15 +73,14 @@ timer = time.Clock()
 myfont = font.Font('freesansbold.ttf', 20)
 mydebugfont = font.Font('freesansbold.ttf', 9)
 
-
-m_color = 'blue'
+maze_color = 'blue' # maze color
 
 # image assets
-img_size=(45, 45)
-player_images = [transform.scale(image.load(f'assets/player_images/{i}.png'),img_size) for i in (1,2,3,2)]# 4 images
-G_IMG=          [transform.scale(image.load(f'assets/ghost_images/{x}.png'),img_size) for x in 'red pink blue orange'.split()]
-spooked_img =   transform.scale(image.load(f'assets/ghost_images/powerup.png'),img_size)
-dead_img =      transform.scale(image.load(f'assets/ghost_images/dead.png'),img_size)
+load_image=lambda type,p:transform.scale(image.load(f'assets/{type}_images/{p}.png'),(IMG_W, IMG_H))
+player_images = [load_image('player',i) for i in (1,2,3,2)]# 4 images
+ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
+spooked_img   = load_image('ghost','powerup') 
+dead_img      = load_image('ghost','dead') 
 
 # initial declaration
 def reset_game():
@@ -291,12 +293,12 @@ def draw_board():
             # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
             if cell == 1:   draw.circle(   screen, 'white', (GRID_W*jc, GRID_H*ic), 4)
             if cell == 2:   draw.circle(   screen, 'white', (GRID_W*jc, GRID_H*ic), 10 if powerup_blink_on else 5)
-            if cell == 3:   draw.line(     screen, m_color, (GRID_W*jc, i * GRID_H),  (GRID_W*jc, (i+1)*GRID_H), 3)
-            if cell == 4:   draw.line(     screen, m_color, (n_col, GRID_H*ic),  (n_col + GRID_W, GRID_H*ic), 3)
-            if cell == 5:   draw.arc(      screen, m_color, [(n_col - (GRID_W * 0.4)) - 2, (GRID_H*ic), GRID_W, GRID_H],0, pi / 2, 3)
-            if cell == 6:   draw.arc(      screen, m_color, [GRID_W*jc, GRID_H*ic, GRID_W, GRID_H], pi / 2, pi, 3)
-            if cell == 7:   draw.arc(      screen, m_color, [GRID_W*jc, (i-.4)*GRID_H, GRID_W, GRID_H], pi, 3* pi / 2, 3)            
-            if cell == 8:   draw.arc(      screen, m_color, [GRID_W*(j-.4)- 2, (i-.4) * GRID_H, GRID_W, GRID_H], 3 * pi / 2,2 * pi, 3)
+            if cell == 3:   draw.line(     screen, maze_color, (GRID_W*jc, i * GRID_H),  (GRID_W*jc, (i+1)*GRID_H), 3)
+            if cell == 4:   draw.line(     screen, maze_color, (n_col, GRID_H*ic),  (n_col + GRID_W, GRID_H*ic), 3)
+            if cell == 5:   draw.arc(      screen, maze_color, [(n_col - (GRID_W * 0.4)) - 2, (GRID_H*ic), GRID_W, GRID_H],0, pi / 2, 3)
+            if cell == 6:   draw.arc(      screen, maze_color, [GRID_W*jc, GRID_H*ic, GRID_W, GRID_H], pi / 2, pi, 3)
+            if cell == 7:   draw.arc(      screen, maze_color, [GRID_W*jc, (i-.4)*GRID_H, GRID_W, GRID_H], pi, 3* pi / 2, 3)            
+            if cell == 8:   draw.arc(      screen, maze_color, [GRID_W*(j-.4)- 2, (i-.4) * GRID_H, GRID_W, GRID_H], 3 * pi / 2,2 * pi, 3)
             if cell == 9:   draw.line(     screen, 'white', (n_col, GRID_H*ic), (n_col + GRID_W, GRID_H*ic), 3)
             
             
@@ -450,7 +452,7 @@ while run:
     draw_player()
     
     # ghost update
-    GHOST=[Ghost(GX[i], GY[i], pos_ghost_targets[i], ghost_speeds[i], G_IMG[i], GD[i], G_DEAD[i], i) for i in range(4)]
+    GHOST=[Ghost(GX[i], GY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GD[i], G_DEAD[i], i) for i in range(4)]
 
     draw_HUD()
 
