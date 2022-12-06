@@ -142,8 +142,8 @@ class Ghost:
         self.dir = dir
         self.dead = dead
         self.id = id
-        self.upperCell=0
-        self.lowerCell=0
+        self.Cell_U=0
+        self.Cell_D=0
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
         self.can_move  = self.check_collisions()
         self.rect = self.draw()
@@ -172,13 +172,18 @@ class Ghost:
 
         if 0 < self.center_x // 30 < 29:
 
-            self.upperCell = cellA = level[(self.center_y - RADIUS) // GRID_H][self.center_x // GRID_W]    # up   RADIUS aka num3, GRID_H aka num1, GRID_W aka num2
-            cellB = level[self.center_y // GRID_H][(self.center_x - RADIUS) // GRID_W]    # left
-            cellC = level[self.center_y // GRID_H][(self.center_x + RADIUS) // GRID_W]    # right
-            self.lowerCell = cellD = level[(self.center_y + RADIUS) // GRID_H][self.center_x // GRID_W]    # down
+            self.Cell_U = cellA = level[(self.center_y - RADIUS) // GRID_H][self.center_x // GRID_W]    # up   RADIUS aka num3, GRID_H aka num1, GRID_W aka num2
+            self.Cell_L = cellB = level[self.center_y // GRID_H][(self.center_x - RADIUS) // GRID_W]    # left
+            self.Cell_R = cellC = level[self.center_y // GRID_H][(self.center_x + RADIUS) // GRID_W]    # right
+            self.Cell_D = cellD = level[(self.center_y + RADIUS) // GRID_H][self.center_x // GRID_W]    # down
             
             cellE = level[self.center_y // GRID_H][(self.center_x - GRID_W) // GRID_W]
             cellF = level[self.center_y // GRID_H][(self.center_x + GRID_W) // GRID_W]
+
+            if debugmode:
+                # show upper cell
+                draw.rect(screen,color=(255,0,0),rect=( self.center_x // GRID_W *GRID_W,  (self.center_y - RADIUS) // GRID_H*GRID_H, GRID_W,GRID_H), width=1) # grid cell draw 
+
 
             not_alive= (self.in_box or self.dead)
 
@@ -244,8 +249,8 @@ class Ghost:
             if cond2 and self.can_move[2]:    self.dir = 2
             
         # home gate handling
-        if self.lowerCell==9 and self.dead and self.can_move[3]:    self.dir=3
-        if self.upperCell==9 and self.in_box  and self.can_move[2] :self.dir=2
+        if self.Cell_D==9 and self.dead and self.can_move[3]:    self.dir=3
+        if self.Cell_U==9 and self.in_box  and self.can_move[2] :self.dir=2
 
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
