@@ -43,6 +43,7 @@ boards_data='''\
 
 boards=[list(map(int,s)) for s in boards_data.split()]
 
+
 # variable difinition F12
 debugmode=1
 
@@ -50,17 +51,20 @@ init()
 
 # constants
 FPS = 120 # 60 , 240
-WIDTH = 900
 HEIGHT = 950
+WIDTH = 900
 
 RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
 
 COUNT_R = (HEIGHT - 50) // 32   # grid row count    ( originally  num1)
 COUNT_C = (WIDTH // 30)         # grid column count
+print(COUNT_R,COUNT_C)
 
 screen = display.set_mode([WIDTH, HEIGHT])
 timer = time.Clock()
 myfont = font.Font('freesansbold.ttf', 20)
+mydebugfont = font.Font('freesansbold.ttf', 9)
+
 
 m_color = 'blue'
 
@@ -274,15 +278,9 @@ def draw_board():
         ic=i+.5 # centrized
         for j in range(len(level[0])):
             
-            if debugmode:
-                draw.rect(screen,color=(0,32,0),rect=(i*COUNT_C, j*COUNT_R, COUNT_C,COUNT_R), width=1)
-            
-
             n_col=j * COUNT_C
             jc=j+.5 # centrized
-
             
-
             cell=level[i][j]
             
             # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
@@ -297,6 +295,17 @@ def draw_board():
             if cell == 9:   draw.line(     screen, 'white', (n_col, COUNT_R*ic), (n_col + COUNT_C, COUNT_R*ic), 3)
             
             
+            if debugmode:
+                draw.rect(screen,color=(0,32,0),rect=(j*COUNT_C, i*COUNT_R, COUNT_C,COUNT_R), width=1)
+                
+                _mytext=mydebugfont.render(f'{j},{i}',1, (0,128,0))      
+                _myrect=Rect(j*COUNT_C +2 , i*COUNT_R +10, 20,20)
+                screen.blit(_mytext,_myrect)
+                
+                _mytext=mydebugfont.render(f'{cell}',1, (0,128,0))      
+                _myrect=Rect(j*COUNT_C +2 , i*COUNT_R +20, 20,20)
+                screen.blit(_mytext,_myrect)
+                
 
 def draw_player():
     pos=(player_x, player_y)
