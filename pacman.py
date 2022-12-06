@@ -142,7 +142,7 @@ class Ghost:
         
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
         self.can_move  = self.check_collisions()
-        self.rect = self.draw()
+        self.rect = rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
 
         if debugmode:
             draw.circle(screen, 'green', (self.x_pos + 22, self.y_pos + 22), 20, 1) 
@@ -160,7 +160,6 @@ class Ghost:
             _myrect=Rect(self.x_pos +10 , self.y_pos +10, 20,20)
             screen.blit(_mytext,_myrect)
         
-        return rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
 
     def check_collisions(self):
         self.can_move = [0]*4 #RLUD
@@ -476,14 +475,16 @@ while mainloop_event():
     if player_x > screen.get_width():player_x = -50+3 
     if player_x < -50:player_x = screen.get_width()-3
 
+    # ghost update
+    GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)] # draw included
+    pos_ghost_targets =update_ghost_target() # Ghost target update
+
     ###########################  drawing
     screen.fill('black')
     draw_board()
     draw_player()
     
-    # ghost update
-    GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)] # draw included
-    pos_ghost_targets =update_ghost_target() # Ghost target update
+    for ghost in GHOST:ghost.draw()
 
     draw_HUD()
 
@@ -496,15 +497,13 @@ while mainloop_event():
             elif player_dir == 3 :  player_y += player_speed
             
         for i in range(4):    
-            if GHOST[i].in_box or GHOST_dead[i]: # if 
-                GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(3)
-            else:
-                GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(i)
+            if GHOST[i].in_box or GHOST_dead[i]:    GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(3)
+            else:                                   GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(i)
 
     check_collisions()
 
     # add to if not powerup_phase to check if eaten ghosts
-    if not powerup_phase:
+    if  powerup_phase:
         if any ( player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead for i in range(4)):
             if 0 < lives:
                 lives -= 1       
@@ -512,7 +511,6 @@ while mainloop_event():
             else:
                 handle_game_over()
     else: # i.e. powerup_phase
-
         # active ghost hit pacman
         for i in range(4):
             if player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead:
