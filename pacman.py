@@ -142,6 +142,8 @@ class Ghost:
         self.dir = dir
         self.dead = dead
         self.id = id
+        self.upperCell=0
+        self.lowerCell=0
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
         self.can_move  = self.check_collisions()
         self.rect = self.draw()
@@ -157,6 +159,11 @@ class Ghost:
         
         screen.blit(img, (self.x_pos, self.y_pos))
 
+        if debugmode:
+            _mytext=myfont.render(f'{self.dir}', 1, (255,255,0))      
+            _myrect=Rect(self.x_pos +10 , self.y_pos +10, 20,20)
+            screen.blit(_mytext,_myrect)
+             
             
         return rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
 
@@ -165,10 +172,10 @@ class Ghost:
 
         if 0 < self.center_x // 30 < 29:
 
-            cellA = level[(self.center_y - RADIUS) // GRID_H][self.center_x // GRID_W]    # up   RADIUS aka num3, GRID_H aka num1, GRID_W aka num2
+            self.upperCell = cellA = level[(self.center_y - RADIUS) // GRID_H][self.center_x // GRID_W]    # up   RADIUS aka num3, GRID_H aka num1, GRID_W aka num2
             cellB = level[self.center_y // GRID_H][(self.center_x - RADIUS) // GRID_W]    # left
             cellC = level[self.center_y // GRID_H][(self.center_x + RADIUS) // GRID_W]    # right
-            cellD = level[(self.center_y + RADIUS) // GRID_H][self.center_x // GRID_W]    # down
+            self.lowerCell = cellD = level[(self.center_y + RADIUS) // GRID_H][self.center_x // GRID_W]    # down
             
             cellE = level[self.center_y // GRID_H][(self.center_x - GRID_W) // GRID_W]
             cellF = level[self.center_y // GRID_H][(self.center_x + GRID_W) // GRID_W]
@@ -184,10 +191,12 @@ class Ghost:
 
             self.can_move[0] = cellcheck(cellC) or (is_dirV and in_sweetspot_V and cellcheck(cellF)) #or (is_dirH and in_sweetspot_V and cellcheck(cellC))
             self.can_move[1] = cellcheck(cellB) or (is_dirV and in_sweetspot_V and cellcheck(cellE)) #or (is_dirH and in_sweetspot_V and cellcheck(cellB))
-            self.can_move[2] = cellcheck(cellA) or (cellA == 9)
-            self.can_move[3] = cellcheck(cellD) or (cellD == 9) 
+            self.can_move[2] = cellcheck(cellA) or (cellA == 9 )
+            self.can_move[3] = cellcheck(cellD) or (cellD == 9 and self.dead) # only 
 
-            if self.dead and cellD==9:self.dir=3 # if ghost is dead and down is 9 (home entry) > move down to enter ghost home ##### BUGFIX
+            if self.dead and cellD==9:
+                self.dir=3 # if ghost is dead and down is 9 (home entry) > move down to enter ghost home ##### BUGFIX
+        
         else: self.can_move[0] = self.can_move[1] = 1
 
         return self.can_move
@@ -234,6 +243,12 @@ class Ghost:
             if cond3:    self.dir = 3
             if cond2:    self.dir = 2
             
+        # home gate handling
+        if self.lowerCell==9: 
+            if self.dead:   
+                self.dir=3
+        if self.in_box  and self.upperCell==9 : 
+            self.dir=2
 
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
@@ -303,7 +318,7 @@ def draw_board():
             
             
             if debugmode:
-                draw.rect(screen,color=(0,32,0),rect=(j*GRID_W, i*GRID_H, GRID_W,GRID_H), width=1)
+                draw.rect(screen,color=(0,32,0),rect=(j*GRID_W, i*GRID_H, GRID_W,GRID_H), width=1) # grid cell draw 
                 
                 _mytext=mydebugfont.render(f'{j},{i}',1, (0,128,0))      
                 _myrect=Rect(j*GRID_W +2 , i*GRID_H +10, 20,20)
