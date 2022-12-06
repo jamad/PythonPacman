@@ -360,11 +360,12 @@ def check_passable(col, row):  # originally check_position
 
     return [tR,tL,tU,tD]
 
-def player_direction_update():
-    global player_dir_command, player_dir, game_over, game_won, lives, run
+def mainloop_event():
+    global player_dir_command, player_dir, game_over, game_won, lives
 
     for e in event.get():
-        run = (e.type != QUIT) 
+        if e.type==QUIT:
+            return False
 
         if e.type == KEYDOWN:
             player_dir_command={x:i for i,x in enumerate([K_RIGHT,K_LEFT,K_UP,K_DOWN])}.get(e.key, player_dir_command) # key defines player_dir
@@ -386,6 +387,8 @@ def player_direction_update():
 
     for i in range(4):
         if player_dir_command == i and player_can_move[i]: player_dir = i
+
+    return True
 
 def display_FPS():
     # fps display  ### https://stackoverflow.com/questions/67946230/show-fps-in-pygame
@@ -425,8 +428,8 @@ def update_ghost_target():
             
     return GHOST_GOALS
 
-run = True
-while run:
+
+while mainloop_event():
 
     timer.tick(FPS)# clock
 
@@ -517,7 +520,7 @@ while run:
                     GHOST_dead[i] = GHOST_eaten[i] = True
                     score += (2 ** GHOST_eaten.count(True)) * 100
 
-    player_direction_update()
+    
 
     # player warp gate
     if player_x > 900:      player_x = -50+3
