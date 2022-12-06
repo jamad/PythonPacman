@@ -78,7 +78,7 @@ dead_img      = load_image('ghost','dead')
 # initial declaration
 def reset_game():
     global level,startup_counter, power_counter, powerup_phase # can be first variable 
-    global player_x, player_y,player_dir, player_want_to_go, GHOST_posX, GHOST_posY, GHOST_dir,GHOST_eaten, GHOST_dead # important!
+    global player_x, player_y,player_dir, player_dir_wish, GHOST_posX, GHOST_posY, GHOST_dir,GHOST_eaten, GHOST_dead # important!
     
     startup_counter = 0 
     powerup_phase = 0
@@ -87,7 +87,7 @@ def reset_game():
     player_x = (GRID_W*count_C/2) #450 #- GAP_H*2 # centerize
     player_y = 663
     player_dir =0 # right 
-    player_want_to_go = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
+    player_dir_wish = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
 
     # ghosts : blinky 0  inky 1  pinky 2 clyde 3   
     GHOST_posX=[GRID_W*14, GRID_W*16, GRID_W*14, GRID_W*12]  # xpos
@@ -359,21 +359,28 @@ def check_passable(col, row):  # originally check_position
     return [tR,tL,tU,tD]
 
 def mainloop_event():
-    global player_want_to_go, player_dir, game_over, game_won, lives
-    print(player_want_to_go, player_dir)
+    global player_dir_wish, player_dir, game_over, game_won, lives
+    print(player_dir_wish, player_dir)
     for e in event.get():
 
         if e.type==QUIT: return False # exit main loop
 
-        elif e.type == KEYDOWN: # key defines player_dir
-            if (e.key==K_RIGHT):player_want_to_go=0
-            if (e.key==K_LEFT):player_want_to_go=1
-            if (e.key==K_UP):player_want_to_go=2
-            if (e.key==K_DOWN):player_want_to_go=3
+        if e.type == KEYDOWN: # key defines player_dir
+            if (e.key==K_RIGHT):player_dir_wish=0
+            if (e.key==K_LEFT):player_dir_wish=1
+            if (e.key==K_UP):player_dir_wish=2
+            if (e.key==K_DOWN):player_dir_wish=3
 
         # player_dir : RLUD
-        elif e.type == KEYUP:
-            player_want_to_go = player_dir # player cancelled his wish
+        if e.type == KEYUP:
+            #player_want_to_go = player_dir # player cancelled his wish
+            
+            # the following is better feeling. why???
+            if e.key == K_RIGHT and player_dir_wish == 0: player_dir_wish = player_dir
+            if e.key == K_LEFT and player_dir_wish == 1:  player_dir_wish = player_dir
+            if e.key == K_UP and player_dir_wish == 2:    player_dir_wish = player_dir
+            if e.key == K_DOWN and player_dir_wish == 3:  player_dir_wish = player_dir
+
 
             if e.key == K_SPACE and (game_over or game_won):
                 lives -= 1
@@ -384,7 +391,7 @@ def mainloop_event():
                 game_over = game_won = False
 
     for i in range(4):
-        if player_want_to_go == i and player_can_move[i]: 
+        if player_dir_wish == i and player_can_move[i]: 
             player_dir = i
 
     return True
