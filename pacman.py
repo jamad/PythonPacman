@@ -142,8 +142,12 @@ class Ghost:
         self.dir = dir
         self.dead = dead
         self.id = id
+
+        self.Cell_R=0
+        self.Cell_L=0
         self.Cell_U=0
         self.Cell_D=0
+        
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
         self.can_move  = self.check_collisions()
         self.rect = self.draw()
@@ -171,18 +175,25 @@ class Ghost:
         self.can_move = [0]*4 #RLUD
 
         if 0 < self.center_x // 30 < 29:
-
-            self.Cell_U = cellA = level[(self.center_y - RADIUS) // GRID_H][self.center_x // GRID_W]    # up   RADIUS aka num3, GRID_H aka num1, GRID_W aka num2
-            self.Cell_L = cellB = level[self.center_y // GRID_H][(self.center_x - RADIUS) // GRID_W]    # left
-            self.Cell_R = cellC = level[self.center_y // GRID_H][(self.center_x + RADIUS) // GRID_W]    # right
-            self.Cell_D = cellD = level[(self.center_y + RADIUS) // GRID_H][self.center_x // GRID_W]    # down
+            row=self.center_y // GRID_H
+            col=self.center_x // GRID_W
+            row_U=(self.center_y - RADIUS) // GRID_H
+            row_D=(self.center_y + RADIUS) // GRID_H
+            col_L=(self.center_x - RADIUS) // GRID_W
+            col_R=(self.center_x + RADIUS) // GRID_W
+            self.Cell_U = cell_U = level[row_U][col]    # up   RADIUS aka num3, GRID_H aka num1, GRID_W aka num2
+            self.Cell_D = cell_D = level[row_D][col]    # down
+            self.Cell_R = cell_R = level[row][col_R]    # right
+            self.Cell_L = cell_L = level[row][col_L]    # left
             
-            cellE = level[self.center_y // GRID_H][(self.center_x - GRID_W) // GRID_W]
-            cellF = level[self.center_y // GRID_H][(self.center_x + GRID_W) // GRID_W]
-
+            self.Cell_R = cellF = level[row][col +1]# right side
+            self.Cell_L = cellE = level[row][col -1]# left side
+            
             if debugmode:
-                # show upper cell
-                draw.rect(screen,color=(255,0,0),rect=( self.center_x // GRID_W *GRID_W,  (self.center_y - RADIUS) // GRID_H*GRID_H, GRID_W,GRID_H), width=1) # grid cell draw 
+                draw.rect(screen,color=(255,0,0),rect=(col*GRID_W , row_U*GRID_H, GRID_W,GRID_H), width=1) # show upper cell 
+                draw.rect(screen,color=(255,0,0),rect=(col*GRID_W , row_D*GRID_H, GRID_W,GRID_H), width=1) # show down cell 
+                draw.rect(screen,color=(255,0,0),rect=(col_L*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show right cell 
+                draw.rect(screen,color=(255,0,0),rect=(col_R*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show left cell 
 
 
             not_alive= (self.in_box or self.dead)
@@ -194,12 +205,12 @@ class Ghost:
             in_sweetspot_V= (12 <= self.center_y % GRID_H <= 18)
             in_sweetspot_H= (12 <= self.center_x % GRID_W <= 18)
 
-            self.can_move[0] = cellcheck(cellC) or (is_dirV and in_sweetspot_V and cellcheck(cellF)) #or (is_dirH and in_sweetspot_V and cellcheck(cellC))
-            self.can_move[1] = cellcheck(cellB) or (is_dirV and in_sweetspot_V and cellcheck(cellE)) #or (is_dirH and in_sweetspot_V and cellcheck(cellB))
-            self.can_move[2] = cellcheck(cellA) or (cellA == 9 )
-            self.can_move[3] = cellcheck(cellD) or (cellD == 9 and self.dead) # only 
+            self.can_move[0] = cellcheck(cell_R) or (is_dirV and in_sweetspot_V and cellcheck(cellF)) #or (is_dirH and in_sweetspot_V and cellcheck(cellC))
+            self.can_move[1] = cellcheck(cell_L) or (is_dirV and in_sweetspot_V and cellcheck(cellE)) #or (is_dirH and in_sweetspot_V and cellcheck(cellB))
+            self.can_move[2] = cellcheck(cell_U) or (cell_U == 9 )
+            self.can_move[3] = cellcheck(cell_D) or (cell_D == 9 and self.dead) # only 
 
-            if self.dead and cellD==9:
+            if self.dead and cell_D==9:
                 self.dir=3 # if ghost is dead and down is 9 (home entry) > move down to enter ghost home ##### BUGFIX
         
         else: self.can_move[0] = self.can_move[1] = 1
