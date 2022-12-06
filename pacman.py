@@ -47,7 +47,7 @@ count_R,count_C=len(boards),len(boards[0]) # 33 row, 30 columns
 init() # pygame init
 
 # shortcut for debugging F2 to rename variables , F12 to check all usage
-debugmode=0
+debugmode=1
 
 # constants
 FPS = 120 # 60 , 240
@@ -468,13 +468,17 @@ while mainloop_event():
     player_can_move = check_passable(center_x, center_y)
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
     
+    # player warp gate
+    if player_x > screen.get_width():player_x = -50+3 
+    if player_x < -50:player_x = screen.get_width()-3
+
     ###########################  drawing
     screen.fill('black')
     draw_board()
     draw_player()
     
     # ghost update
-    GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)]
+    GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)] # draw included
     pos_ghost_targets =update_ghost_target() # Ghost target update
 
     draw_HUD()
@@ -493,7 +497,6 @@ while mainloop_event():
             else:
                 GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(i)
 
-    #score, powerup_phase, power_counter, GHOST_eaten = check_collisions(score, powerup_phase, power_counter, GHOST_eaten)
     check_collisions()
 
     # add to if not powerup_phase to check if eaten ghosts
@@ -521,17 +524,12 @@ while mainloop_event():
                     score += (2 ** GHOST_eaten.count(True)) * 100
 
     
-
-    # player warp gate
-    if player_x > 900:      player_x = -50+3
-    elif player_x < -50:    player_x = 900-3
-    
     # revive the ghosts if in the home box
     for i in range(4):
         if GHOST[i].in_box and GHOST_dead[i]:
             GHOST_dead[i] = False
 
-    display_FPS()
+    if debugmode:display_FPS()
 
     display.flip()
 
