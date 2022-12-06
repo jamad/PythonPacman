@@ -367,32 +367,23 @@ def mainloop_event():
 
         if e.type==QUIT: return False # exit main loop
 
-        if e.type==KEYDOWN or e.type==KEYUP:
-            key_is_R=(e.key==K_RIGHT)
-            key_is_L=(e.key==K_LEFT)
-            key_is_U=(e.key==K_UP)
-            key_is_D=(e.key==K_DOWN)
+        elif e.type == KEYDOWN: # key defines player_dir
+            if (e.key==K_RIGHT):player_want_to_go=0
+            if (e.key==K_LEFT):player_want_to_go=1
+            if (e.key==K_UP):player_want_to_go=2
+            if (e.key==K_DOWN):player_want_to_go=3
 
-            if e.type == KEYDOWN: # key defines player_dir
-                if key_is_R:player_want_to_go=0
-                if key_is_L:player_want_to_go=1
-                if key_is_U:player_want_to_go=2
-                if key_is_D:player_want_to_go=3
+        # player_dir : RLUD
+        elif e.type == KEYUP:
+            player_want_to_go = player_dir # player cancelled his wish
 
-            # player_dir : RLUD
-            if e.type == KEYUP:
-                if key_is_R and player_want_to_go == 0: player_want_to_go = player_dir
-                if key_is_L and player_want_to_go == 1: player_want_to_go = player_dir
-                if key_is_U and player_want_to_go == 2: player_want_to_go = player_dir
-                if key_is_D and player_want_to_go == 3: player_want_to_go = player_dir
+            if e.key == K_SPACE and (game_over or game_won):
+                lives -= 1
+                reset_game()
 
-                if e.key == K_SPACE and (game_over or game_won):
-                    lives -= 1
-                    reset_game()
-
-                    score = 0
-                    lives = 2
-                    game_over = game_won = False
+                score = 0
+                lives = 2
+                game_over = game_won = False
 
     for i in range(4):
         if player_want_to_go == i and player_can_move[i]: 
@@ -531,7 +522,6 @@ while mainloop_event():
                     GHOST_dead[i] = GHOST_eaten[i] = True
                     score += (2 ** GHOST_eaten.count(True)) * 100
 
-    
     # revive the ghosts if in the home box
     for i in range(4):
         if GHOST[i].in_box and GHOST_dead[i]:
