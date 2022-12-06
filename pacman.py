@@ -86,7 +86,7 @@ def reset_game():
     
     player_x = (GRID_W*count_C/2) #450 #- GAP_H*2 # centerize
     player_y = 663
-    player_dir =0 
+    player_dir =0 # right 
     player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
 
     # ghosts : blinky 0  inky 1  pinky 2 clyde 3   
@@ -364,11 +364,17 @@ def mainloop_event():
     global player_dir_command, player_dir, game_over, game_won, lives
 
     for e in event.get():
-        if e.type==QUIT:
-            return False
+        if e.type==QUIT: return False # exit main loop
 
         if e.type == KEYDOWN:
             player_dir_command={x:i for i,x in enumerate([K_RIGHT,K_LEFT,K_UP,K_DOWN])}.get(e.key, player_dir_command) # key defines player_dir
+
+        # player_dir : RLUD
+        if e.type == KEYUP:
+            if e.key == K_RIGHT and player_dir_command == 0: player_dir_command = player_dir
+            if e.key == K_LEFT and player_dir_command == 1:  player_dir_command = player_dir
+            if e.key == K_UP and player_dir_command == 2:    player_dir_command = player_dir
+            if e.key == K_DOWN and player_dir_command == 3:  player_dir_command = player_dir
 
             if e.key == K_SPACE and (game_over or game_won):
                 lives -= 1
@@ -378,15 +384,9 @@ def mainloop_event():
                 lives = 2
                 game_over = game_won = False
 
-        # player_dir : RLUD
-        if e.type == KEYUP:
-            if e.key == K_RIGHT and player_dir_command == 0: player_dir_command = player_dir
-            if e.key == K_LEFT and player_dir_command == 1:  player_dir_command = player_dir
-            if e.key == K_UP and player_dir_command == 2:    player_dir_command = player_dir
-            if e.key == K_DOWN and player_dir_command == 3:  player_dir_command = player_dir
-
     for i in range(4):
-        if player_dir_command == i and player_can_move[i]: player_dir = i
+        if player_dir_command == i and player_can_move[i]: 
+            player_dir = i
 
     return True
 
