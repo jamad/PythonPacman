@@ -98,8 +98,8 @@ def reset_game():
     player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
 
     # ghosts : blinky 0  inky 1  pinky 2 clyde 3   
-    GHOST_posX=[440, 440+45, 440, 440 -45]  # xpos
-    GHOST_posY=[388, 438, 438, 438]         # ypos
+    GHOST_posX=[GRID_W*14, GRID_W*16, GRID_W*14, GRID_W*12]  # xpos
+    GHOST_posY=[GRID_W*13, GRID_W*15, GRID_W*15, GRID_W*15]         # ypos
     GHOST_dir=[0]*4                        #direction
     GHOST_eaten = [0]*4                 # which ??
     GHOST_dead= [0]*4                   # ghost dead
@@ -131,12 +131,12 @@ def handle_game_over():
     startup_counter = 0
 
 class Ghost:
-    def __init__(self, x, y, pacman, speed, img, dir, dead, id):
+    def __init__(self, x, y, target, speed, img, dir, dead, id):
         self.x_pos = x
         self.y_pos = y
         self.center_x = self.x_pos + 23
         self.center_y = self.y_pos + 23
-        self.ghost_target = pacman
+        self.ghost_target = target
         self.speed = speed
         self.img = img
         self.dir = dir
@@ -236,19 +236,16 @@ class Ghost:
                 if CONDS[i]:self.dir=i
 
         if index==2 or index==3:# GHOST[2] GHOST[3] is going to turn left or right whenever advantageous
-            if cond1:   self.dir = 1
-            if cond0:   self.dir = 0
+            if cond1 and self.can_move[1]:   self.dir = 1
+            if cond0 and self.can_move[0]:   self.dir = 0
                     
         if index==1 or index==3:# GHOST[1] GHOST[3] turns up or down at any point to pursue
-            if cond3:    self.dir = 3
-            if cond2:    self.dir = 2
+            if cond3 and self.can_move[3]:    self.dir = 3
+            if cond2 and self.can_move[2]:    self.dir = 2
             
         # home gate handling
-        if self.lowerCell==9: 
-            if self.dead:   
-                self.dir=3
-        if self.in_box  and self.upperCell==9 : 
-            self.dir=2
+        if self.lowerCell==9 and self.dead and self.can_move[3]:    self.dir=3
+        if self.upperCell==9 and self.in_box  and self.can_move[2] :self.dir=2
 
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
