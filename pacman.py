@@ -47,7 +47,7 @@ count_R,count_C=len(boards),len(boards[0]) # 33 row, 30 columns
 init() # pygame init
 
 # shortcut for debugging F2 to rename variables , F12 to check all usage
-debugmode=0
+debugmode=1
 
 # constants
 FPS = 120 # 60 , 240
@@ -162,7 +162,6 @@ class Ghost:
             _myrect=Rect(self.x_pos +10 , self.y_pos +10, 20,20)
             screen.blit(_mytext,_myrect)
         
-
     def check_collisions(self):
         self.can_move = [0]*4 #RLUD
 
@@ -182,12 +181,11 @@ class Ghost:
             self.Cell_R = cellF = level[row][col +1]# right side
             self.Cell_L = cellE = level[row][col -1]# left side
             
-            if debugmode:
-                if self.can_move[0]:draw.rect(screen,color=(255,0,0),rect=(col_R*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show right cell 
-                if self.can_move[1]:draw.rect(screen,color=(255,0,0),rect=(col_L*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show left cell 
-                if self.can_move[2]:draw.rect(screen,color=(255,0,0),rect=(col*GRID_W , row_U*GRID_H, GRID_W,GRID_H), width=1) # show upper cell 
-                if self.can_move[3]:draw.rect(screen,color=(255,0,0),rect=(col*GRID_W , row_D*GRID_H, GRID_W,GRID_H), width=1) # show down cell 
-                
+            if debugmode: # draw rect
+                if self.can_move[0] or 1:draw.rect(screen,color=(255,0,0),rect=(col_R*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show right cell 
+                if self.can_move[1] or 1:draw.rect(screen,color=(255,0,0),rect=(col_L*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show left cell 
+                if self.can_move[2] or 1:draw.rect(screen,color=(255,0,0),rect=(col*GRID_W , row_U*GRID_H, GRID_W,GRID_H), width=1) # show upper cell 
+                if self.can_move[3] or 1:draw.rect(screen,color=(255,0,0),rect=(col*GRID_W , row_D*GRID_H, GRID_W,GRID_H), width=1) # show down cell 
 
             not_alive= (self.in_box or self.dead)
 
