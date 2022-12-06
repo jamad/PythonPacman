@@ -86,7 +86,7 @@ dead_img      = load_image('ghost','dead')
 def reset_game():
     global level
     global startup_counter, power_counter, powerup_phase # can be first variable 
-    global player_x, player_y,player_dir, player_dir_command, GX, GY, GD,G_EATEN, G_DEAD # important!
+    global player_x, player_y,player_dir, player_dir_command, GHOST_posX, GHOST_posY, GHOST_dir,GHOST_eaten, GHOST_dead # important!
     
     startup_counter = 0 
     powerup_phase = 0
@@ -98,11 +98,11 @@ def reset_game():
     player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
 
     # ghosts : blinky 0  inky 1  pinky 2 clyde 3   
-    GX=[440, 440+45, 440, 440 -45]  # xpos
-    GY=[388, 438, 438, 438]         # ypos
-    GD=[0]*4                        #direction
-    G_EATEN = [0]*4                 # which ??
-    G_DEAD= [0]*4                   # ghost dead
+    GHOST_posX=[440, 440+45, 440, 440 -45]  # xpos
+    GHOST_posY=[388, 438, 438, 438]         # ypos
+    GHOST_dir=[0]*4                        #direction
+    GHOST_eaten = [0]*4                 # which ??
+    GHOST_dead= [0]*4                   # ghost dead
     
     level = copy.deepcopy(boards)
 
@@ -152,7 +152,7 @@ class Ghost:
 
     def draw(self):
         img=self.img # regular
-        if powerup_phase and not G_EATEN[self.id]:  img=spooked_img # powerup and not eaten yet
+        if powerup_phase and not GHOST_eaten[self.id]:  img=spooked_img # powerup and not eaten yet
         if self.dead:                                   img=dead_img    # dead condition is the strongest
         
         screen.blit(img, (self.x_pos, self.y_pos))
@@ -351,7 +351,7 @@ def get_pos_goal(gR_x, gR_y, gP_x, gP_y, gB_x, gB_y, gY_x, gY_y):
         in_ghost_home= (350 < GHOST_X[i] < 350  + 200  )and (385 - RADIUS*3 < GHOST_Y[i] < 385 + 100)
         if not GHOST[i].dead:
             if powerup_phase:
-                if G_EATEN[i]:  # dead ghost
+                if GHOST_eaten[i]:  # dead ghost
                     GHOST_GOALS[i] = ((player_x, player_y), (450, 200)) [in_ghost_home]
                 else: # spooked ghost
                     GHOST_GOALS[i] = (450, 450) if i==3 else ((0,900)[player_x < 450], (0,900)[player_y < 450])# away from pacman 
@@ -406,7 +406,7 @@ def display_FPS():
 
 def update_ghost_target():
     global pos_ghost_targets
-    pos_ghost_targets = get_pos_goal(GX[0], GY[0], GX[1], GY[1], GX[2], GY[2], GX[3], GY[3]) 
+    pos_ghost_targets = get_pos_goal(GHOST_posX[0], GHOST_posY[0], GHOST_posX[1], GHOST_posY[1], GHOST_posX[2], GHOST_posY[2], GHOST_posX[3], GHOST_posY[3]) 
 
 run = True
 while run:
@@ -423,7 +423,7 @@ while run:
         power_counter %= 600
         if power_counter==0:
             powerup_phase = 0
-            G_EATEN = [0]*4     
+            GHOST_eaten = [0]*4     
 
     moving = True
     #if startup_counter < 180 and not game_over and not game_won:
@@ -440,8 +440,8 @@ while run:
     ghost_speeds = [ (2,1)[powerup_phase] ]*4
 
     for i in range(4):
-        if G_EATEN[i]:  ghost_speeds[i] = 2 # slower when spooked
-        if G_DEAD[i]:   ghost_speeds[i] = 4 # faster when dead
+        if GHOST_eaten[i]:  ghost_speeds[i] = 2 # slower when spooked
+        if GHOST_dead[i]:   ghost_speeds[i] = 4 # faster when dead
 
     level_1D=sum(level,[])
     count_dot=level_1D.count(1)
@@ -452,7 +452,7 @@ while run:
     draw_player()
     
     # ghost update
-    GHOST=[Ghost(GX[i], GY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GD[i], G_DEAD[i], i) for i in range(4)]
+    GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)]
 
     draw_HUD()
 
@@ -471,14 +471,14 @@ while run:
             elif player_dir == 3 :   player_y += player_speed
             
         for i in range(4):    
-            if GHOST[i].in_box or G_DEAD[i]: # if 
-                GX[i], GY[i], GD[i] = GHOST[i].move_G(3)
+            if GHOST[i].in_box or GHOST_dead[i]: # if 
+                GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(3)
             else:
-                GX[i], GY[i], GD[i] = GHOST[i].move_G(i)
+                GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(i)
 
 
 
-    score, powerup_phase, power_counter, G_EATEN = check_collisions(score, powerup_phase, power_counter, G_EATEN)
+    score, powerup_phase, power_counter, GHOST_eaten = check_collisions(score, powerup_phase, power_counter, GHOST_eaten)
     # add to if not powerup_phase to check if eaten ghosts
     if not powerup_phase:
         if any ( player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead for i in range(4)):
@@ -492,7 +492,7 @@ while run:
         # active ghost hit pacman
         for i in range(4):
             if player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead:
-                if G_EATEN[i]:  # ghost eat pacman , so game reset
+                if GHOST_eaten[i]:  # ghost eat pacman , so game reset
                     if 0 < lives:
                         lives -= 1
                         reset_game()
@@ -500,8 +500,8 @@ while run:
                         handle_game_over()
                         
                 else: # pacman eat ghost
-                    G_DEAD[i] = G_EATEN[i] = True
-                    score += (2 ** G_EATEN.count(True)) * 100
+                    GHOST_dead[i] = GHOST_eaten[i] = True
+                    score += (2 ** GHOST_eaten.count(True)) * 100
 
     player_direction_update()
 
@@ -511,8 +511,8 @@ while run:
     
     # revive the ghosts if in the home box
     for i in range(4):
-        if GHOST[i].in_box and G_DEAD[i]:
-            G_DEAD[i] = False
+        if GHOST[i].in_box and GHOST_dead[i]:
+            GHOST_dead[i] = False
 
     display_FPS()
 
