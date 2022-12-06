@@ -55,19 +55,15 @@ init()
 # constants
 FPS = 120 # 60 , 240
 
-IMG_W = 45 #pixel size
+IMG_W = 45 #pixel size for characters
 IMG_H = 45
 
 INFO_HEIGHT=50
-#HEIGHT = 950
-#WIDTH = 900
 
 RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
 
-#GRID_H = (HEIGHT - INFO_HEIGHT) // (count_R - 1)   # grid cell height : originally num1
-#GRID_W = (WIDTH // count_C)                         # grid cell width  : originally num2
-
-GRID_H=GRID_W=28
+GRID_H = 28
+GRID_W = 30
 WIDTH=GRID_W*count_C
 HEIGHT=GRID_H*(count_R-1)+INFO_HEIGHT
 #print(GRID_H,GRID_W) # 28,30
