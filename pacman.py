@@ -5,8 +5,7 @@ from pygame import init, display, time, font, transform, image, rect, event, QUI
 import copy
 from math import pi
 
-# 0 = empty, 1 = dot, 2 = big dot, 3 = lineV, 4 = lineH, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right,  9 = gate
-
+# 0:empty, 1:dot, 2:big dot,3:lineV,4:lineH,5:up right,6:up left,7:low left,8:low right,9:gate
 boards_data='''\
 644444444444444444444444444445
 364444444444445644444444444453
@@ -43,14 +42,11 @@ boards_data='''\
 744444444444444444444444444448'''
 
 boards=[list(map(int,s)) for s in boards_data.split()]
+count_R,count_C=len(boards),len(boards[0]) # 33 row, 30 columns
 
-count_R,count_C=len(boards),len(boards[0])
-#print('len R','len C',count_R,count_C) # 33 row, 30 columns
+init() # pygame init
 
-
-init()
-
-# variable difinition F12
+# shortcut for debugging F2 to rename variables , F12 to check all usage
 debugmode=0
 
 # constants
@@ -65,12 +61,12 @@ INFO_HEIGHT=50 # space to display score, lives etc
 GAP_H = IMG_H-GRID_H # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
 GAP_W = IMG_W-GRID_W
 
+COLOR_WALL = 'blue' # maze color
+
 screen = display.set_mode([GRID_W*count_C, GRID_H*(count_R-1)+INFO_HEIGHT])
 timer = time.Clock()
 myfont = font.Font('freesansbold.ttf', 20)
 mydebugfont = font.Font('freesansbold.ttf', 9)
-
-maze_color = 'blue' # maze color
 
 # image assets
 load_image=lambda type,p:transform.scale(image.load(f'assets/{type}_images/{p}.png'),(IMG_W, IMG_H))
@@ -81,15 +77,14 @@ dead_img      = load_image('ghost','dead')
 
 # initial declaration
 def reset_game():
-    global level
-    global startup_counter, power_counter, powerup_phase # can be first variable 
+    global level,startup_counter, power_counter, powerup_phase # can be first variable 
     global player_x, player_y,player_dir, player_dir_command, GHOST_posX, GHOST_posY, GHOST_dir,GHOST_eaten, GHOST_dead # important!
     
     startup_counter = 0 
     powerup_phase = 0
     power_counter = 0       
     
-    player_x = 450 - GAP_H*2 # centerize
+    player_x = (GRID_W*count_C/2) #450 #- GAP_H*2 # centerize
     player_y = 663
     player_dir =0 
     player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
@@ -154,25 +149,17 @@ class Ghost:
             draw.rect(screen, color='red', rect=self.rect, width=1 )
 
     def draw(self):
-        
-        if powerup_phase and not GHOST_eaten[self.id]:  
-            img=spooked_img # powerup and not eaten yet
-            screen.blit(img, (self.x_pos, self.y_pos))
-        elif self.dead:                                   
-            img=dead_img    # dead condition is the strongest
-            screen.blit(img, (self.x_pos, self.y_pos))
+        if powerup_phase and not GHOST_eaten[self.id]:  screen.blit(spooked_img, (self.x_pos, self.y_pos))
+        elif self.dead:                                 screen.blit(dead_img, (self.x_pos, self.y_pos))
         else:
-            img=self.img # regular
-            screen.blit(img, (self.x_pos, self.y_pos))
-            img=dead_img    # dead condition is the strongest
-            screen.blit(img, (self.x_pos, self.y_pos))
+            screen.blit(self.img, (self.x_pos, self.y_pos))
+            screen.blit(dead_img, (self.x_pos, self.y_pos))
 
         if debugmode:
             _mytext=myfont.render(f'{self.dir}', 1, (255,255,0))      
             _myrect=Rect(self.x_pos +10 , self.y_pos +10, 20,20)
             screen.blit(_mytext,_myrect)
-             
-            
+        
         return rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
 
     def check_collisions(self):
@@ -301,8 +288,8 @@ def draw_HUD():
 def check_collisions(scor, power, power_count, G_EATENs):
     global center_x, center_y
     if 0 < player_x < 870:
-        idx1=center_y // GRID_H
-        idx2=center_x // GRID_W
+        idx1=int( center_y // GRID_H )
+        idx2=int( center_x // GRID_W )
         if level[idx1][idx2] == 1:  # normal dot
             level[idx1][idx2] = 0   # remove dot
             scor += 10
@@ -327,12 +314,12 @@ def draw_board():
             # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
             if cell == 1:   draw.circle(   screen, 'white', (GRID_W*jc, GRID_H*ic), 4)
             if cell == 2:   draw.circle(   screen, 'white', (GRID_W*jc, GRID_H*ic), 10 if powerup_blink_on else 5)
-            if cell == 3:   draw.line(     screen, maze_color, (GRID_W*jc, i * GRID_H),  (GRID_W*jc, (i+1)*GRID_H), 3)
-            if cell == 4:   draw.line(     screen, maze_color, (n_col, GRID_H*ic),  (n_col + GRID_W, GRID_H*ic), 3)
-            if cell == 5:   draw.arc(      screen, maze_color, [(n_col - (GRID_W * 0.4)) - 2, (GRID_H*ic), GRID_W, GRID_H],0, pi / 2, 3)
-            if cell == 6:   draw.arc(      screen, maze_color, [GRID_W*jc, GRID_H*ic, GRID_W, GRID_H], pi / 2, pi, 3)
-            if cell == 7:   draw.arc(      screen, maze_color, [GRID_W*jc, (i-.4)*GRID_H, GRID_W, GRID_H], pi, 3* pi / 2, 3)            
-            if cell == 8:   draw.arc(      screen, maze_color, [GRID_W*(j-.4)- 2, (i-.4) * GRID_H, GRID_W, GRID_H], 3 * pi / 2,2 * pi, 3)
+            if cell == 3:   draw.line(     screen, COLOR_WALL, (GRID_W*jc, i * GRID_H),  (GRID_W*jc, (i+1)*GRID_H), 3)
+            if cell == 4:   draw.line(     screen, COLOR_WALL, (n_col, GRID_H*ic),  (n_col + GRID_W, GRID_H*ic), 3)
+            if cell == 5:   draw.arc(      screen, COLOR_WALL, [(n_col - (GRID_W * 0.4)) - 2, (GRID_H*ic), GRID_W, GRID_H],0, pi / 2, 3)
+            if cell == 6:   draw.arc(      screen, COLOR_WALL, [GRID_W*jc, GRID_H*ic, GRID_W, GRID_H], pi / 2, pi, 3)
+            if cell == 7:   draw.arc(      screen, COLOR_WALL, [GRID_W*jc, (i-.4)*GRID_H, GRID_W, GRID_H], pi, 3* pi / 2, 3)            
+            if cell == 8:   draw.arc(      screen, COLOR_WALL, [GRID_W*(j-.4)- 2, (i-.4) * GRID_H, GRID_W, GRID_H], 3 * pi / 2,2 * pi, 3)
             if cell == 9:   draw.line(     screen, 'white', (n_col, GRID_H*ic), (n_col + GRID_W, GRID_H*ic), 3)
             
             
@@ -360,17 +347,19 @@ def draw_player():
 def check_passable(col, row):  # originally check_position
     if 29 <= col // 30 : return [1,1,0,0] # only horizontal warp is passable
 
-    cell_R=level[row // GRID_H][(col + GAP_W) // GRID_W]
-    cell_L=level[row // GRID_H][(col - GAP_W) // GRID_W]
-    cell_U=level[(row - GAP_H) // GRID_H][col // GRID_W]
-    cell_D=level[(row + GAP_H) // GRID_H][col // GRID_W]
+    cell_R=level[int(row // GRID_H)][int(col + GAP_W) // GRID_W]
+    cell_L=level[int(row // GRID_H)][int(col - GAP_W) // GRID_W]
+    cell_U=level[int(row - GAP_H) // GRID_H][int(col)// GRID_W]
+    cell_D=level[int(row + GAP_H) // GRID_H][int(col) // GRID_W]
     dir_H= player_dir in(0,1)
     dir_V= player_dir in(2,3)
 
-    tR = (player_dir in(0,1)and cell_R < 3) or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[row // GRID_H][col // GRID_W + 1] < 3)) 
-    tL = (player_dir in(0,1)and cell_L < 3) or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[row // GRID_H][col // GRID_W - 1] < 3))     
-    tU = (player_dir in(2,3)and cell_U < 3) or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[row // GRID_H - 1][col // GRID_W] < 3)) 
-    tD = (player_dir in(2,3)and cell_D < 3) or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[row // GRID_H + 1][col // GRID_W] < 3)) 
+    index_R=int(row // GRID_H)
+    index_C=int(col // GRID_W)
+    tR = (player_dir in(0,1)and cell_R < 3) or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[index_R][index_C + 1] < 3)) 
+    tL = (player_dir in(0,1)and cell_L < 3) or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[index_R][index_C - 1] < 3))     
+    tU = (player_dir in(2,3)and cell_U < 3) or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R - 1][index_C] < 3)) 
+    tD = (player_dir in(2,3)and cell_D < 3) or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R + 1][index_C] < 3)) 
 
     return [tR,tL,tU,tD]
 
