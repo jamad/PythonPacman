@@ -59,13 +59,17 @@ IMG_W = 45 #pixel size
 IMG_H = 45
 
 INFO_HEIGHT=50
-HEIGHT = 950
-WIDTH = 900
+#HEIGHT = 950
+#WIDTH = 900
 
 RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
 
-GRID_H = (HEIGHT - INFO_HEIGHT) // (count_R - 1)   # grid cell height : originally num1
-GRID_W = (WIDTH // count_C)         # grid cell width  : originally num2
+#GRID_H = (HEIGHT - INFO_HEIGHT) // (count_R - 1)   # grid cell height : originally num1
+#GRID_W = (WIDTH // count_C)                         # grid cell width  : originally num2
+
+GRID_H=GRID_W=28
+WIDTH=GRID_W*count_C
+HEIGHT=GRID_H*(count_R-1)+INFO_HEIGHT
 #print(GRID_H,GRID_W) # 28,30
 
 screen = display.set_mode([WIDTH, HEIGHT])
@@ -190,11 +194,11 @@ class Ghost:
             self.Cell_L = cellE = level[row][col -1]# left side
             
             if debugmode:
-                draw.rect(screen,color=(255,0,0),rect=(col*GRID_W , row_U*GRID_H, GRID_W,GRID_H), width=1) # show upper cell 
-                draw.rect(screen,color=(255,0,0),rect=(col*GRID_W , row_D*GRID_H, GRID_W,GRID_H), width=1) # show down cell 
-                draw.rect(screen,color=(255,0,0),rect=(col_L*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show right cell 
-                draw.rect(screen,color=(255,0,0),rect=(col_R*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show left cell 
-
+                if self.can_move[0]:draw.rect(screen,color=(255,0,0),rect=(col_R*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show right cell 
+                if self.can_move[1]:draw.rect(screen,color=(255,0,0),rect=(col_L*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show left cell 
+                if self.can_move[2]:draw.rect(screen,color=(255,0,0),rect=(col*GRID_W , row_U*GRID_H, GRID_W,GRID_H), width=1) # show upper cell 
+                if self.can_move[3]:draw.rect(screen,color=(255,0,0),rect=(col*GRID_W , row_D*GRID_H, GRID_W,GRID_H), width=1) # show down cell 
+                
 
             not_alive= (self.in_box or self.dead)
 
