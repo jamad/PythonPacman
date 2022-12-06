@@ -149,11 +149,13 @@ class Ghost:
             draw.rect(screen, color='red', rect=self.rect, width=1 )
 
     def draw(self):
-        if powerup_phase and not GHOST_eaten[self.id]:  screen.blit(spooked_img, (self.x_pos, self.y_pos))
-        elif self.dead:                                 screen.blit(dead_img, (self.x_pos, self.y_pos))
+        if powerup_phase and not GHOST_eaten[self.id]:  
+            screen.blit(spooked_img, (self.x_pos, self.y_pos))
+        elif self.dead:                                 
+            screen.blit(dead_img, (self.x_pos, self.y_pos))
         else:
             screen.blit(self.img, (self.x_pos, self.y_pos))
-            screen.blit(dead_img, (self.x_pos, self.y_pos))
+            screen.blit(dead_img, (self.x_pos, self.y_pos)) # move eye position TODO
 
         if debugmode:
             _mytext=myfont.render(f'{self.dir}', 1, (255,255,0))      
@@ -476,7 +478,7 @@ while mainloop_event():
     if player_x < -50:player_x = screen.get_width()-3
 
     # ghost update
-    GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)] # draw included
+    GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)] # need to separate init
     pos_ghost_targets =update_ghost_target() # Ghost target update
 
     ###########################  drawing
