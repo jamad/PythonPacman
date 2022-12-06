@@ -42,7 +42,7 @@ boards_data='''\
 744444444444444444444444444448'''
 
 boards=[list(map(int,s)) for s in boards_data.split()]
-
+print(len(boards),len(boards[0]))
 
 # variable difinition F12
 debugmode=1
@@ -56,9 +56,9 @@ WIDTH = 900
 
 RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
 
-COUNT_R = (HEIGHT - 50) // 32   # grid row count    ( originally  num1)
-COUNT_C = (WIDTH // 30)         # grid column count
-print(COUNT_R,COUNT_C)
+GRID_H = (HEIGHT - 50) // 32   # grid cell height : originally num1
+GRID_W = (WIDTH // 30)         # grid cell width  : originally num2
+print(GRID_H,GRID_W)
 
 screen = display.set_mode([WIDTH, HEIGHT])
 timer = time.Clock()
@@ -158,13 +158,13 @@ class Ghost:
 
         if 0 < self.center_x // 30 < 29:
 
-            cellA = level[(self.center_y - RADIUS) // COUNT_R][self.center_x // COUNT_C]    # up   RADIUS aka num3, COUNT_R aka num1, COUNT_C aka num2
-            cellB = level[self.center_y // COUNT_R][(self.center_x - RADIUS) // COUNT_C]    # left
-            cellC = level[self.center_y // COUNT_R][(self.center_x + RADIUS) // COUNT_C]    # right
-            cellD = level[(self.center_y + RADIUS) // COUNT_R][self.center_x // COUNT_C]    # down
+            cellA = level[(self.center_y - RADIUS) // GRID_H][self.center_x // GRID_W]    # up   RADIUS aka num3, GRID_H aka num1, GRID_W aka num2
+            cellB = level[self.center_y // GRID_H][(self.center_x - RADIUS) // GRID_W]    # left
+            cellC = level[self.center_y // GRID_H][(self.center_x + RADIUS) // GRID_W]    # right
+            cellD = level[(self.center_y + RADIUS) // GRID_H][self.center_x // GRID_W]    # down
             
-            cellE = level[self.center_y // COUNT_R][(self.center_x - COUNT_C) // COUNT_C]
-            cellF = level[self.center_y // COUNT_R][(self.center_x + COUNT_C) // COUNT_C]
+            cellE = level[self.center_y // GRID_H][(self.center_x - GRID_W) // GRID_W]
+            cellF = level[self.center_y // GRID_H][(self.center_x + GRID_W) // GRID_W]
 
             not_alive= (self.in_box or self.dead)
 
@@ -172,8 +172,8 @@ class Ghost:
 
             is_dirH=self.dir in (0,1)
             is_dirV=self.dir in (2,3)
-            in_sweetspot_V= (12 <= self.center_y % COUNT_R <= 18)
-            in_sweetspot_H= (12 <= self.center_x % COUNT_C <= 18)
+            in_sweetspot_V= (12 <= self.center_y % GRID_H <= 18)
+            in_sweetspot_H= (12 <= self.center_x % GRID_W <= 18)
 
             self.can_move[0] = cellcheck(cellC) or (is_dirV and in_sweetspot_V and cellcheck(cellF)) #or (is_dirH and in_sweetspot_V and cellcheck(cellC))
             self.can_move[1] = cellcheck(cellB) or (is_dirV and in_sweetspot_V and cellcheck(cellE)) #or (is_dirH and in_sweetspot_V and cellcheck(cellB))
@@ -260,8 +260,8 @@ def draw_HUD():
 
 def check_collisions(scor, power, power_count, G_EATENs):
     if 0 < player_x < 870:
-        idx1=center_y // COUNT_R
-        idx2=center_x // COUNT_C
+        idx1=center_y // GRID_H
+        idx2=center_x // GRID_W
         if level[idx1][idx2] == 1:  # normal dot
             level[idx1][idx2] = 0   # remove dot
             scor += 10
@@ -278,32 +278,32 @@ def draw_board():
         ic=i+.5 # centrized
         for j in range(len(level[0])):
             
-            n_col=j * COUNT_C
+            n_col=j * GRID_W
             jc=j+.5 # centrized
             
             cell=level[i][j]
             
             # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
-            if cell == 1:   draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 4)
-            if cell == 2:   draw.circle(   screen, 'white', (COUNT_C*jc, COUNT_R*ic), 10 if powerup_blink_on else 5)
-            if cell == 3:   draw.line(     screen, m_color, (COUNT_C*jc, i * COUNT_R),  (COUNT_C*jc, (i+1)*COUNT_R), 3)
-            if cell == 4:   draw.line(     screen, m_color, (n_col, COUNT_R*ic),  (n_col + COUNT_C, COUNT_R*ic), 3)
-            if cell == 5:   draw.arc(      screen, m_color, [(n_col - (COUNT_C * 0.4)) - 2, (COUNT_R*ic), COUNT_C, COUNT_R],0, pi / 2, 3)
-            if cell == 6:   draw.arc(      screen, m_color, [COUNT_C*jc, COUNT_R*ic, COUNT_C, COUNT_R], pi / 2, pi, 3)
-            if cell == 7:   draw.arc(      screen, m_color, [COUNT_C*jc, (i-.4)*COUNT_R, COUNT_C, COUNT_R], pi, 3* pi / 2, 3)            
-            if cell == 8:   draw.arc(      screen, m_color, [COUNT_C*(j-.4)- 2, (i-.4) * COUNT_R, COUNT_C, COUNT_R], 3 * pi / 2,2 * pi, 3)
-            if cell == 9:   draw.line(     screen, 'white', (n_col, COUNT_R*ic), (n_col + COUNT_C, COUNT_R*ic), 3)
+            if cell == 1:   draw.circle(   screen, 'white', (GRID_W*jc, GRID_H*ic), 4)
+            if cell == 2:   draw.circle(   screen, 'white', (GRID_W*jc, GRID_H*ic), 10 if powerup_blink_on else 5)
+            if cell == 3:   draw.line(     screen, m_color, (GRID_W*jc, i * GRID_H),  (GRID_W*jc, (i+1)*GRID_H), 3)
+            if cell == 4:   draw.line(     screen, m_color, (n_col, GRID_H*ic),  (n_col + GRID_W, GRID_H*ic), 3)
+            if cell == 5:   draw.arc(      screen, m_color, [(n_col - (GRID_W * 0.4)) - 2, (GRID_H*ic), GRID_W, GRID_H],0, pi / 2, 3)
+            if cell == 6:   draw.arc(      screen, m_color, [GRID_W*jc, GRID_H*ic, GRID_W, GRID_H], pi / 2, pi, 3)
+            if cell == 7:   draw.arc(      screen, m_color, [GRID_W*jc, (i-.4)*GRID_H, GRID_W, GRID_H], pi, 3* pi / 2, 3)            
+            if cell == 8:   draw.arc(      screen, m_color, [GRID_W*(j-.4)- 2, (i-.4) * GRID_H, GRID_W, GRID_H], 3 * pi / 2,2 * pi, 3)
+            if cell == 9:   draw.line(     screen, 'white', (n_col, GRID_H*ic), (n_col + GRID_W, GRID_H*ic), 3)
             
             
             if debugmode:
-                draw.rect(screen,color=(0,32,0),rect=(j*COUNT_C, i*COUNT_R, COUNT_C,COUNT_R), width=1)
+                draw.rect(screen,color=(0,32,0),rect=(j*GRID_W, i*GRID_H, GRID_W,GRID_H), width=1)
                 
                 _mytext=mydebugfont.render(f'{j},{i}',1, (0,128,0))      
-                _myrect=Rect(j*COUNT_C +2 , i*COUNT_R +10, 20,20)
-                screen.blit(_mytext,_myrect)
+                _myrect=Rect(j*GRID_W +2 , i*GRID_H +10, 20,20)
+                #screen.blit(_mytext,_myrect)
                 
                 _mytext=mydebugfont.render(f'{cell}',1, (0,128,0))      
-                _myrect=Rect(j*COUNT_C +2 , i*COUNT_R +20, 20,20)
+                _myrect=Rect(j*GRID_W +2 , i*GRID_H +20, 20,20)
                 screen.blit(_mytext,_myrect)
                 
 
@@ -319,17 +319,17 @@ def draw_player():
 def check_passable(col, row):  # originally check_position
     if 29 <= col // 30 : return [1,1,0,0] # only horizontal warp is passable
 
-    cell_R=level[row // COUNT_R][(col + RADIUS) // COUNT_C]
-    cell_L=level[row // COUNT_R][(col - RADIUS) // COUNT_C]
-    cell_U=level[(row - RADIUS) // COUNT_R][col // COUNT_C]
-    cell_D=level[(row + RADIUS) // COUNT_R][col // COUNT_C]
+    cell_R=level[row // GRID_H][(col + RADIUS) // GRID_W]
+    cell_L=level[row // GRID_H][(col - RADIUS) // GRID_W]
+    cell_U=level[(row - RADIUS) // GRID_H][col // GRID_W]
+    cell_D=level[(row + RADIUS) // GRID_H][col // GRID_W]
     dir_H= player_dir in(0,1)
     dir_V= player_dir in(2,3)
 
-    tR = (player_dir in(0,1)and cell_R < 3) or ( dir_V and( 12 <= row % COUNT_R <= 18)and(level[row // COUNT_R][col // COUNT_C + 1] < 3)) 
-    tL = (player_dir in(0,1)and cell_L < 3) or ( dir_V and( 12 <= row % COUNT_R <= 18)and(level[row // COUNT_R][col // COUNT_C - 1] < 3))     
-    tU = (player_dir in(2,3)and cell_U < 3) or ( dir_H and( 12 <= col % COUNT_C <= 18)and(level[row // COUNT_R - 1][col // COUNT_C] < 3)) 
-    tD = (player_dir in(2,3)and cell_D < 3) or ( dir_H and( 12 <= col % COUNT_C <= 18)and(level[row // COUNT_R + 1][col // COUNT_C] < 3)) 
+    tR = (player_dir in(0,1)and cell_R < 3) or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[row // GRID_H][col // GRID_W + 1] < 3)) 
+    tL = (player_dir in(0,1)and cell_L < 3) or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[row // GRID_H][col // GRID_W - 1] < 3))     
+    tU = (player_dir in(2,3)and cell_U < 3) or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[row // GRID_H - 1][col // GRID_W] < 3)) 
+    tD = (player_dir in(2,3)and cell_D < 3) or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[row // GRID_H + 1][col // GRID_W] < 3)) 
 
     return [tR,tL,tU,tD]
 
