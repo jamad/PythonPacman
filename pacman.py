@@ -47,28 +47,25 @@ boards=[list(map(int,s)) for s in boards_data.split()]
 count_R,count_C=len(boards),len(boards[0])
 #print('len R','len C',count_R,count_C) # 33 row, 30 columns
 
-# variable difinition F12
-debugmode=1
 
 init()
+
+# variable difinition F12
+debugmode=0
 
 # constants
 FPS = 120 # 60 , 240
 
 IMG_W = 45 #pixel size for characters
 IMG_H = 45
-
-INFO_HEIGHT=50
-
-RADIUS = 15 # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
-
 GRID_H = 28
 GRID_W = 30
-WIDTH=GRID_W*count_C
-HEIGHT=GRID_H*(count_R-1)+INFO_HEIGHT
-#print(GRID_H,GRID_W) # 28,30
+INFO_HEIGHT=50 # space to display score, lives etc
 
-screen = display.set_mode([WIDTH, HEIGHT])
+GAP_H = IMG_H-GRID_H # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
+GAP_W = IMG_W-GRID_W
+
+screen = display.set_mode([GRID_W*count_C, GRID_H*(count_R-1)+INFO_HEIGHT])
 timer = time.Clock()
 myfont = font.Font('freesansbold.ttf', 20)
 mydebugfont = font.Font('freesansbold.ttf', 9)
@@ -92,14 +89,14 @@ def reset_game():
     powerup_phase = 0
     power_counter = 0       
     
-    player_x = 450 - RADIUS*2 # centerize
+    player_x = 450 - GAP_H*2 # centerize
     player_y = 663
     player_dir =0 
     player_dir_command = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
 
     # ghosts : blinky 0  inky 1  pinky 2 clyde 3   
     GHOST_posX=[GRID_W*14, GRID_W*16, GRID_W*14, GRID_W*12]  # xpos
-    GHOST_posY=[GRID_W*13, GRID_W*15, GRID_W*15, GRID_W*15]         # ypos
+    GHOST_posY=[GRID_H*13.8, GRID_H*15.5, GRID_H*15.5, GRID_H*15.5]         # ypos
     GHOST_dir=[0]*4                        #direction
     GHOST_eaten = [0]*4                 # which ??
     GHOST_dead= [0]*4                   # ghost dead
@@ -157,11 +154,18 @@ class Ghost:
             draw.rect(screen, color='red', rect=self.rect, width=1 )
 
     def draw(self):
-        img=self.img # regular
-        if powerup_phase and not GHOST_eaten[self.id]:  img=spooked_img # powerup and not eaten yet
-        if self.dead:                                   img=dead_img    # dead condition is the strongest
         
-        screen.blit(img, (self.x_pos, self.y_pos))
+        if powerup_phase and not GHOST_eaten[self.id]:  
+            img=spooked_img # powerup and not eaten yet
+            screen.blit(img, (self.x_pos, self.y_pos))
+        elif self.dead:                                   
+            img=dead_img    # dead condition is the strongest
+            screen.blit(img, (self.x_pos, self.y_pos))
+        else:
+            img=self.img # regular
+            screen.blit(img, (self.x_pos, self.y_pos))
+            img=dead_img    # dead condition is the strongest
+            screen.blit(img, (self.x_pos, self.y_pos))
 
         if debugmode:
             _mytext=myfont.render(f'{self.dir}', 1, (255,255,0))      
@@ -175,12 +179,13 @@ class Ghost:
         self.can_move = [0]*4 #RLUD
 
         if 0 < self.center_x // 30 < 29:
-            row=self.center_y // GRID_H
-            col=self.center_x // GRID_W
-            row_U=(self.center_y - RADIUS) // GRID_H
-            row_D=(self.center_y + RADIUS) // GRID_H
-            col_L=(self.center_x - RADIUS) // GRID_W
-            col_R=(self.center_x + RADIUS) // GRID_W
+            row=int( self.center_y // GRID_H )              # don't know why but data was float without int()
+            col=int( self.center_x // GRID_W )              # don't know why but data was float without int()
+            row_U=int( (self.center_y - GAP_H) // GRID_H )  # don't know why but data was float without int()
+            row_D=int( (self.center_y + GAP_H) // GRID_H )  # don't know why but data was float without int()
+            col_L=int( (self.center_x - GAP_W) // GRID_W )  # don't know why but data was float without int()
+            col_R=int( (self.center_x + GAP_W) // GRID_W )  # don't know why but data was float without int()
+
             self.Cell_U = cell_U = level[row_U][col]    # up   RADIUS aka num3, GRID_H aka num1, GRID_W aka num2
             self.Cell_D = cell_D = level[row_D][col]    # down
             self.Cell_R = cell_R = level[row][col_R]    # right
@@ -294,6 +299,7 @@ def draw_HUD():
         screen.blit(gameover_text, (100, 300))
 
 def check_collisions(scor, power, power_count, G_EATENs):
+    global center_x, center_y
     if 0 < player_x < 870:
         idx1=center_y // GRID_H
         idx2=center_x // GRID_W
@@ -354,10 +360,10 @@ def draw_player():
 def check_passable(col, row):  # originally check_position
     if 29 <= col // 30 : return [1,1,0,0] # only horizontal warp is passable
 
-    cell_R=level[row // GRID_H][(col + RADIUS) // GRID_W]
-    cell_L=level[row // GRID_H][(col - RADIUS) // GRID_W]
-    cell_U=level[(row - RADIUS) // GRID_H][col // GRID_W]
-    cell_D=level[(row + RADIUS) // GRID_H][col // GRID_W]
+    cell_R=level[row // GRID_H][(col + GAP_W) // GRID_W]
+    cell_L=level[row // GRID_H][(col - GAP_W) // GRID_W]
+    cell_U=level[(row - GAP_H) // GRID_H][col // GRID_W]
+    cell_D=level[(row + GAP_H) // GRID_H][col // GRID_W]
     dir_H= player_dir in(0,1)
     dir_V= player_dir in(2,3)
 
@@ -376,7 +382,7 @@ def get_pos_goal(gR_x, gR_y, gP_x, gP_y, gB_x, gB_y, gY_x, gY_y):
 
     # update ghost's target (pacman, home or  runaway corner)
     for i in range(4):
-        in_ghost_home= (350 < GHOST_X[i] < 350  + 200  )and (385 - RADIUS*3 < GHOST_Y[i] < 385 + 100)
+        in_ghost_home= (350 < GHOST_X[i] < 350  + 200  )and (385 - GAP_H*3 < GHOST_Y[i] < 385 + 100)
         if not GHOST[i].dead:
             if powerup_phase:
                 if GHOST_eaten[i]:  # dead ghost
@@ -391,7 +397,8 @@ def get_pos_goal(gR_x, gR_y, gP_x, gP_y, gB_x, gB_y, gY_x, gY_y):
 
 
     if debugmode:# draw home collision
-        draw.rect(screen, color='green', rect=Rect(350 , 385  ,200, 100),width=1) # box collision
+        #GRID_W*
+        draw.rect(screen, color='green', rect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3),width=1) # box collision
         draw.circle(screen, color='red', center=(380, 400), radius=5 ,width=0) # ghost home
         draw.circle(screen, color='red', center=(450,100), radius=5 ,width=0) # gate target
         for i,goal in enumerate(GHOST_GOALS):
@@ -436,6 +443,7 @@ def update_ghost_target():
     global pos_ghost_targets
     pos_ghost_targets = get_pos_goal(GHOST_posX[0], GHOST_posY[0], GHOST_posX[1], GHOST_posY[1], GHOST_posX[2], GHOST_posY[2], GHOST_posX[3], GHOST_posY[3]) 
 
+
 run = True
 while run:
 
@@ -459,11 +467,6 @@ while run:
         moving = False
         startup_counter += 1
         
-    screen.fill('black')
-    
-    draw_board()
-    center_x = player_x + 23 # due to 45 pixel image
-    center_y = player_y + 23 # due to 45 pixel image
 
     ghost_speeds = [ (2,1)[powerup_phase] ]*4
 
@@ -476,7 +479,14 @@ while run:
     count_powerdot=level_1D.count(2)
     game_won = (count_dot + count_powerdot == 0)
 
+    center_x = player_x + IMG_W//2 -1 # don't know why but without -1, pacman got stuck
+    center_y = player_y + IMG_H//2 -1 # don't know why but without -1, pacman got stuck
+    player_can_move = check_passable(center_x, center_y)
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
+    
+
+    screen.fill('black')
+    draw_board()
     draw_player()
     
     # ghost update
@@ -488,15 +498,13 @@ while run:
     update_ghost_target()
     
 
-    player_can_move = check_passable(center_x, center_y)
-
     if moving:
 
         if player_can_move[player_dir]:
-            if player_dir == 0:      player_x += player_speed
-            elif player_dir == 1 :   player_x -= player_speed
-            elif player_dir == 2 :   player_y -= player_speed
-            elif player_dir == 3 :   player_y += player_speed
+            if   player_dir == 0 :  player_x += player_speed
+            elif player_dir == 1 :  player_x -= player_speed
+            elif player_dir == 2 :  player_y -= player_speed
+            elif player_dir == 3 :  player_y += player_speed
             
         for i in range(4):    
             if GHOST[i].in_box or GHOST_dead[i]: # if 
