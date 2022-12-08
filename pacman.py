@@ -316,22 +316,19 @@ def check_eaten_dots():
 
 def draw_board():
     for i in range(count_R):
-        ic=i+.5 # centrized
         for j in range(count_C):
-            jc=j+.5 # centrized
-            
             cell=level[i][j]
             # 0: ' ', 1: '·', 2:'■',3:'│',4:'─',5:'┐',6:'┌',7:'└',8:'┘',9:'═', 
-            # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
-            if cell == '·':draw.circle(   screen, 'white',    (GRID_W*jc, GRID_H*ic), 4)
-            if cell == '■':draw.circle(   screen, 'white',    (GRID_W*jc, GRID_H*ic), 10 if powerup_blink_on else 8)
-            if cell == '│':draw.line(     screen, COLOR_WALL, (GRID_W*jc, i * GRID_H),(GRID_W*jc, (i+1)*GRID_H),  3)
-            if cell == '─':draw.line(     screen, COLOR_WALL, (GRID_W*j,  GRID_H*ic),     (GRID_W*j + GRID_W, GRID_H*ic),3)
-            if cell == '┐':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,  GRID_H*ic, GRID_W, GRID_H),0, pi / 2, 3)
-            if cell == '┌':draw.arc(      screen, COLOR_WALL, (GRID_W*jc,         GRID_H*ic,      GRID_W, GRID_H), pi / 2, pi, 3)
-            if cell == '└':draw.arc(      screen, COLOR_WALL, (GRID_W*jc,         GRID_H*(i-.4),  GRID_W, GRID_H), pi, 3* pi / 2, 3)            
-            if cell == '┘':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,  GRID_H*(i-.4),  GRID_W, GRID_H), 3 * pi / 2,2 * pi, 3)
-            if cell == '═':draw.line(     screen, 'white',    (GRID_W*j, GRID_H*ic), (GRID_W*j + GRID_W, GRID_H*ic), 3)
+            # 0 = empty , 1 = dot, 2 = power dot, 3 = v line, 4 = h line, 5, 6,7,8 = corners, 9 = home gate
+            if cell == '·':draw.circle(   screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), 4)
+            if cell == '■':draw.circle(   screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), 10 if powerup_blink_on else 8)
+            if cell == '│':draw.line(     screen, COLOR_WALL, (GRID_W*(j+.5), i * GRID_H),(GRID_W*(j+.5), (i+1)*GRID_H),3)
+            if cell == '─':draw.line(     screen, COLOR_WALL, (GRID_W*j,  GRID_H*(i+.5)), (GRID_W*(j+1), GRID_H*(i+.5)),3)
+            if cell == '┐':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,GRID_H*(i+.5), GRID_W, GRID_H),0, pi / 2, 3)
+            if cell == '┌':draw.arc(      screen, COLOR_WALL, (GRID_W*(j+.5),   GRID_H*(i+.5),GRID_W, GRID_H), pi / 2, pi, 3)
+            if cell == '└':draw.arc(      screen, COLOR_WALL, (GRID_W*(j+.5),   GRID_H*(i-.4),  GRID_W, GRID_H), pi, 3* pi / 2, 3)            
+            if cell == '┘':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,GRID_H*(i-.4),  GRID_W, GRID_H), 3 * pi / 2,2 * pi, 3)
+            if cell == '═':draw.line(     screen, 'white',    (GRID_W*j, GRID_H*(i+.5)), (GRID_W*j + GRID_W, GRID_H*(i+.5)), 3)
             
             if debugmode:
                 draw.rect(screen,color=(0,32,0),rect=(j*GRID_W, i*GRID_H, GRID_W,GRID_H), width=1) # grid cell draw 
@@ -548,7 +545,6 @@ while mainloop_event():
     draw_characters()
     draw_HUD()
     if debugmode:display_FPS()
-    
     display.flip()
 
 quit()
