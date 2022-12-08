@@ -536,24 +536,19 @@ while mainloop_event():
     GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)] # need to separate init
     pos_ghost_targets =update_ghost_target() # Ghost target update
 
-    ###########################  drawing
-    screen.fill('black')
-    draw_board()
-    draw_characters()
-    
-
-    draw_HUD()
-
     move_characters()
-
     check_eaten_dots()
-
     handling_when_pacman_hit_ghost()
-
     respawn_ghosts()
 
+    ###########################  drawing
+    screen.fill('black')
+    
+    draw_board()
+    draw_characters()
+    draw_HUD()
     if debugmode:display_FPS()
-
+    
     display.flip()
 
 quit()
