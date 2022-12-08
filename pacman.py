@@ -344,13 +344,17 @@ def draw_board():
                 _myrect=Rect(j*GRID_W +2 , i*GRID_H +10, 20,20)
                 screen.blit(_mytext,_myrect)
                 
-def draw_player():
+def draw_characters():
     pos=(player_x, player_y)
     img_player=player_images[counter // 5]
     if player_dir == 0:      screen.blit(img_player, pos)
     elif player_dir == 1:    screen.blit(transform.flip(img_player, True, False), pos)
     elif player_dir == 2:    screen.blit(transform.rotate(img_player, 90), pos)
     elif player_dir == 3:    screen.blit(transform.rotate(img_player, -90), pos)
+
+    # ghost to draw
+    for ghost in GHOST:
+        ghost.draw()
 
 # check collisions based on center x and center y of player +/- RADIUS number
 def check_passable(col, row):  # originally check_position
@@ -482,6 +486,12 @@ def handling_when_pacman_hit_ghost():
         if any ( player_collision.colliderect(GHOST[i].rect) and  not GHOST[i].dead for i in range(4)):
             check_gameover()
 
+def respawn_ghosts():
+    # revive the ghosts if in the home box
+    for i in range(4):
+        if GHOST[i].in_box and GHOST_dead[i]:
+            GHOST_dead[i] = False
+
 while mainloop_event():
 
     timer.tick(FPS)# clock
@@ -529,9 +539,8 @@ while mainloop_event():
     ###########################  drawing
     screen.fill('black')
     draw_board()
-    draw_player()
+    draw_characters()
     
-    for ghost in GHOST:ghost.draw()
 
     draw_HUD()
 
@@ -541,11 +550,7 @@ while mainloop_event():
 
     handling_when_pacman_hit_ghost()
 
-
-    # revive the ghosts if in the home box
-    for i in range(4):
-        if GHOST[i].in_box and GHOST_dead[i]:
-            GHOST_dead[i] = False
+    respawn_ghosts()
 
     if debugmode:display_FPS()
 
