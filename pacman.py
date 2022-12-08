@@ -6,42 +6,43 @@ import copy
 from math import pi
 
 # 0:empty, 1:dot, 2:big dot,3:lineV,4:lineH,5:up right,6:up left,7:low left,8:low right,9:gate
+# 0: ' ', 1: '·', 2:'■',3:'│',4:'─',5:'┐',6:'┌',7:'└',8:'┘',9:'═', 
 boards_data='''\
-644444444444444444444444444445
-364444444444445644444444444453
-331111111111113311111111111133
-331644516444513316444516445133
-332300313000313313000313003233
-331744817444817817444817448133
-331111111111111111111111111133
-331644516516444444516516445133
-331744813317445644813317448133
-331111113311113311113311111133
-374444513744503306448316444483
-744445313644807807445313644448
-000003313300000000003313300000
-444448313306449944503313744444
-444444817803000000307817444444
-000000010003000000300010000000
-444444516503000000306516444444
-444445313307444444803313644444
-000003313300000000003313300000
-644448313306444444503313744445
-364444817807445644807817444453
-331111111111113311111111111133
-331644516444513316444516445133
-331745317444817817444813648133
-332113311111111111111113311233
-374513316516444444516513316483
-364817813317445644813317817453
-331111113311113311113311111133
-331644448744513316448744445133
-331744444444817817444444448133
-331111111111111111111111111133
-374444444444444444444444444483
-744444444444444444444444444448'''
+┌────────────────────────────┐
+│┌────────────┐┌────────────┐│
+││············││············││
+││·┌──┐·┌───┐·││·┌───┐·┌──┐·││
+││■│  │·│   │·││·│   │·│  │■││
+││·└──┘·└───┘·└┘·└───┘·└──┘·││
+││··························││
+││·┌──┐·┌┐·┌──────┐·┌┐·┌──┐·││
+││·└──┘·││·└──┐┌──┘·││·└──┘·││
+││······││····││····││······││
+│└────┐·│└──┐ ││ ┌──┘│·┌────┘│
+└────┐│·│┌──┘ └┘ └──┐│·│┌────┘
+     ││·││          ││·││     
+─────┘│·││ ┌──══──┐ ││·│└─────
+──────┘·└┘ │      │ └┘·└──────
+       ·   │      │   ·       
+──────┐·┌┐ │      │ ┌┐·┌──────
+─────┐│·││ └──────┘ ││·│┌─────
+     ││·││          ││·││     
+┌────┘│·││ ┌──────┐ ││·│└────┐
+│┌────┘·└┘ └──┐┌──┘ └┘·└────┐│
+││············││············││
+││·┌──┐·┌───┐·││·┌───┐·┌──┐·││
+││·└─┐│·└───┘·└┘·└───┘·│┌─┘·││
+││■··││················││··■││
+│└─┐·││·┌┐·┌──────┐·┌┐·││·┌─┘│
+│┌─┘·└┘·││·└──┐┌──┘·││·└┘·└─┐│
+││······││····││····││······││
+││·┌────┘└──┐·││·┌──┘└────┐·││
+││·└────────┘·└┘·└────────┘·││
+││··························││
+│└──────────────────────────┘│
+└────────────────────────────┘'''
 
-boards=[list(map(int,s)) for s in boards_data.split()]
+boards=[list(s) for s in boards_data.split('\n')]# 0 should not be trimmed!
 count_R,count_C=len(boards),len(boards[0]) # 33 row, 30 columns
 
 init() # pygame init
@@ -84,7 +85,7 @@ def reset_game():
     powerup_phase = 0
     power_counter = 0       
     
-    player_x = (GRID_W*count_C/2) #450 #- GAP_H*2 # centerize
+    player_x = (GRID_W*count_C//2) #450 #- GAP_H*2 # centerize
     player_y = 663
     player_dir =0 # right 
     player_dir_wish = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
@@ -135,10 +136,10 @@ class Ghost:
         self.dead = dead
         self.id = id
 
-        self.Cell_R=0
-        self.Cell_L=0
-        self.Cell_U=0
-        self.Cell_D=0
+        self.Cell_R=' '
+        self.Cell_L=' '
+        self.Cell_U=' '
+        self.Cell_D=' '
         
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
         self.can_move  = self.check_collisions()
@@ -189,7 +190,7 @@ class Ghost:
 
             not_alive= (self.in_box or self.dead)
 
-            cellcheck=lambda x:x<3 or (x==9 and not_alive)
+            cellcheck=lambda x:x in ' ·■' or (x=='═' and not_alive)
 
             is_dirH=self.dir in (0,1)
             is_dirV=self.dir in (2,3)
@@ -198,10 +199,10 @@ class Ghost:
 
             self.can_move[0] = cellcheck(cell_R) or (is_dirV and in_sweetspot_V and cellcheck(cellF)) #or (is_dirH and in_sweetspot_V and cellcheck(cellC))
             self.can_move[1] = cellcheck(cell_L) or (is_dirV and in_sweetspot_V and cellcheck(cellE)) #or (is_dirH and in_sweetspot_V and cellcheck(cellB))
-            self.can_move[2] = cellcheck(cell_U) or (cell_U == 9 )
-            self.can_move[3] = cellcheck(cell_D) or (cell_D == 9 and self.dead) # only 
+            self.can_move[2] = cellcheck(cell_U) or (cell_U == '═' )
+            self.can_move[3] = cellcheck(cell_D) or (cell_D == '═' and self.dead) # only 
 
-            if self.dead and cell_D==9:
+            if self.dead and cell_D=='═':
                 self.dir=3 # if ghost is dead and down is 9 (home entry) > move down to enter ghost home ##### BUGFIX
         
         else: self.can_move[0] = self.can_move[1] = 1
@@ -251,8 +252,8 @@ class Ghost:
             if cond2 and self.can_move[2]:    self.dir = 2
             
         # home gate handling
-        if self.Cell_D==9 and self.dead and self.can_move[3]:    self.dir=3
-        if self.Cell_U==9 and self.in_box  and self.can_move[2] :self.dir=2
+        if self.Cell_D=='═' and self.dead and self.can_move[3]:    self.dir=3
+        if self.Cell_U=='═' and self.in_box  and self.can_move[2] :self.dir=2
 
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
@@ -306,17 +307,17 @@ def draw_board():
             jc=j+.5 # centrized
             
             cell=level[i][j]
-            
+            # 0: ' ', 1: '·', 2:'■',3:'│',4:'─',5:'┐',6:'┌',7:'└',8:'┘',9:'═', 
             # 0 = empty , 1 = dot, 2 = big dot, 3 = vertical line, 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right, 9 = gate
-            if cell == 1:draw.circle(   screen, 'white',    (GRID_W*jc, GRID_H*ic), 4)
-            if cell == 2:draw.circle(   screen, 'white',    (GRID_W*jc, GRID_H*ic), 10 if powerup_blink_on else 8)
-            if cell == 3:draw.line(     screen, COLOR_WALL, (GRID_W*jc, i * GRID_H),(GRID_W*jc, (i+1)*GRID_H),  3)
-            if cell == 4:draw.line(     screen, COLOR_WALL, (GRID_W*j,  GRID_H*ic),     (GRID_W*j + GRID_W, GRID_H*ic),3)
-            if cell == 5:draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,  GRID_H*ic, GRID_W, GRID_H),0, pi / 2, 3)
-            if cell == 6:draw.arc(      screen, COLOR_WALL, (GRID_W*jc,         GRID_H*ic,      GRID_W, GRID_H), pi / 2, pi, 3)
-            if cell == 7:draw.arc(      screen, COLOR_WALL, (GRID_W*jc,         GRID_H*(i-.4),  GRID_W, GRID_H), pi, 3* pi / 2, 3)            
-            if cell == 8:draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,  GRID_H*(i-.4),  GRID_W, GRID_H), 3 * pi / 2,2 * pi, 3)
-            if cell == 9:draw.line(     screen, 'white',    (GRID_W*j, GRID_H*ic), (GRID_W*j + GRID_W, GRID_H*ic), 3)
+            if cell == '·':draw.circle(   screen, 'white',    (GRID_W*jc, GRID_H*ic), 4)
+            if cell == '■':draw.circle(   screen, 'white',    (GRID_W*jc, GRID_H*ic), 10 if powerup_blink_on else 8)
+            if cell == '│':draw.line(     screen, COLOR_WALL, (GRID_W*jc, i * GRID_H),(GRID_W*jc, (i+1)*GRID_H),  3)
+            if cell == '─':draw.line(     screen, COLOR_WALL, (GRID_W*j,  GRID_H*ic),     (GRID_W*j + GRID_W, GRID_H*ic),3)
+            if cell == '┐':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,  GRID_H*ic, GRID_W, GRID_H),0, pi / 2, 3)
+            if cell == '┌':draw.arc(      screen, COLOR_WALL, (GRID_W*jc,         GRID_H*ic,      GRID_W, GRID_H), pi / 2, pi, 3)
+            if cell == '└':draw.arc(      screen, COLOR_WALL, (GRID_W*jc,         GRID_H*(i-.4),  GRID_W, GRID_H), pi, 3* pi / 2, 3)            
+            if cell == '┘':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,  GRID_H*(i-.4),  GRID_W, GRID_H), 3 * pi / 2,2 * pi, 3)
+            if cell == '═':draw.line(     screen, 'white',    (GRID_W*j, GRID_H*ic), (GRID_W*j + GRID_W, GRID_H*ic), 3)
             
             if debugmode:
                 draw.rect(screen,color=(0,32,0),rect=(j*GRID_W, i*GRID_H, GRID_W,GRID_H), width=1) # grid cell draw 
@@ -343,6 +344,12 @@ def check_passable(col, row):  # originally check_position
 
     index_R=int(row // GRID_H)
     index_C=int(col // GRID_W)
+
+    print(len(level))
+    print(len(level[index_R]))
+    print(level[index_R])
+    print(int(col + GAP_W) // GRID_W)
+
     cell_R=level[index_R][int(col + GAP_W) // GRID_W]
     cell_L=level[index_R][int(col - GAP_W) // GRID_W]
     cell_U=level[int(row - GAP_H) // GRID_H][index_C]
@@ -350,10 +357,10 @@ def check_passable(col, row):  # originally check_position
     dir_H= player_dir in(0,1)
     dir_V= player_dir in(2,3)
 
-    tR = (player_dir in(0,1)and cell_R < 3) or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[index_R][index_C + 1] < 3)) 
-    tL = (player_dir in(0,1)and cell_L < 3) or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[index_R][index_C - 1] < 3))     
-    tU = (player_dir in(2,3)and cell_U < 3) or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R - 1][index_C] < 3)) 
-    tD = (player_dir in(2,3)and cell_D < 3) or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R + 1][index_C] < 3)) 
+    tR = (player_dir in(0,1)and cell_R in ' ·■') or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[index_R][index_C + 1] in ' ·■')) 
+    tL = (player_dir in(0,1)and cell_L in ' ·■') or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[index_R][index_C - 1] in ' ·■'))     
+    tU = (player_dir in(2,3)and cell_U in ' ·■') or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R - 1][index_C] in ' ·■')) 
+    tD = (player_dir in(2,3)and cell_D in ' ·■') or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R + 1][index_C] in ' ·■')) 
 
     return [tR,tL,tU,tD]
 
@@ -458,8 +465,9 @@ while mainloop_event():
         if GHOST_dead[i]:   ghost_speeds[i] = 4 # faster when dead
 
     level_1D=sum(level,[])
-    count_dot=level_1D.count(1)
-    count_powerdot=level_1D.count(2)
+    
+    count_dot=level_1D.count('·')
+    count_powerdot=level_1D.count('■')
     game_won = (count_dot + count_powerdot == 0)
 
     center_x = player_x + IMG_W//2 -1 # don't know why but without -1, pacman got stuck
