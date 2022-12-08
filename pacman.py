@@ -290,20 +290,22 @@ def check_collisions():
     if 0 < player_x < 870:
         idx1=int( center_y // GRID_H )
         idx2=int( center_x // GRID_W )
-        if level[idx1][idx2] == 1:  # normal dot
-            level[idx1][idx2] = 0   # remove dot
+
+        cell=level[idx1][idx2]
+        if cell == '·':  # normal dot
+            level[idx1][idx2] = ' '   # remove dot
             score += 10
-        if level[idx1][idx2] == 2:  # power dot
-            level[idx1][idx2] = 0   # remove dot
+        if cell == '■':  # power dot
+            level[idx1][idx2] = ' '   # remove dot
             score += 50
             powerup_phase = True
             power_counter = 0
             GHOST_eaten = [0]*4
 
 def draw_board():
-    for i in range(len(level)):
+    for i in range(count_R):
         ic=i+.5 # centrized
-        for j in range(len(level[0])):
+        for j in range(count_C):
             jc=j+.5 # centrized
             
             cell=level[i][j]
@@ -344,11 +346,6 @@ def check_passable(col, row):  # originally check_position
 
     index_R=int(row // GRID_H)
     index_C=int(col // GRID_W)
-
-    print(len(level))
-    print(len(level[index_R]))
-    print(level[index_R])
-    print(int(col + GAP_W) // GRID_W)
 
     cell_R=level[index_R][int(col + GAP_W) // GRID_W]
     cell_L=level[index_R][int(col - GAP_W) // GRID_W]
