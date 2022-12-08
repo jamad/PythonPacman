@@ -53,6 +53,8 @@ debugmode=1
 # constants
 FPS = 120 # 60 , 240
 
+PLAYER_SPEED = 2
+
 IMG_W = 45 #pixel size for characters
 IMG_H = 45
 GRID_H = 28
@@ -64,7 +66,10 @@ GAP_W = IMG_W-GRID_W
 
 COLOR_WALL = 'blue' # maze color
 
-screen = display.set_mode([GRID_W*count_C, GRID_H*(count_R-1)+INFO_HEIGHT])
+
+SCREEN_W=GRID_W*count_C
+SCREEN_H=GRID_H*(count_R-1)+INFO_HEIGHT
+screen = display.set_mode([SCREEN_W, SCREEN_H])
 timer = time.Clock()
 myfont = font.Font('freesansbold.ttf', 20)
 mydebugfont = font.Font('freesansbold.ttf', 9)
@@ -76,10 +81,13 @@ ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
 spooked_img   = load_image('ghost','powerup') 
 dead_img      = load_image('ghost','dead') 
 
+
 # initial declaration
 def reset_game():
+    global count_dot
     global level,startup_counter, power_counter, powerup_phase # can be first variable 
-    global player_x, player_y,player_dir, player_dir_wish, GHOST_posX, GHOST_posY, GHOST_dir,GHOST_eaten, GHOST_dead # important!
+    global player_x, player_y,player_dir, player_dir_wish, player_can_move
+    global GHOST_posX, GHOST_posY, GHOST_dir,GHOST_eaten, GHOST_dead # important!
     
     startup_counter = 0 
     powerup_phase = 0
@@ -89,6 +97,7 @@ def reset_game():
     player_y = 663
     player_dir =0 # right 
     player_dir_wish = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
+    player_can_move = [0]*4                    # R, L, U, D  open flag for movement
 
     # ghosts : blinky 0  inky 1  pinky 2 clyde 3   
     GHOST_posX=[GRID_W*14, GRID_W*16, GRID_W*14, GRID_W*12]  # xpos
@@ -97,31 +106,31 @@ def reset_game():
     GHOST_eaten = [0]*4                 # which ??
     GHOST_dead= [0]*4                   # ghost dead
     
+    
+    count_dot=boards_data.count('·')+boards_data.count('■') # 
     level = copy.deepcopy(boards)
 
 reset_game()
 
 gate_position=(440  ,0 )
 
-player_can_move = [0]*4                    # R, L, U, D  open flag for movement
 
 counter = powerup_blink_on = score = powerup_phase = power_counter = 0
 
-player_speed = 2
 pos_ghost_targets = [(player_x, player_y) for _ in range(4)] # ghost has each pacman player position!
 ghost_speeds = [2]*4
 
 lives = 2
 
 game_over = 0
-game_won = 0
 
 def handle_game_over():
-    global game_over, moving, startup_counter
+    global game_over, moving
+    # global startup_counter
     
     game_over = 1
     moving = 0
-    startup_counter = 0
+    #startup_counter = 0
 
 class Ghost:
     def __init__(self, x, y, target, speed, img, dir, dead, id):
@@ -133,7 +142,7 @@ class Ghost:
         self.speed = speed
         self.img = img
         self.dir = dir
-        self.dead = dead
+        self.dead = dead # when it gets true???
         self.id = id
 
         self.Cell_R=' '
@@ -262,8 +271,8 @@ class Ghost:
         if self.dir==3: self.y_pos += self.speed
 
         # warp gate
-        if self.x_pos < -50:    self.x_pos = 900-3
-        elif self.x_pos > 900:  self.x_pos = -50+3
+        if self.x_pos < -50:    self.x_pos = SCREEN_W-3
+        elif self.x_pos > SCREEN_W:  self.x_pos = -50+3
 
         return self.x_pos, self.y_pos, self.dir
 
@@ -277,7 +286,7 @@ def draw_HUD():
     for i in range(lives):
         screen.blit(transform.scale(player_images[0], (30, 30)), (650 + i * 40, 915))
     
-    if game_over or game_won:
+    if game_over or (count_dot==0):
         draw.rect(screen, 'white', [50, 200, 800, 300],0, 10)
         draw.rect(screen, 'dark gray', [70, 220, 760, 260], 0, 10)
         message= game_over and 'Game over! Space bar to restart!' or 'Victory! Space bar to restart!'
@@ -285,7 +294,8 @@ def draw_HUD():
         gameover_text = myfont.render( message, True, color)
         screen.blit(gameover_text, (100, 300))
 
-def check_collisions():
+def check_eaten_dots():
+    global count_dot
     global center_x, center_y , score, powerup_phase, power_counter, GHOST_eaten
     if 0 < player_x < 870:
         idx1=int( center_y // GRID_H )
@@ -293,9 +303,11 @@ def check_collisions():
 
         cell=level[idx1][idx2]
         if cell == '·':  # normal dot
+            count_dot-=1
             level[idx1][idx2] = ' '   # remove dot
             score += 10
         if cell == '■':  # power dot
+            count_dot-=1
             level[idx1][idx2] = ' '   # remove dot
             score += 50
             powerup_phase = True
@@ -324,12 +336,12 @@ def draw_board():
             if debugmode:
                 draw.rect(screen,color=(0,32,0),rect=(j*GRID_W, i*GRID_H, GRID_W,GRID_H), width=1) # grid cell draw 
                 
+                #_mytext=mydebugfont.render(f'{cell}',1, (0,128,0))      
+                #_myrect=Rect(j*GRID_W +2 , i*GRID_H +20, 20,20)
+                #screen.blit(_mytext,_myrect)
+
                 _mytext=mydebugfont.render(f'{j},{i}',1, (0,128,0))      
                 _myrect=Rect(j*GRID_W +2 , i*GRID_H +10, 20,20)
-                screen.blit(_mytext,_myrect)
-                
-                _mytext=mydebugfont.render(f'{cell}',1, (0,128,0))      
-                _myrect=Rect(j*GRID_W +2 , i*GRID_H +20, 20,20)
                 screen.blit(_mytext,_myrect)
                 
 def draw_player():
@@ -362,7 +374,7 @@ def check_passable(col, row):  # originally check_position
     return [tR,tL,tU,tD]
 
 def mainloop_event():
-    global player_dir_wish, player_dir, game_over, game_won, lives
+    global player_dir_wish, player_dir, game_over, lives, count_dot
     print(player_dir_wish, player_dir)
     for e in event.get():
 
@@ -376,13 +388,13 @@ def mainloop_event():
 
         # player_dir : RLUD
         if e.type == KEYUP:
-            if e.key == K_SPACE and (game_over or game_won):
+            if e.key == K_SPACE and (game_over or (count_dot==0)):
                 lives -= 1
                 reset_game()
 
                 score = 0
                 lives = 2
-                game_over = game_won = False
+                game_over  = False
 
             # first thought the following was enough
             #   player_want_to_go = player_dir # player cancelled his wish
@@ -417,7 +429,8 @@ def update_ghost_target():
                 if GHOST_eaten[i]:  # dead ghost
                     GHOST_GOALS[i] = ((player_x, player_y), (450, 200)) [in_ghost_home]
                 else: # spooked ghost
-                    GHOST_GOALS[i] = (450, 450) if i==3 else ((0,900)[player_x < 450], (0,900)[player_y < 450])# away from pacman 
+                    if i==3:GHOST_GOALS[i] = (450, 450)
+                    else:   GHOST_GOALS[i] = ((0,SCREEN_W)[player_x < 450], (0,SCREEN_H)[player_y < 450])# away from pacman 
             else:
                 GHOST_GOALS[i] = (400, 100) if in_ghost_home else (player_x + 22, player_y + 22)
         
@@ -432,6 +445,42 @@ def update_ghost_target():
             draw.circle(screen, color=('red','pink','cyan','orange')[i], center=goal, radius=i*2 ,width=1)
             
     return GHOST_GOALS
+
+def check_gameover(): # player hit ghost 
+    global lives
+    
+    if 0 < lives:
+        lives -= 1
+        reset_game()
+    else:
+        handle_game_over()
+
+def move_characters():
+    global moving, player_x, player_y
+    if moving:
+
+        if player_can_move[player_dir]:
+            if   player_dir == 0 :  player_x += PLAYER_SPEED
+            elif player_dir == 1 :  player_x -= PLAYER_SPEED
+            elif player_dir == 2 :  player_y -= PLAYER_SPEED
+            elif player_dir == 3 :  player_y += PLAYER_SPEED
+            
+        for i in range(4):    
+            if GHOST[i].in_box or GHOST_dead[i]:    GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(3)
+            else:                                   GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(i)
+
+def handling_when_pacman_hit_ghost():
+    global score
+    if powerup_phase: # pacman eats ghosts
+        for i in range(4):
+            if player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead:
+                if GHOST_eaten[i]: check_gameover() # ghost eat pacman , so game reset
+                else: # pacman eat ghost
+                    GHOST_dead[i] = GHOST_eaten[i] = 1
+                    score += (2 ** GHOST_eaten.count(True)) * 100
+    else: # ghost eats pacman
+        if any ( player_collision.colliderect(GHOST[i].rect) and  not GHOST[i].dead for i in range(4)):
+            check_gameover()
 
 while mainloop_event():
 
@@ -450,7 +499,8 @@ while mainloop_event():
             GHOST_eaten = [0]*4     
 
     moving = True
-    #if startup_counter < 180 and not game_over and not game_won:
+    
+    #if startup_counter < 180 and not game_over and (0<count_dot):
     if startup_counter < 180:
         moving = False
         startup_counter += 1
@@ -461,11 +511,7 @@ while mainloop_event():
         if GHOST_eaten[i]:  ghost_speeds[i] = 2 # slower when spooked
         if GHOST_dead[i]:   ghost_speeds[i] = 4 # faster when dead
 
-    level_1D=sum(level,[])
-    
-    count_dot=level_1D.count('·')
-    count_powerdot=level_1D.count('■')
-    game_won = (count_dot + count_powerdot == 0)
+    level_1D=sum(level,[]) 
 
     center_x = player_x + IMG_W//2 -1 # don't know why but without -1, pacman got stuck
     center_y = player_y + IMG_H//2 -1 # don't know why but without -1, pacman got stuck
@@ -489,42 +535,12 @@ while mainloop_event():
 
     draw_HUD()
 
-    if moving:
+    move_characters()
 
-        if player_can_move[player_dir]:
-            if   player_dir == 0 :  player_x += player_speed
-            elif player_dir == 1 :  player_x -= player_speed
-            elif player_dir == 2 :  player_y -= player_speed
-            elif player_dir == 3 :  player_y += player_speed
-            
-        for i in range(4):    
-            if GHOST[i].in_box or GHOST_dead[i]:    GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(3)
-            else:                                   GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(i)
+    check_eaten_dots()
 
-    check_collisions()
+    handling_when_pacman_hit_ghost()
 
-    # add to if not powerup_phase to check if eaten ghosts
-    if  powerup_phase:
-        if any ( player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead for i in range(4)):
-            if 0 < lives:
-                lives -= 1       
-                reset_game()
-            else:
-                handle_game_over()
-    else: # i.e. powerup_phase
-        # active ghost hit pacman
-        for i in range(4):
-            if player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead:
-                if GHOST_eaten[i]:  # ghost eat pacman , so game reset
-                    if 0 < lives:
-                        lives -= 1
-                        reset_game()
-                    else:
-                        handle_game_over()
-                        
-                else: # pacman eat ghost
-                    GHOST_dead[i] = GHOST_eaten[i] = True
-                    score += (2 ** GHOST_eaten.count(True)) * 100
 
     # revive the ghosts if in the home box
     for i in range(4):
