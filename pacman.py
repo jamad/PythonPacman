@@ -125,12 +125,10 @@ lives = 2
 game_over = 0
 
 def handle_game_over():
-    global game_over, moving
-    # global startup_counter
+    global game_over, startup_counter
     
     game_over = 1
-    moving = 0
-    #startup_counter = 0
+    startup_counter=0
 
 class Ghost:
     def __init__(self, x, y, target, speed, img, dir, dead, id):
@@ -457,9 +455,12 @@ def check_gameover(): # player hit ghost
         handle_game_over()
 
 def move_characters():
-    global moving, player_x, player_y
-    if moving:
+    global startup_counter, player_x, player_y
 
+    startup_counter += 1
+    
+    #if startup_counter < 180 and not game_over and (0<count_dot):
+    if 3*60*(60/FPS) <= startup_counter and not game_over and (0<count_dot): # after 3 seconds
         if player_can_move[player_dir]:
             if   player_dir == 0 :  player_x += PLAYER_SPEED
             elif player_dir == 1 :  player_x -= PLAYER_SPEED
@@ -505,13 +506,6 @@ while mainloop_event():
             powerup_phase = 0
             GHOST_eaten = [0]*4     
 
-    moving = True
-    
-    #if startup_counter < 180 and not game_over and (0<count_dot):
-    if startup_counter < 180:
-        moving = False
-        startup_counter += 1
-        
     ghost_speeds = [ (2,1)[powerup_phase] ]*4
 
     for i in range(4):
@@ -538,12 +532,13 @@ while mainloop_event():
     handling_when_pacman_hit_ghost()
     respawn_ghosts()
 
-    ###########################  drawing
+    #######  draw visuals
     screen.fill('black')
     
     draw_board()
     draw_characters()
     draw_HUD()
+
     if debugmode:display_FPS()
     display.flip()
 
