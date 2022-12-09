@@ -48,7 +48,7 @@ count_R,count_C=len(boards),len(boards[0]) # 33 row, 30 columns
 init() # pygame init
 
 # shortcut for debugging F2 to rename variables , F12 to check all usage
-debugmode=1
+debugmode=0
 
 # constants
 FPS = 120 # 60 , 240
@@ -68,6 +68,7 @@ COLOR_WALL = 'blue' # maze color
 
 SCREEN_W=GRID_W*count_C
 SCREEN_H=GRID_H*(count_R-1)+INFO_HEIGHT
+
 screen = display.set_mode([SCREEN_W, SCREEN_H])
 timer = time.Clock()
 myfont = font.Font('freesansbold.ttf', 20)
@@ -108,8 +109,6 @@ def reset_game():
     level = copy.deepcopy(boards)
 
 reset_game()
-
-gate_position=(440  ,0 )
 
 counter = powerup_blink_on = score = powerup_phase = power_counter = 0
 
@@ -213,7 +212,7 @@ class Ghost:
         return self.can_move
 
     def move_G(self, index):  
-
+        gate_position=(440  ,0 )
         ghost_target_x,ghost_target_y = gate_position if self.in_box else self.ghost_target # packman or home gate
 
         # direction : RLUD 
@@ -413,13 +412,11 @@ def display_FPS(): # fps display  ### https://stackoverflow.com/questions/679462
 def update_ghost_target():
     global pos_ghost_targets , GHOST_posX, GHOST_posY
     
-    GHOST_X=GHOST_posX
-    GHOST_Y=GHOST_posY
     GHOST_GOALS=[(380, 400)]*4 # ghost home box  as default
 
     # update ghost's target (pacman, home or  runaway corner)
     for i in range(4):
-        in_ghost_home= (350 < GHOST_X[i] < 350  + 200  )and (385 - GAP_H*3 < GHOST_Y[i] < 385 + 100)
+        in_ghost_home= (350 < GHOST_posX[i] < 350  + 200  )and (385 - GAP_H*3 < GHOST_posY[i] < 385 + 100)
         if not GHOST[i].dead:
             if powerup_phase:
                 if GHOST_eaten[i]:  # dead ghost
@@ -440,7 +437,7 @@ def update_ghost_target():
         for i,goal in enumerate(GHOST_GOALS):
             draw.circle(screen, color=('red','pink','cyan','orange')[i], center=goal, radius=i*2 ,width=1)
             
-    return GHOST_GOALS
+    pos_ghost_targets = GHOST_GOALS
 
 def check_gameover(): # player hit ghost 
     global lives
@@ -494,8 +491,6 @@ def respawn_ghosts():
 
 def handling_when_pacman_eat_power():
     global counter, powerup_phase, powerup_blink_on, power_counter, GHOST_eaten, ghost_speeds
-    counter += 1
-    counter %= 20
     
     powerup_blink_on = (7 < counter)
 
@@ -515,15 +510,16 @@ def handling_when_pacman_eat_power():
 while mainloop_event():
 
     timer.tick(FPS)# clock
+    counter =  (counter + 1)%20 # conter increment 
 
     center_x = player_x + IMG_W//2 -1 # don't know why but without -1, pacman got stuck
     center_y = player_y + IMG_H//2 -1 # don't know why but without -1, pacman got stuck
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
     check_passable(center_x, center_y)
     
-    # ghost update
-    GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)] # need to separate init
-    pos_ghost_targets =update_ghost_target() # Ghost target update
+    # ghost update # need to separate init
+    GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)] 
+    update_ghost_target() # Ghost target update
 
     move_characters()
 
