@@ -461,6 +461,7 @@ def move_characters():
     
     #if startup_counter < 180 and not game_over and (0<count_dot):
     if 3*60*(60/FPS) <= startup_counter and not game_over and (0<count_dot): # after 3 seconds
+        
         if player_can_move[player_dir]:
             if   player_dir == 0 :  player_x += PLAYER_SPEED
             elif player_dir == 1 :  player_x -= PLAYER_SPEED
@@ -495,10 +496,8 @@ def respawn_ghosts():
         if GHOST[i].in_box and GHOST_dead[i]:
             GHOST_dead[i] = False
 
-while mainloop_event():
-
-    timer.tick(FPS)# clock
-
+def handling_when_pacman_eat_power():
+    global counter, powerup_phase, powerup_blink_on, power_counter, GHOST_eaten, ghost_speeds
     counter += 1
     counter %= 20
     
@@ -517,7 +516,12 @@ while mainloop_event():
         if GHOST_eaten[i]:  ghost_speeds[i] = 2 # slower when spooked
         if GHOST_dead[i]:   ghost_speeds[i] = 4 # faster when dead
 
-    level_1D=sum(level,[]) 
+
+while mainloop_event():
+
+    timer.tick(FPS)# clock
+
+    handling_when_pacman_eat_power()
 
     center_x = player_x + IMG_W//2 -1 # don't know why but without -1, pacman got stuck
     center_y = player_y + IMG_H//2 -1 # don't know why but without -1, pacman got stuck
