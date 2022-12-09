@@ -353,6 +353,7 @@ def draw_characters():
 
 # check collisions based on center x and center y of player +/- RADIUS number
 def check_passable(col, row):  # originally check_position
+    global player_can_move
     if 29 <= col // 30 : return [1,1,0,0] # only horizontal warp is passable
 
     index_R=int(row // GRID_H)
@@ -370,7 +371,7 @@ def check_passable(col, row):  # originally check_position
     tU = (player_dir in(2,3)and cell_U in ' ·■') or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R - 1][index_C] in ' ·■')) 
     tD = (player_dir in(2,3)and cell_D in ' ·■') or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R + 1][index_C] in ' ·■')) 
 
-    return [tR,tL,tU,tD]
+    player_can_move = [tR,tL,tU,tD]
 
 def mainloop_event():
     global player_dir_wish, player_dir, game_over, lives, count_dot
@@ -525,8 +526,8 @@ while mainloop_event():
 
     center_x = player_x + IMG_W//2 -1 # don't know why but without -1, pacman got stuck
     center_y = player_y + IMG_H//2 -1 # don't know why but without -1, pacman got stuck
-    player_can_move = check_passable(center_x, center_y)
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
+    check_passable(center_x, center_y)
     
 
     # ghost update
