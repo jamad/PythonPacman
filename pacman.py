@@ -467,6 +467,11 @@ def move_characters():
             elif player_dir == 2 :  player_y -= PLAYER_SPEED
             elif player_dir == 3 :  player_y += PLAYER_SPEED
             
+            # player warp gate
+            if player_x > screen.get_width():player_x = -50+3 
+            if player_x < -50:player_x = screen.get_width()-3
+            
+            
         for i in range(4):    
             if GHOST[i].in_box or GHOST_dead[i]:    GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(3)
             else:                                   GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(i)
@@ -519,9 +524,6 @@ while mainloop_event():
     player_can_move = check_passable(center_x, center_y)
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
     
-    # player warp gate
-    if player_x > screen.get_width():player_x = -50+3 
-    if player_x < -50:player_x = screen.get_width()-3
 
     # ghost update
     GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)] # need to separate init
