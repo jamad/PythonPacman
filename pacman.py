@@ -66,7 +66,6 @@ GAP_W = IMG_W-GRID_W
 
 COLOR_WALL = 'blue' # maze color
 
-
 SCREEN_W=GRID_W*count_C
 SCREEN_H=GRID_H*(count_R-1)+INFO_HEIGHT
 screen = display.set_mode([SCREEN_W, SCREEN_H])
@@ -80,7 +79,6 @@ player_images = [load_image('player',i) for i in (1,2,3,2)]# 4 images
 ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
 spooked_img   = load_image('ghost','powerup') 
 dead_img      = load_image('ghost','dead') 
-
 
 # initial declaration
 def reset_game():
@@ -106,14 +104,12 @@ def reset_game():
     GHOST_eaten = [0]*4                 # which ??
     GHOST_dead= [0]*4                   # ghost dead
     
-    
     count_dot=boards_data.count('·')+boards_data.count('■') # 
     level = copy.deepcopy(boards)
 
 reset_game()
 
 gate_position=(440  ,0 )
-
 
 counter = powerup_blink_on = score = powerup_phase = power_counter = 0
 
@@ -473,7 +469,6 @@ def move_characters():
             if player_x > screen.get_width():player_x = -50+3 
             if player_x < -50:player_x = screen.get_width()-3
             
-            
         for i in range(4):    
             if GHOST[i].in_box or GHOST_dead[i]:    GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(3)
             else:                                   GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(i)
@@ -517,25 +512,24 @@ def handling_when_pacman_eat_power():
         if GHOST_eaten[i]:  ghost_speeds[i] = 2 # slower when spooked
         if GHOST_dead[i]:   ghost_speeds[i] = 4 # faster when dead
 
-
 while mainloop_event():
 
     timer.tick(FPS)# clock
-
-    handling_when_pacman_eat_power()
 
     center_x = player_x + IMG_W//2 -1 # don't know why but without -1, pacman got stuck
     center_y = player_y + IMG_H//2 -1 # don't know why but without -1, pacman got stuck
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
     check_passable(center_x, center_y)
     
-
     # ghost update
     GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)] # need to separate init
     pos_ghost_targets =update_ghost_target() # Ghost target update
 
     move_characters()
+
     check_eaten_dots()
+    handling_when_pacman_eat_power()
+
     handling_when_pacman_hit_ghost()
     respawn_ghosts()
 
