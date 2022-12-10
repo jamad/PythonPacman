@@ -361,10 +361,10 @@ def check_passable(col, row):  # originally check_position
     dir_H= player_dir in(0,1)
     dir_V= player_dir in(2,3)
 
-    tR = (player_dir in(0,1)and cell_R in ' ·■') or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[index_R][index_C + 1] in ' ·■')) 
-    tL = (player_dir in(0,1)and cell_L in ' ·■') or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[index_R][index_C - 1] in ' ·■'))     
-    tU = (player_dir in(2,3)and cell_U in ' ·■') or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R - 1][index_C] in ' ·■')) 
-    tD = (player_dir in(2,3)and cell_D in ' ·■') or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R + 1][index_C] in ' ·■')) 
+    tR = (dir_H and cell_R in ' ·■') or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[index_R][index_C + 1] in ' ·■')) 
+    tL = (dir_H and cell_L in ' ·■') or ( dir_V and( 12 <= row % GRID_H <= 18)and(level[index_R][index_C - 1] in ' ·■'))     
+    tU = (dir_V and cell_U in ' ·■') or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R - 1][index_C] in ' ·■')) 
+    tD = (dir_V and cell_D in ' ·■') or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R + 1][index_C] in ' ·■')) 
 
     player_can_move = [tR,tL,tU,tD]
 
