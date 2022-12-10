@@ -64,10 +64,13 @@ INFO_HEIGHT=50 # space to display score, lives etc
 GAP_H = IMG_H-GRID_H # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
 GAP_W = IMG_W-GRID_W
 
+
 COLOR_WALL = 'blue' # maze color
 
 SCREEN_W=GRID_W*count_C
 SCREEN_H=GRID_H*(count_R-1)+INFO_HEIGHT
+
+gate_position=(440  ,0 )
 
 screen = display.set_mode([SCREEN_W, SCREEN_H])
 timer = time.Clock()
@@ -81,38 +84,14 @@ ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
 spooked_img   = load_image('ghost','powerup') 
 dead_img      = load_image('ghost','dead') 
 
-# initial declaration
-def reset_game():
-    global count_dot
-    global level,startup_counter, power_counter, powerup_phase # can be first variable 
-    global player_x, player_y,player_dir, player_dir_wish, player_can_move
-    global GHOST_posX, GHOST_posY, GHOST_dir,GHOST_spooked, GHOST_dead # important!
-    
-    startup_counter = 0 
-    powerup_phase = 0
-    power_counter = 0       
-    
-    player_x = (GRID_W*count_C//2) #450 #- GAP_H*2 # centerize
-    player_y = 663
-    player_dir =0 # right 
-    player_dir_wish = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
-    player_can_move = [0]*4                    # R, L, U, D  open flag for movement
 
-    # ghosts : blinky 0  inky 1  pinky 2 clyde 3   
-    GHOST_posX=[GRID_W*14, GRID_W*16, GRID_W*14, GRID_W*12]  # xpos
-    GHOST_posY=[GRID_H*13.8, GRID_H*15.5, GRID_H*15.5, GRID_H*15.5]         # ypos
-    GHOST_dir=[0]*4                        #direction
-    GHOST_spooked = [0]*4                 # which ??
-    GHOST_dead= [0]*4                   # ghost dead
-    
-    count_dot=boards_data.count('·')+boards_data.count('■') # 
-    level = copy.deepcopy(boards)
 
-reset_game()
 
 counter = powerup_blink_on = score = powerup_phase = power_counter = 0
 
-pos_ghost_targets = [(player_x, player_y) for _ in range(4)] # ghost has each pacman player position!
+
+
+#pos_ghost_targets = [ for _ in range(4)] # ghost has each pacman player position!
 ghost_speeds = [2]*4
 
 lives = 2
@@ -126,34 +105,43 @@ def handle_game_over():
     startup_counter=0
 
 class Ghost:
-    def __init__(self, x, y, target, speed, img, dir, dead, id):
-        self.x_pos = x
-        self.y_pos = y
-        self.center_x = self.x_pos + 23
-        self.center_y = self.y_pos + 23
+    def __init__(self,  target, speed, img,  id):
+
+        self.id = id # fixed
+        self.x_pos = 0 # to draw image
+        self.y_pos = 0 # to draw image
+
         self.ghost_target = target
         self.speed = speed
         self.img = img
-        self.dir = dir
-        self.dead = dead # when it gets true???
-        self.id = id
+        self.dir = 0
+        self.dead = 0 # when it gets true???
 
-        self.Cell_R=' '
-        self.Cell_L=' '
-        self.Cell_U=' '
-        self.Cell_D=' '
+        self.in_box=1 # start in box
         
+        self.center_x =  23 # offset
+        self.center_y = 23 # offset
+        self.Cell_R=self.Cell_L=self.Cell_U=self.Cell_D=' '
+        self.can_move = [0]*4 #RLUD
+        
+
+    def update(self):
+        
+        self.center_x = self.x_pos + 23
+        self.center_y = self.y_pos + 23
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
         self.can_move  = self.check_collisions()
         self.rect = rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
 
         if debugmode:
-            draw.circle(screen, 'green', (self.x_pos + 22, self.y_pos + 22), 20, 1) 
+            draw.circle(screen, 'green', (self.center_x-1, self.center_y-1), 20, 1) 
             draw.rect(screen, color='red', rect=self.rect, width=1 )
 
+
     def draw(self):
-        if powerup_phase and not GHOST_spooked[self.id]:  
+        if powerup_phase and not GHOST_spooked[self.id]:# using self.id
             screen.blit(spooked_img, (self.x_pos, self.y_pos))
+
         elif self.dead:                                 
             screen.blit(dead_img, (self.x_pos, self.y_pos))
         else:
@@ -166,8 +154,7 @@ class Ghost:
             screen.blit(_mytext,_myrect)
         
     def check_collisions(self):
-        self.can_move = [0]*4 #RLUD
-
+        
         if 0 < self.center_x // 30 < 29:
             row=int( self.center_y // GRID_H )              # don't know why but data was float without int()
             col=int( self.center_x // GRID_W )              # don't know why but data was float without int()
@@ -212,7 +199,7 @@ class Ghost:
         return self.can_move
 
     def move_G(self, index):  
-        gate_position=(440  ,0 )
+        
         ghost_target_x,ghost_target_y = gate_position if self.in_box else self.ghost_target # packman or home gate
 
         # direction : RLUD 
@@ -267,6 +254,43 @@ class Ghost:
 
         return self.x_pos, self.y_pos, self.dir
 
+player_start_posX=(GRID_W*count_C//2) #450 #- GAP_H*2 # centerize
+player_start_posY=663
+
+GHOST=[Ghost((player_start_posX,player_start_posY) , ghost_speeds[i], ghost_images[i], i) for i in range(4)] 
+
+
+# initial declaration
+def reset_game():
+    global count_dot
+    global level,startup_counter, power_counter, powerup_phase # can be first variable 
+    global player_x, player_y,player_dir, player_dir_wish, player_can_move
+    global GHOST_posX, GHOST_posY, GHOST_dir,GHOST_spooked, GHOST_dead # important!
+    
+    startup_counter = 0 
+    powerup_phase = 0
+    power_counter = 0       
+    
+    player_x = player_start_posX
+    player_y = player_start_posY
+    
+    player_dir =0 # right 
+    player_dir_wish = 0 #player_dir : RLUD   ::::   0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
+    player_can_move = [0]*4                    # R, L, U, D  open flag for movement
+
+    # ghosts : blinky 0  inky 1  pinky 2 clyde 3   
+    for i,ghost in enumerate(GHOST):
+        ghost.x_pos=[GRID_W*14, GRID_W*16, GRID_W*14, GRID_W*12][i]
+        ghost.y_pos=[GRID_H*13.8, GRID_H*15.5, GRID_H*15.5, GRID_H*15.5] [i]
+        ghost.dir=0
+        ghost.spooked=0
+        ghost.dead=0
+    
+    count_dot=boards_data.count('·')+boards_data.count('■') # 
+    level = copy.deepcopy(boards)
+
+reset_game()
+
 def draw_HUD():
     score_text = myfont.render(f'Score: {score}', True, 'white')
     screen.blit(score_text, (10, 920))
@@ -288,22 +312,26 @@ def draw_HUD():
 def check_eaten_dots():
     global count_dot
     global center_x, center_y , score, powerup_phase, power_counter, GHOST_spooked
-    if 0 < player_x < 870:
-        idx1=int( center_y // GRID_H )
-        idx2=int( center_x // GRID_W )
 
-        cell=level[idx1][idx2]
-        if cell == '·':  # normal dot
-            count_dot-=1
-            level[idx1][idx2] = ' '   # remove dot
-            score += 10
-        if cell == '■':  # power dot
-            count_dot-=1
-            level[idx1][idx2] = ' '   # remove dot
-            score += 50
-            powerup_phase = True
-            power_counter = 0
-            GHOST_spooked = [0]*4
+    if player_x<0:          return
+    if SCREEN_W-30<player_x:return
+
+    idx1=int( center_y // GRID_H )
+    idx2=int( center_x // GRID_W )
+
+    cell=level[idx1][idx2]
+
+    if cell == '·':  # normal dot
+        count_dot-=1
+        level[idx1][idx2] = ' '   # remove dot
+        score += 10
+    elif cell == '■':  # power dot
+        count_dot-=1
+        level[idx1][idx2] = ' '   # remove dot
+        score += 50
+        powerup_phase = True
+        power_counter = 0
+        GHOST_spooked = [0]*4
 
 def draw_board():
     for i in range(count_R):
@@ -407,8 +435,11 @@ def update_ghost_target():
     GHOST_GOALS=[(380, 400)]*4 # ghost home box  as default
 
     # update ghost's target (pacman, home or  runaway corner)
-    for i in range(4):
-        in_ghost_home= (350 < GHOST_posX[i] < 350  + 200  )and (385 - GAP_H*3 < GHOST_posY[i] < 385 + 100)
+    for ghost in GHOST:
+        i=ghost.id
+        
+        in_ghost_home= (350 < ghost.x_pos < 350  + 200  )and (385 - GAP_H*3 < ghost.y_pos < 385 + 100)
+
         if not GHOST[i].dead:
             if powerup_phase:
                 if GHOST_spooked[i]:  # dead ghost
@@ -459,29 +490,38 @@ def move_characters():
         if player_x > screen.get_width():player_x = -50+3 
         if player_x < -50:player_x = screen.get_width()-3
         
-    for i in range(4):    
-        if GHOST[i].in_box or GHOST_dead[i]:   
-            GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(3) # type3 ghost behavior ?? just 
+    for ghost in GHOST:
+        i=ghost.id
+        if ghost.in_box or ghost.dead:
+        #if GHOST[i].in_box or GHOST_dead[i]:   
+            ghost.x_pos,ghost.y_pos,ghost.dir=GHOST[i].move_G(3) # type3 ghost behavior ?? just 
         else:                                   
-            GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(i)
+            ghost.x_pos,ghost.y_pos,ghost.dir= GHOST[i].move_G(i)
 
 def handling_when_pacman_hit_ghost():
     global score
     if powerup_phase: # pacman eats ghosts
-        for i in range(4):
-            if player_collision.colliderect(GHOST[i].rect) and not GHOST[i].dead:
-                if GHOST_spooked[i]: check_gameover() # ghost eat pacman , so game reset
+
+        for ghost in GHOST:
+            i=ghost.id
+            if player_collision.colliderect(ghost.rect) and not ghost.dead:
+                if ghost.spooked: check_gameover() # ghost eat pacman , so game reset
                 else: # pacman eat ghost
-                    GHOST_dead[i] = GHOST_spooked[i] = 1
-                    score += (2 ** GHOST_spooked.count(True)) * 100
+                    ghost.dead=1
+                    ghost.spooked=1
+
+                    #score += (2 ** GHOST_spooked.count(True)) * 100 
+
     else: # ghost eats pacman
         if any ( player_collision.colliderect(GHOST[i].rect) and  not GHOST[i].dead for i in range(4)):
             check_gameover()
 
 def respawn_ghosts():
     # revive the ghosts if in the home box
-    for i in range(4):
-        if GHOST[i].in_box and GHOST_dead[i]:
+    for ghost in GHOST:
+        i=ghost.id
+        if ghost.in_box and ghost.dead:
+        #if GHOST[i].in_box and GHOST_dead[i]:
             GHOST_dead[i] = False
 
 def handling_when_pacman_eat_power():
@@ -498,9 +538,13 @@ def handling_when_pacman_eat_power():
 
     ghost_speeds = [ (2,1)[powerup_phase] ]*4
 
-    for i in range(4):
-        if GHOST_spooked[i]:  ghost_speeds[i] = 2 # slower when spooked
-        if GHOST_dead[i]:   ghost_speeds[i] = 4 # faster when dead
+    for ghost in GHOST:
+        i=ghost.id
+        if ghost.spooked: ghost.speed=2
+        #if GHOST_spooked[i]:  ghost_speeds[i] = 2 # slower when spooked
+        if ghost.dead: ghost.speed =4 # faster when dead
+
+    
 
 while mainloop_event():
 
@@ -513,7 +557,9 @@ while mainloop_event():
     check_passable(center_x, center_y)
 
     # ghost update # need to separate init
-    GHOST=[Ghost(GHOST_posX[i], GHOST_posY[i], pos_ghost_targets[i], ghost_speeds[i], ghost_images[i], GHOST_dir[i], GHOST_dead[i], i) for i in range(4)] 
+    # ghost init update here @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    for ghost in GHOST:
+        ghost.update()
     
     update_ghost_target() # Ghost target update
     move_characters()
