@@ -512,7 +512,7 @@ def respawn_ghosts():
         i=ghost.id
         if ghost.in_box and ghost.dead:
         #if GHOST[i].in_box and GHOST_dead[i]:
-            GHOST_dead[i] = False
+            ghost.dead=0
 
 def handling_when_pacman_eat_power():
     global counter, powerup_phase, powerup_blink_on, power_counter, ghost_speeds
@@ -523,16 +523,13 @@ def handling_when_pacman_eat_power():
         power_counter = (power_counter+1) % 600
         if power_counter==0:
             powerup_phase = 0   # powerup ended
-
             for ghost in GHOST:ghost.eaten_by_pacman=0 # ghost is not spooked anymore    
 
     for ghost in GHOST:
-        ghost.speed=(2,1)[powerup_phase]
+        ghost.speed=(2,1)[powerup_phase]# slow if powerup phase
         i=ghost.id
         if ghost.eaten_by_pacman: ghost.speed=2
         if ghost.dead: ghost.speed =4 # faster when dead
-
-    
 
 while mainloop_event():
 
