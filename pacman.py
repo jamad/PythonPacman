@@ -92,7 +92,7 @@ counter = powerup_blink_on = score = powerup_phase = power_counter = 0
 
 
 #pos_ghost_targets = [ for _ in range(4)] # ghost has each pacman player position!
-ghost_speeds = [2]*4
+#ghost_speeds = [2]*4
 
 lives = 2
 
@@ -105,14 +105,14 @@ def handle_game_over():
     startup_counter=0
 
 class Ghost:
-    def __init__(self,  target, speed, img,  id):
+    def __init__(self,  img,  id):
 
         self.id = id # fixed
         self.x_pos = 0 # to draw image
         self.y_pos = 0 # to draw image
 
-        self.ghost_target = target
-        self.speed = speed
+        self.ghost_target = (player_start_posX,player_start_posY)
+        self.speed = 2
         self.img = img
         self.dir = 0
         self.dead = 0 # when it gets true???
@@ -257,7 +257,7 @@ class Ghost:
 player_start_posX=(GRID_W*count_C//2) #450 #- GAP_H*2 # centerize
 player_start_posY=663
 
-GHOST=[Ghost((player_start_posX,player_start_posY) , ghost_speeds[i], ghost_images[i], i) for i in range(4)] 
+GHOST=[Ghost(ghost_images[i], i) for i in range(4)] 
 
 
 # initial declaration
