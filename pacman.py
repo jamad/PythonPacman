@@ -98,10 +98,10 @@ def handle_game_over():
     startup_counter=0
 
 class Ghost:
-    def __init__(self,  img,  id):
+    def __init__(self,   id):
 
         self.id = id # fixed
-        self.img = img
+        self.img = ghost_images[id]
 
         self.x_pos = 0 # to draw image
         self.y_pos = 0 # to draw image
@@ -253,7 +253,7 @@ class Ghost:
 player_start_posX=(GRID_W*count_C//2) #450 #- GAP_H*2 # centerize
 player_start_posY=663
 
-GHOST=[Ghost(ghost_images[i], i) for i in range(4)] 
+GHOST=[Ghost(i) for i in range(4)] 
 
 
 # initial declaration
@@ -261,7 +261,6 @@ def reset_game():
     global count_dot
     global level,startup_counter, power_counter, powerup_phase # can be first variable 
     global player_x, player_y,player_dir, player_dir_wish, player_can_move
-    #global GHOST_posX, GHOST_posY, GHOST_dir, GHOST_dead # important!
     
     startup_counter = 0 
     powerup_phase = 0
