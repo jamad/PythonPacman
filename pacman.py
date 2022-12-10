@@ -368,17 +368,17 @@ def check_passable(col, row):  # originally check_position
 
 def mainloop_event():
     global player_dir_wish, player_dir, game_over, lives, count_dot
-    print(player_dir_wish, player_dir)
+    #print(player_dir_wish, player_dir)
     for e in event.get():
 
         if e.type==QUIT: return False # exit main loop
 
-        if e.type == KEYDOWN: 
+        elif e.type == KEYDOWN: 
             
             player_dir_wish={K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}.get(e.key,-1) # key defines player_dir , if K_SPACE:-1,
 
         # player_dir : RLUD
-        if e.type == KEYUP:
+        elif e.type == KEYUP:
             if e.key == K_SPACE and (game_over or (count_dot==0)):
                 lives -= 1
                 reset_game()
