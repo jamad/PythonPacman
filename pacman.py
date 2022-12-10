@@ -85,14 +85,7 @@ spooked_img   = load_image('ghost','powerup')
 dead_img      = load_image('ghost','dead') 
 
 
-
-
 counter = powerup_blink_on = score = powerup_phase = power_counter = 0
-
-
-
-#pos_ghost_targets = [ for _ in range(4)] # ghost has each pacman player position!
-#ghost_speeds = [2]*4
 
 lives = 2
 
@@ -268,7 +261,7 @@ def reset_game():
     global count_dot
     global level,startup_counter, power_counter, powerup_phase # can be first variable 
     global player_x, player_y,player_dir, player_dir_wish, player_can_move
-    global GHOST_posX, GHOST_posY, GHOST_dir, GHOST_dead # important!
+    #global GHOST_posX, GHOST_posY, GHOST_dir, GHOST_dead # important!
     
     startup_counter = 0 
     powerup_phase = 0
@@ -434,37 +427,36 @@ def display_FPS(): # fps display  ### https://stackoverflow.com/questions/679462
     screen.blit(_fps_t,(0,0))
 
 def update_ghost_target():
-    global pos_ghost_targets , GHOST_posX, GHOST_posY
-    
-    GHOST_GOALS=[(380, 400)]*4 # ghost home box  as default
 
     # update ghost's target (pacman, home or  runaway corner)
     for ghost in GHOST:
         i=ghost.id
+        ghost.ghost_target=(380, 400)# ghost home box  as default
         
         in_ghost_home= (350 < ghost.x_pos < 350  + 200  )and (385 - GAP_H*3 < ghost.y_pos < 385 + 100)
 
         if not GHOST[i].dead:
             if powerup_phase:
                 if ghost.spooked:  # dead ghost
-                    GHOST_GOALS[i] = ((player_x, player_y), (450, 200)) [in_ghost_home]
+                    ghost.ghost_target= ((player_x, player_y), (450, 200)) [in_ghost_home]
                 else: # spooked ghost
-                    if i==3:GHOST_GOALS[i] = (450, 450)
-                    else:   GHOST_GOALS[i] = ((0,SCREEN_W)[player_x < 450], (0,SCREEN_H)[player_y < 450])# away from pacman 
+                    if i==3:ghost.ghost_target = (450, 450)
+                    else:   ghost.ghost_target = ((0,SCREEN_W)[player_x < 450], (0,SCREEN_H)[player_y < 450])# away from pacman 
             else:
-                GHOST_GOALS[i] = (400, 100) if in_ghost_home else (player_x + 22, player_y + 22)
+                ghost.ghost_target = (400, 100) if in_ghost_home else (player_x + 22, player_y + 22)
         
         if in_ghost_home:
-            GHOST_GOALS[i] = (440, 388-100)
+            ghost.ghost_target = (440, 388-100)
 
     if debugmode:# draw home collision
         draw.rect(screen, color='green', rect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3),width=1) # box collision
         draw.circle(screen, color='red', center=(380, 400), radius=5 ,width=0) # ghost home
         draw.circle(screen, color='red', center=(450,100), radius=5 ,width=0) # gate target
-        for i,goal in enumerate(GHOST_GOALS):
-            draw.circle(screen, color=('red','pink','cyan','orange')[i], center=goal, radius=i*2 ,width=1)
+
+        for ghost in GHOST:
+            i=ghost.id
+            draw.circle(screen, color=('red','pink','cyan','orange')[i], center=ghost.ghost_target, radius=i*2 ,width=1)
             
-    pos_ghost_targets = GHOST_GOALS
 
 def check_gameover(): # player hit ghost 
     global lives
