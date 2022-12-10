@@ -70,6 +70,8 @@ COLOR_WALL = 'blue' # maze color
 SCREEN_W=GRID_W*count_C
 SCREEN_H=GRID_H*(count_R-1)+INFO_HEIGHT
 
+player_start_posX=(GRID_W*count_C//2) #450 #- GAP_H*2 # centerize
+player_start_posY=663
 gate_position=(440  ,0 )
 
 screen = display.set_mode([SCREEN_W, SCREEN_H])
@@ -84,11 +86,9 @@ ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
 spooked_img   = load_image('ghost','powerup') 
 dead_img      = load_image('ghost','dead') 
 
-
 counter = powerup_blink_on = score = powerup_phase = power_counter = 0
 
 lives = 2
-
 game_over = 0
 
 def handle_game_over():
@@ -110,7 +110,7 @@ class Ghost:
         self.speed = 2
         self.dir = 0
         self.dead = 0 # when it gets true???
-        self.spooked=0
+        self.eaten_by_pacman=0
 
         self.in_box=1 # start in box
         
@@ -132,10 +132,9 @@ class Ghost:
             draw.circle(screen, 'green', (self.center_x-1, self.center_y-1), 20, 1) 
             draw.rect(screen, color='red', rect=self.rect, width=1 )
 
-
     def draw(self):
         
-        if powerup_phase and not self.spooked:# using self.id
+        if powerup_phase and not self.eaten_by_pacman:# using self.id
             screen.blit(spooked_img, (self.x_pos, self.y_pos))
 
         elif self.dead:                                 
@@ -209,7 +208,6 @@ class Ghost:
         #  NB!!!!!!!!!!!!    for pygame, smaller number means upper!!!! becaue topleft is (0,0)!
         cond2=ghost_target_y < self.y_pos and self.can_move[2] # goal is up and can move up
         cond3=ghost_target_y > self.y_pos and self.can_move[3] # goal is down and can move down
-        #CONDS=[cond0,cond1,cond2,cond3]
 
         # default behavior
         #if index==0:  # GHOST[0] : clyde doesn't change direction unless hit . if multiple candidates to turn, follow pacman
@@ -250,11 +248,8 @@ class Ghost:
 
         return self.x_pos, self.y_pos, self.dir
 
-player_start_posX=(GRID_W*count_C//2) #450 #- GAP_H*2 # centerize
-player_start_posY=663
 
 GHOST=[Ghost(i) for i in range(4)] 
-
 
 # initial declaration
 def reset_game():
@@ -274,11 +269,11 @@ def reset_game():
     player_can_move = [0]*4                    # R, L, U, D  open flag for movement
 
     # ghosts : blinky 0  inky 1  pinky 2 clyde 3   
-    for i,ghost in enumerate(GHOST):
-        ghost.x_pos=[GRID_W*14, GRID_W*16, GRID_W*14, GRID_W*12][i]
-        ghost.y_pos=[GRID_H*13.8, GRID_H*15.5, GRID_H*15.5, GRID_H*15.5] [i]
+    for ghost in GHOST:
+        ghost.x_pos=[GRID_W*14, GRID_W*16, GRID_W*14, GRID_W*12][ghost.id]
+        ghost.y_pos=[GRID_H*13.8, GRID_H*15.5, GRID_H*15.5, GRID_H*15.5][ghost.id]
         ghost.dir=0
-        ghost.spooked=0
+        ghost.eaten_by_pacman=0
         ghost.dead=0
     
     count_dot=boards_data.count('·')+boards_data.count('■') # 
@@ -327,7 +322,7 @@ def check_eaten_dots():
         powerup_phase = True
         power_counter = 0
 
-        for ghost in GHOST:ghost.spooked=0
+        for ghost in GHOST:ghost.eaten_by_pacman=0 
 
 def draw_board():
     for i in range(count_R):
@@ -436,7 +431,7 @@ def update_ghost_target():
 
         if not GHOST[i].dead:
             if powerup_phase:
-                if ghost.spooked:  # dead ghost
+                if ghost.eaten_by_pacman:  # dead ghost
                     ghost.ghost_target= ((player_x, player_y), (450, 200)) [in_ghost_home]
                 else: # spooked ghost
                     if i==3:ghost.ghost_target = (450, 450)
@@ -500,12 +495,12 @@ def handling_when_pacman_hit_ghost():
         for ghost in GHOST:
             i=ghost.id
             if player_collision.colliderect(ghost.rect) and not ghost.dead:
-                if ghost.spooked: check_gameover() # ghost eat pacman , so game reset
+                if ghost.eaten_by_pacman: check_gameover() # ghost eat pacman , so game reset
                 else: # pacman eat ghost
                     ghost.dead=1
-                    ghost.spooked=1
+                    ghost.eaten_by_pacman=1
 
-                    score += (2 ** sum(ghost.spooked for ghost in GHOST)) * 100 
+                    score += (2 ** sum(ghost.eaten_by_pacman for ghost in GHOST)) * 100 
 
     else: # ghost eats pacman
         if any ( player_collision.colliderect(GHOST[i].rect) and  not GHOST[i].dead for i in range(4)):
@@ -529,13 +524,12 @@ def handling_when_pacman_eat_power():
         if power_counter==0:
             powerup_phase = 0   # powerup ended
 
-            for ghost in GHOST:ghost.spooked=0 # ghost is not spooked anymore    
-
-    ghost_speeds = [ (2,1)[powerup_phase] ]*4
+            for ghost in GHOST:ghost.eaten_by_pacman=0 # ghost is not spooked anymore    
 
     for ghost in GHOST:
+        ghost.speed=(2,1)[powerup_phase]
         i=ghost.id
-        if ghost.spooked: ghost.speed=2
+        if ghost.eaten_by_pacman: ghost.speed=2
         if ghost.dead: ghost.speed =4 # faster when dead
 
     
