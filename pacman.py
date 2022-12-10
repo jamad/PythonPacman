@@ -239,12 +239,6 @@ class Ghost:
             elif cond1:self.dir=1
             else:self.dir= (5 - self.dir)  # backward  if 3 then 2. if 2 then 3
 
-        def decide_dir(a,b,c):
-            for i in (a,b,c):
-                if self.can_move[i]:self.dir=i
-            for i in (a,b,c):
-                if CONDS[i]:self.dir=i
-
         if index==2 or index==3:# GHOST[2] GHOST[3] is going to turn left or right whenever advantageous
             if cond1 and self.can_move[1]:   self.dir = 1
             if cond0 and self.can_move[0]:   self.dir = 0
