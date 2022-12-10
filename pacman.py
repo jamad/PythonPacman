@@ -238,7 +238,9 @@ class Ghost:
             if cond0:self.dir=0
             elif cond1:self.dir=1
             else:self.dir= (5 - self.dir)  # backward  if 3 then 2. if 2 then 3
-
+        
+        ### now all same behavior because disabled the following
+        '''
         if index==2 or index==3:# GHOST[2] GHOST[3] is going to turn left or right whenever advantageous
             if cond1 and self.can_move[1]:   self.dir = 1
             if cond0 and self.can_move[0]:   self.dir = 0
@@ -246,7 +248,8 @@ class Ghost:
         if index==1 or index==3:# GHOST[1] GHOST[3] turns up or down at any point to pursue
             if cond3 and self.can_move[3]:    self.dir = 3
             if cond2 and self.can_move[2]:    self.dir = 2
-            
+        '''
+
         # home gate handling
         if self.Cell_D=='═' and self.dead and self.can_move[3]:    self.dir=3
         if self.Cell_U=='═' and self.in_box  and self.can_move[2] :self.dir=2
