@@ -226,7 +226,7 @@ class Ghost:
         #  NB!!!!!!!!!!!!    for pygame, smaller number means upper!!!! becaue topleft is (0,0)!
         cond2=ghost_target_y < self.y_pos and self.can_move[2] # goal is up and can move up
         cond3=ghost_target_y > self.y_pos and self.can_move[3] # goal is down and can move down
-        CONDS=[cond0,cond1,cond2,cond3]
+        #CONDS=[cond0,cond1,cond2,cond3]
 
         # default behavior
         #if index==0:  # GHOST[0] : clyde doesn't change direction unless hit . if multiple candidates to turn, follow pacman
@@ -240,6 +240,7 @@ class Ghost:
             else:self.dir= (5 - self.dir)  # backward  if 3 then 2. if 2 then 3
         
         ### now all same behavior because disabled the following
+        # original was move_clyde(self) for index==3
         '''
         if index==2 or index==3:# GHOST[2] GHOST[3] is going to turn left or right whenever advantageous
             if cond1 and self.can_move[1]:   self.dir = 1
@@ -372,11 +373,9 @@ def mainloop_event():
 
         if e.type==QUIT: return False # exit main loop
 
-        if e.type == KEYDOWN: # key defines player_dir
-            if (e.key==K_RIGHT):player_dir_wish=0
-            if (e.key==K_LEFT):player_dir_wish=1
-            if (e.key==K_UP):player_dir_wish=2
-            if (e.key==K_DOWN):player_dir_wish=3
+        if e.type == KEYDOWN: 
+            
+            player_dir_wish={K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}.get(e.key,-1) # key defines player_dir , if K_SPACE:-1,
 
         # player_dir : RLUD
         if e.type == KEYUP:
@@ -388,13 +387,9 @@ def mainloop_event():
                 lives = 2
                 game_over  = False
 
-            # first thought the following was enough
-            #   player_want_to_go = player_dir # player cancelled his wish
-            # but, the following was better feeling. need to learn why.
-            if e.key == K_RIGHT and player_dir_wish == 0:   player_dir_wish = player_dir
-            if e.key == K_LEFT and player_dir_wish  == 1:   player_dir_wish = player_dir
-            if e.key == K_UP and player_dir_wish    == 2:   player_dir_wish = player_dir
-            if e.key == K_DOWN and player_dir_wish  == 3:   player_dir_wish = player_dir
+            # need to learn why the following was better than simply player_dir_wish= player_dir
+            if {K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}.get(e.key,-1)==player_dir_wish:
+                player_dir_wish= player_dir
 
     for i in range(4):
         if player_dir_wish == i and player_can_move[i]: 
@@ -464,8 +459,10 @@ def move_characters():
             if player_x < -50:player_x = screen.get_width()-3
             
         for i in range(4):    
-            if GHOST[i].in_box or GHOST_dead[i]:    GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(3)
-            else:                                   GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(i)
+            if GHOST[i].in_box or GHOST_dead[i]:   
+                GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(3) # type3 ghost behavior ?? just 
+            else:                                   
+                GHOST_posX[i], GHOST_posY[i], GHOST_dir[i] = GHOST[i].move_G(i)
 
 def handling_when_pacman_hit_ghost():
     global score
