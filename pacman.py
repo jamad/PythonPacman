@@ -291,6 +291,7 @@ def draw_HUD():
     for i in range(lives):
         screen.blit(transform.scale(player_images[0], (30, 30)), (650 + i * 40, 915))
     
+    # game over message
     if game_over or (count_dot==0):
         draw.rect(screen, 'white', [50, 200, 800, 300],0, 10)
         draw.rect(screen, 'dark gray', [70, 220, 760, 260], 0, 10)
@@ -385,37 +386,6 @@ def check_passable(col, row):  # originally check_position
     tD = (dir_V and cell_D in ' ·■') or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R + 1][index_C] in ' ·■')) 
 
     player_can_move = [tR,tL,tU,tD]
-
-def mainloop_event():
-    global player_dir_wish, player_dir, game_over, lives, count_dot
-    #print(player_dir_wish, player_dir)
-    for e in event.get():
-
-        if e.type==QUIT: return False # exit main loop
-
-        elif e.type == KEYDOWN: 
-            
-            player_dir_wish={K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}.get(e.key,-1) # key defines player_dir , if K_SPACE:-1,
-
-        # player_dir : RLUD
-        elif e.type == KEYUP:
-            if e.key == K_SPACE and (game_over or (count_dot==0)):
-                lives -= 1
-                reset_game()
-
-                score = 0
-                lives = 2
-                game_over  = False
-
-            # need to learn why the following was better than simply player_dir_wish= player_dir
-            if {K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}.get(e.key,-1)==player_dir_wish:
-                player_dir_wish= player_dir
-
-    for i in range(4):
-        if player_dir_wish == i and player_can_move[i]: 
-            player_dir = i
-
-    return True
 
 def display_FPS(): # fps display  ### https://stackoverflow.com/questions/67946230/show-fps-in-pygame
     _fps_t = myfont.render(f'FPS: {timer.get_fps():.3f}' , 1, "green")
@@ -528,6 +498,38 @@ def handling_when_pacman_eat_power():
         ghost.speed=2
         if powerup_phase:ghost.speed=1# slow if powerup phase
         if ghost.dead: ghost.speed =4 # faster when dead
+
+
+def mainloop_event():
+    global player_dir_wish, player_dir, game_over, lives, count_dot
+    #print(player_dir_wish, player_dir)
+    for e in event.get():
+
+        if e.type==QUIT: return False # exit main loop
+
+        elif e.type == KEYDOWN: 
+            
+            player_dir_wish={K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}.get(e.key,-1) # key defines player_dir , if K_SPACE:-1,
+
+        # player_dir : RLUD
+        elif e.type == KEYUP:
+            if e.key == K_SPACE and (game_over or (count_dot==0)):
+                lives -= 1
+                reset_game()
+
+                score = 0
+                lives = 2
+                game_over  = False
+
+            # need to learn why the following was better than simply player_dir_wish= player_dir
+            if {K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}.get(e.key,-1)==player_dir_wish:
+                player_dir_wish= player_dir
+
+    for i in range(4):
+        if player_dir_wish == i and player_can_move[i]: 
+            player_dir = i
+
+    return True
 
 while mainloop_event():
 
