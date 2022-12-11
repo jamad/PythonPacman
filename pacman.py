@@ -48,7 +48,8 @@ count_R,count_C=len(boards),len(boards[0]) # 33 row, 30 columns
 init() # pygame init . # time.get_ticks() start from here
 
 # shortcut for debugging F2 to rename variables , F12 to check all usage
-debugmode=0
+debugmode=1
+debugmode_board=0
 
 # constants
 FPS = 120 # 120, 60 , 240
@@ -147,7 +148,7 @@ class Ghost:
 
         if debugmode:
             _mytext=myfont.render(f'{self.dir}', 1, (255,255,0))      
-            _myrect=Rect(self.x_pos +10 , self.y_pos +10, 20,20)
+            _myrect=Rect(self.x_pos +10 , self.y_pos +20, 20,20)
             screen.blit(_mytext,_myrect)
         
     def check_collisions(self):
@@ -216,10 +217,14 @@ class Ghost:
         if any( (self.dir== i and not self.can_move[i]) for i in (0,1)): # blocked horizontal
             if cond2:self.dir=2 # if can follow pacman above, go up
             elif cond3:self.dir=3
+            elif self.can_move[2]:self.dir=2
+            elif self.can_move[3]:self.dir=3
             else: self.dir=(1 - self.dir) # backward direction 
         elif any( (self.dir== i and not self.can_move[i]) for i in (2,3) ): # blocked vertical
             if cond0:self.dir=0
             elif cond1:self.dir=1
+            elif self.can_move[0]:self.dir=0
+            elif self.can_move[1]:self.dir=1
             else:self.dir= (5 - self.dir)  # backward  if 3 then 2. if 2 then 3
         
         ### now all same behavior because disabled the following
@@ -347,7 +352,7 @@ def draw_board():
             if cell == '┘':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,GRID_H*(i-.4),  GRID_W, GRID_H), 3 * pi / 2,2 * pi, 3)
             if cell == '═':draw.line(     screen, 'white',    (GRID_W*j, GRID_H*(i+.5)), (GRID_W*j + GRID_W, GRID_H*(i+.5)), 3)
             
-            if debugmode:
+            if debugmode_board:
                 draw.rect(screen,color=(0,32,0),rect=(j*GRID_W, i*GRID_H, GRID_W,GRID_H), width=1) # grid cell draw 
                 
                 #_mytext=mydebugfont.render(f'{cell}',1, (0,128,0))      
@@ -420,13 +425,14 @@ def update_ghost_target():# update ghost's target (pacman, home or  runaway corn
             ghost.ghost_target = (440, 388-100)
 
     if debugmode:# draw home collision
-        draw.rect(screen, color='green', rect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3),width=1) # box collision
+        draw.rect(screen, color='green', rect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3),width=1) # home box
+
         draw.circle(screen, color='red', center=(380, 400), radius=5 ,width=0) # ghost home
         draw.circle(screen, color='red', center=(450,100), radius=5 ,width=0) # gate target
 
         for ghost in GHOST:
             i=ghost.id
-            draw.circle(screen, color=('red','pink','cyan','orange')[i], center=ghost.ghost_target, radius=i*2 ,width=1)
+            draw.circle(screen, color=('red','pink','cyan','orange')[i], center=ghost.ghost_target, radius=i*5 ,width=1) #target
             
 def check_gameover(): # player hit ghost 
     global lives
@@ -536,6 +542,7 @@ def mainloop_event():
 
 while mainloop_event():
 
+    screen.fill('black')
     timer.tick(FPS)# clock
     counter =  (counter + 1)%20 # conter increment 
 
@@ -545,7 +552,6 @@ while mainloop_event():
     check_passable(center_x, center_y)
 
     for ghost in GHOST:ghost.update()
-    
     update_ghost_target() # Ghost target update
     move_characters()
     check_eaten_dots()
@@ -554,7 +560,7 @@ while mainloop_event():
     respawn_ghosts()
 
     #######  draw visuals
-    screen.fill('black')
+    #screen.fill('black')
     
     draw_board()
     draw_characters()

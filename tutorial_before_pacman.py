@@ -40,6 +40,7 @@ def userinput():
     player.rect.x += player_speed *(_key_input[K_RIGHT]-_key_input[K_LEFT])
     player.rect.y += player_speed*(_key_input[K_DOWN]-_key_input[K_UP])
 
+
 def collisioncheck():
     if sprite.spritecollide(player, wall_group, True):# the last True means player destroy walls
         width,height=player.image.get_size()
