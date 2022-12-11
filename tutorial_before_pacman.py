@@ -44,8 +44,8 @@ def collisioncheck():
     if sprite.spritecollide(player, wall_group, True):# the last True means player destroy walls
         width,height=player.image.get_size()
         posX,posY=player.rect.x, player.rect.y
-        print()
-        player.image = Surface( [width*1.15,  height*1.15])
+        #print()
+        player.image = Surface( [width*1.1,  height*1.1])
         player.image.fill((255, 255, 255)) # if collision is detected call a function to destroy
         
         player.rect = player.image.get_rect()
