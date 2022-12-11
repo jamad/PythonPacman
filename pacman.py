@@ -45,13 +45,13 @@ boards_data='''\
 boards=[list(s) for s in boards_data.split('\n')]# 0 should not be trimmed!
 count_R,count_C=len(boards),len(boards[0]) # 33 row, 30 columns
 
-init() # pygame init
+init() # pygame init . # time.get_ticks() start from here
 
 # shortcut for debugging F2 to rename variables , F12 to check all usage
 debugmode=0
 
 # constants
-FPS = 120 # 60 , 240
+FPS = 120 # 120, 60 , 240
 
 PLAYER_SPEED = 2
 
@@ -92,10 +92,12 @@ lives = 2
 game_over = 0
 
 def handle_game_over():
-    global game_over, startup_counter
+    global game_over
     
     game_over = 1
-    startup_counter=0
+    
+    init() # timer initialized ????
+    #time.set_timer(0,0)
 
 class Ghost:
     def __init__(self,   id):
@@ -254,10 +256,9 @@ GHOST=[Ghost(i) for i in range(4)]
 # initial declaration
 def reset_game():
     global count_dot
-    global level,startup_counter, power_counter, powerup_phase # can be first variable 
+    global level, power_counter, powerup_phase # can be first variable 
     global player_x, player_y,player_dir, player_dir_wish, player_can_move
     
-    startup_counter = 0 
     powerup_phase = 0
     power_counter = 0       
     
@@ -293,12 +294,16 @@ def draw_HUD():
     
     # game over message
     if game_over or (count_dot==0):
-        draw.rect(screen, 'white', [50, 200, 800, 300],0, 10)
-        draw.rect(screen, 'dark gray', [70, 220, 760, 260], 0, 10)
-        message= game_over and 'Game over! Space bar to restart!' or 'Victory! Space bar to restart!'
+        PANEL_W=320
+        PANEL_H=160
+        PANEL_X=450-PANEL_W//2
+        PANEL_Y=435-PANEL_H//2
+        draw.rect(screen, 'white', [PANEL_X, PANEL_Y, PANEL_W, PANEL_H],0, 10)
+        draw.rect(screen, 'dark gray', [PANEL_X+20, PANEL_Y+20, PANEL_W-40, PANEL_H-40], 0, 10)
+        message= game_over and 'GAME OVER! Hit Space Bar' or 'VICTORY! Hit Space Bar'
         color=game_over and 'red' or 'green'
         gameover_text = myfont.render( message, True, color)
-        screen.blit(gameover_text, (100, 300))
+        screen.blit(gameover_text, (PANEL_X+40, 425))
 
 def check_eaten_dots():
     global count_dot
@@ -433,11 +438,11 @@ def check_gameover(): # player hit ghost
         handle_game_over()
 
 def move_characters():
-    global startup_counter, player_x, player_y
+    global player_x, player_y
 
-    startup_counter += 1
-
-    if startup_counter < 3*60*(60/FPS): return # before 3 seconds
+    if time.get_ticks()<2000: # 2000 miliseconds == 3 seconds
+        print('get_time', timer.get_time(), 'get_ticks',time.get_ticks())
+        return # before 3 seconds
     
     if game_over or count_dot==0:       return # gameover or game_clear
         
@@ -559,7 +564,6 @@ while mainloop_event():
     display.flip()
 
 quit()
-
 
 ######### TODO move main functions into ghost class method
 ######### TODO arrange packman class to see if the logic can simpler or not
