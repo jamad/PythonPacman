@@ -116,12 +116,12 @@ class Ghost:
         
         self.center_x =  23 # offset
         self.center_y = 23 # offset
-        self.Cell_R=self.Cell_L=self.Cell_U=self.Cell_D=' '
+        #self.Cell_R=self.Cell_L=self.Cell_U=self.Cell_D=' '
         self.can_move = [0]*4 #RLUD
-        
 
-    def update(self):
+        self.rect = rect.Rect((self.x_pos + 23 - 18, self.y_pos + 23 - 18), (36, 36))
         
+    def update(self):
         self.center_x = self.x_pos + 23
         self.center_y = self.y_pos + 23
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
@@ -322,7 +322,8 @@ def check_eaten_dots():
         powerup_phase = True
         power_counter = 0
 
-        for ghost in GHOST:ghost.eaten_by_pacman=0 
+        for ghost in GHOST:
+            ghost.eaten_by_pacman=0 
 
 def draw_board():
     for i in range(count_R):
@@ -420,21 +421,22 @@ def display_FPS(): # fps display  ### https://stackoverflow.com/questions/679462
     _fps_t = myfont.render(f'FPS: {timer.get_fps():.3f}' , 1, "green")
     screen.blit(_fps_t,(0,0))
 
-def update_ghost_target():
-
-    # update ghost's target (pacman, home or  runaway corner)
+def update_ghost_target():# update ghost's target (pacman, home or  runaway corner)
     for ghost in GHOST:
-        i=ghost.id
         ghost.ghost_target=(380, 400)# ghost home box  as default
         
         ghost.in_box= (350 < ghost.x_pos < 350  + 200  )and (385 - GAP_H*3 < ghost.y_pos < 385 + 100)
 
-        if not GHOST[i].dead:
+        if not ghost.dead:
             if powerup_phase:
-                if ghost.eaten_by_pacman:  # dead ghost
-                    ghost.ghost_target= ((player_x, player_y), (450, 200)) [ghost.in_box]
-                else: # spooked ghost
-                    if i==3:ghost.ghost_target = (450, 450)
+                if ghost.eaten_by_pacman: # home returning ghost
+                    if ghost.in_box:
+                        ghost.ghost_target=(player_x, player_y)
+                    else:
+                        ghost.ghost_target=(450, 200)
+                else: # running away ghost
+                    if ghost.id==3:
+                        ghost.ghost_target = (450, 450)
                     else:   ghost.ghost_target = ((0,SCREEN_W)[player_x < 450], (0,SCREEN_H)[player_y < 450])# away from pacman 
             else:
                 ghost.ghost_target = (400, 100) if ghost.in_box else (player_x + 22, player_y + 22)
@@ -493,7 +495,8 @@ def handling_when_pacman_hit_ghost():
         for ghost in GHOST:
             i=ghost.id
             if player_collision.colliderect(ghost.rect) and not ghost.dead:
-                if ghost.eaten_by_pacman: check_gameover() # ghost eat pacman , so game reset
+                if ghost.eaten_by_pacman: 
+                    check_gameover() # ghost eat pacman , so game reset
                 else: # pacman eat ghost
                     ghost.dead=1
                     ghost.eaten_by_pacman=1
@@ -518,12 +521,12 @@ def handling_when_pacman_eat_power():
         power_counter = (power_counter+1) % 600
         if power_counter==0:
             powerup_phase = 0   # powerup ended
-            for ghost in GHOST:ghost.eaten_by_pacman=0 # ghost is not spooked anymore    
+            for ghost in GHOST:
+                ghost.eaten_by_pacman=0 
 
     for ghost in GHOST:
-        ghost.speed=(2,1)[powerup_phase]# slow if powerup phase
-        i=ghost.id
-        if ghost.eaten_by_pacman: ghost.speed=2
+        ghost.speed=2
+        if powerup_phase:ghost.speed=1# slow if powerup phase
         if ghost.dead: ghost.speed =4 # faster when dead
 
 while mainloop_event():
@@ -536,10 +539,7 @@ while mainloop_event():
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
     check_passable(center_x, center_y)
 
-    # ghost update # need to separate init
-    # ghost init update here @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    for ghost in GHOST:
-        ghost.update()
+    for ghost in GHOST:ghost.update()
     
     update_ghost_target() # Ghost target update
     move_characters()
