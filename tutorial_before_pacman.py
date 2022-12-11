@@ -20,8 +20,8 @@ clock = time.Clock()
 screen = display.set_mode(size)
 
 player = Sprite([40, 50])
+
 # Define keys for player movement
-player.move = [K_LEFT, K_RIGHT, K_UP, K_DOWN]
 player.vx = 5
 player.vy = 5
 player.image.fill((255, 255, 0)) 
@@ -34,21 +34,17 @@ wall_group.add(wall)
 player_group = sprite.Group()
 player_group.add(player)
 
-def mainloop():
-    if any(e.type == QUIT for e in event.get()):return 0
-    return 1
+def mainloop():return not any(e.type == QUIT for e in event.get())
 
 def userinput():
     k = key.get_pressed()
-    for i in range(2):
-        if k[player.move[i]]:       player.rect.x += player.vx * [-1, 1][i]
-
-    for i in range(2):
-        if k[player.move[2:4][i]]:  player.rect.y += player.vy * [-1, 1][i]
+    if k[K_LEFT]:   player.rect.x -= player.vx
+    if k[K_RIGHT]:  player.rect.x += player.vx
+    if k[K_UP]:     player.rect.y -= player.vy
+    if k[K_DOWN]:   player.rect.y += player.vy
 
 def collisioncheck():
-    hit = sprite.spritecollide(player, wall_group, True)
-    if hit:
+    if sprite.spritecollide(player, wall_group, True):
         player.image.fill((255, 255, 255)) # if collision is detected call a function to destroy
 
 def drawscreen():
