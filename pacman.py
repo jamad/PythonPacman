@@ -423,7 +423,6 @@ def update_ghost_target():# update ghost's target (pacman, home or  runaway corn
             i=ghost.id
             draw.circle(screen, color=('red','pink','cyan','orange')[i], center=ghost.ghost_target, radius=i*2 ,width=1)
             
-
 def check_gameover(): # player hit ghost 
     global lives
     
@@ -499,7 +498,6 @@ def handling_when_pacman_eat_power():
         if powerup_phase:ghost.speed=1# slow if powerup phase
         if ghost.dead: ghost.speed =4 # faster when dead
 
-
 def mainloop_event():
     global player_dir_wish, player_dir, game_over, lives, count_dot
     #print(player_dir_wish, player_dir)
@@ -561,3 +559,8 @@ while mainloop_event():
     display.flip()
 
 quit()
+
+
+######### TODO move main functions into ghost class method
+######### TODO arrange packman class to see if the logic can simpler or not
+######### TODO arrange gamemanager class to see if the logic can simpler or not
