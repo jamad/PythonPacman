@@ -1,12 +1,12 @@
 # https://w3cschoool.com/tutorial/pygame-tutorial
 
-from pygame import init,sprite,Surface,time,display,K_LEFT, K_RIGHT, K_UP, K_DOWN, event,QUIT,key
+from pygame import init,sprite,Surface,time,display,K_LEFT, K_RIGHT, K_UP, K_DOWN, event,QUIT,key, transform
 #import sys
 
 class Sprite(sprite.Sprite):
     def __init__(self, pos):
         sprite.Sprite.__init__(self)
-        self.image = Surface([20, 20])
+        self.image = Surface([16, 16])
         self.image.fill((255, 0, 255))
         self.rect = self.image.get_rect()
         self.rect.center = pos
@@ -22,17 +22,16 @@ screen = display.set_mode(size)
 player = Sprite([40, 50])
 
 # Define keys for player movement
-player_speed = 5
+player_speed = 1
 player.image.fill((255, 255, 0)) 
 
-wall = Sprite([100, 60])
-wall2 = Sprite([160, 60])
-
-wall_group = sprite.Group(wall)
-wall_group.add(wall2)
-
 player_group = sprite.Group(player)
-#player_group.add(player)
+
+wall_group = sprite.Group()
+for i in range(10):
+    for j in range(10):
+        wall=Sprite([100+20*i,100+20*j])
+        wall_group.add(wall)
 
 def mainloop():return not any(e.type == QUIT for e in event.get())
 
@@ -42,8 +41,15 @@ def userinput():
     player.rect.y += player_speed*(_key_input[K_DOWN]-_key_input[K_UP])
 
 def collisioncheck():
-    if sprite.spritecollide(player, wall_group, True):
+    if sprite.spritecollide(player, wall_group, True):# the last True means player destroy walls
+        width,height=player.image.get_size()
+        posX,posY=player.rect.x, player.rect.y
+        print()
+        player.image = Surface( [width*1.15,  height*1.15])
         player.image.fill((255, 255, 255)) # if collision is detected call a function to destroy
+        
+        player.rect = player.image.get_rect()
+        player.rect.center=(posX+width//2,posY+height//2)
 
 def drawscreen():
     screen.fill([0, 0, 0])
