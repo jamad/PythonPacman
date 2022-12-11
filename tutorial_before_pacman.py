@@ -22,26 +22,24 @@ screen = display.set_mode(size)
 player = Sprite([40, 50])
 
 # Define keys for player movement
-player.vx = 5
-player.vy = 5
+player_speed = 5
 player.image.fill((255, 255, 0)) 
 
 wall = Sprite([100, 60])
+wall2 = Sprite([160, 60])
 
-wall_group = sprite.Group()
-wall_group.add(wall)
+wall_group = sprite.Group(wall)
+wall_group.add(wall2)
 
-player_group = sprite.Group()
-player_group.add(player)
+player_group = sprite.Group(player)
+#player_group.add(player)
 
 def mainloop():return not any(e.type == QUIT for e in event.get())
 
 def userinput():
-    k = key.get_pressed()
-    if k[K_LEFT]:   player.rect.x -= player.vx
-    if k[K_RIGHT]:  player.rect.x += player.vx
-    if k[K_UP]:     player.rect.y -= player.vy
-    if k[K_DOWN]:   player.rect.y += player.vy
+    _key_input = key.get_pressed()
+    player.rect.x += player_speed *(_key_input[K_RIGHT]-_key_input[K_LEFT])
+    player.rect.y += player_speed*(_key_input[K_DOWN]-_key_input[K_UP])
 
 def collisioncheck():
     if sprite.spritecollide(player, wall_group, True):
