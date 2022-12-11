@@ -427,19 +427,19 @@ def update_ghost_target():
         i=ghost.id
         ghost.ghost_target=(380, 400)# ghost home box  as default
         
-        in_ghost_home= (350 < ghost.x_pos < 350  + 200  )and (385 - GAP_H*3 < ghost.y_pos < 385 + 100)
+        ghost.in_box= (350 < ghost.x_pos < 350  + 200  )and (385 - GAP_H*3 < ghost.y_pos < 385 + 100)
 
         if not GHOST[i].dead:
             if powerup_phase:
                 if ghost.eaten_by_pacman:  # dead ghost
-                    ghost.ghost_target= ((player_x, player_y), (450, 200)) [in_ghost_home]
+                    ghost.ghost_target= ((player_x, player_y), (450, 200)) [ghost.in_box]
                 else: # spooked ghost
                     if i==3:ghost.ghost_target = (450, 450)
                     else:   ghost.ghost_target = ((0,SCREEN_W)[player_x < 450], (0,SCREEN_H)[player_y < 450])# away from pacman 
             else:
-                ghost.ghost_target = (400, 100) if in_ghost_home else (player_x + 22, player_y + 22)
+                ghost.ghost_target = (400, 100) if ghost.in_box else (player_x + 22, player_y + 22)
         
-        if in_ghost_home:
+        if ghost.in_box:
             ghost.ghost_target = (440, 388-100)
 
     if debugmode:# draw home collision
@@ -481,12 +481,10 @@ def move_characters():
         if player_x < -50:player_x = screen.get_width()-3
         
     for ghost in GHOST:
-        i=ghost.id
         if ghost.in_box or ghost.dead:
-        #if GHOST[i].in_box or GHOST_dead[i]:   
-            ghost.x_pos,ghost.y_pos,ghost.dir=GHOST[i].move_G(3) # type3 ghost behavior ?? just 
+            ghost.x_pos,ghost.y_pos,ghost.dir=ghost.move_G(3) # type3 ghost behavior ?? just 
         else:                                   
-            ghost.x_pos,ghost.y_pos,ghost.dir= GHOST[i].move_G(i)
+            ghost.x_pos,ghost.y_pos,ghost.dir= ghost.move_G(ghost.id)
 
 def handling_when_pacman_hit_ghost():
     global score
@@ -503,15 +501,12 @@ def handling_when_pacman_hit_ghost():
                     score += (2 ** sum(ghost.eaten_by_pacman for ghost in GHOST)) * 100 
 
     else: # ghost eats pacman
-        if any ( player_collision.colliderect(GHOST[i].rect) and  not GHOST[i].dead for i in range(4)):
+        if any ( player_collision.colliderect(ghost.rect) and  not ghost.dead for ghost in GHOST):
             check_gameover()
 
 def respawn_ghosts():
-    # revive the ghosts if in the home box
     for ghost in GHOST:
-        i=ghost.id
         if ghost.in_box and ghost.dead:
-        #if GHOST[i].in_box and GHOST_dead[i]:
             ghost.dead=0
 
 def handling_when_pacman_eat_power():
