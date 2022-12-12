@@ -162,6 +162,11 @@ class Ghost:
         if self.in_box:
             self.ghost_target = (440, 388-100)
 
+            
+        self.x_pos,self.y_pos,self.dir=self.move_G(3 if self.in_box or self.dead else self.id ) # type3 ghost behavior ?? just 
+        
+            
+
         if debugmode:# draw home collision
             draw.rect(screen, color='green', rect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3),width=1) # home box
 
@@ -442,42 +447,6 @@ def display_FPS(): # fps display  ### https://stackoverflow.com/questions/679462
     _fps_t = myfont.render(f'FPS: {timer.get_fps():.3f}' , 1, "green")
     screen.blit(_fps_t,(0,0))
 
-def update_ghost_target():# update ghost's target (pacman, home or  runaway corner)
-    for ghost in GHOST:
-        ghost.ghost_target=(380, 400)# ghost home box  as default
-        
-        ghost.in_box= (350 < ghost.x_pos < 350  + 200  )and (385 - GAP_H*3 < ghost.y_pos < 385 + 100)
-
-        if not ghost.dead:
-            if powerup_phase:
-                if ghost.eaten_by_pacman: # home returning ghost
-                    if ghost.in_box:
-                        ghost.ghost_target=(player_x, player_y)
-                    else:
-                        ghost.ghost_target=(450, 200)
-                else: # running away ghost
-                    if ghost.id==3:
-                        ghost.ghost_target = (450, 450)
-                    else:   ghost.ghost_target = ((0,SCREEN_W)[player_x < 450], (0,SCREEN_H)[player_y < 450])# away from pacman 
-            else:
-                ghost.ghost_target = (400, 100) if ghost.in_box else (player_x + 22, player_y + 22)
-        else:# ghost is dead
-            ghost.ghost_target=GHOST_HOME
-
-        
-        if ghost.in_box:
-            ghost.ghost_target = (440, 388-100)
-
-    if debugmode:# draw home collision
-        draw.rect(screen, color='green', rect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3),width=1) # home box
-
-        draw.circle(screen, color='red', center=(380, 400), radius=5 ,width=0) # ghost home
-        draw.circle(screen, color='red', center=(450,100), radius=5 ,width=0) # gate target
-
-        for ghost in GHOST:
-            i=ghost.id
-            draw.circle(screen, color=('red','pink','cyan','orange')[i], center=ghost.ghost_target, radius=i*5 ,width=1) #target
-            
 def check_gameover(): # player hit ghost 
     global lives
     
@@ -506,11 +475,6 @@ def move_characters():
         if player_x > screen.get_width():player_x = -50+3 
         if player_x < -50:player_x = screen.get_width()-3
         
-    for ghost in GHOST:
-        if ghost.in_box or ghost.dead:
-            ghost.x_pos,ghost.y_pos,ghost.dir=ghost.move_G(3) # type3 ghost behavior ?? just 
-        else:                                   
-            ghost.x_pos,ghost.y_pos,ghost.dir= ghost.move_G(ghost.id)
 
 def handling_when_pacman_hit_ghost():
     global score
@@ -555,7 +519,6 @@ def handling_when_pacman_eat_power():
 
 def mainloop_event():
     global player_dir_wish, player_dir, game_over, lives, count_dot
-    #print(player_dir_wish, player_dir)
     for e in event.get():
 
         if e.type==QUIT: return False # exit main loop
@@ -598,7 +561,7 @@ while mainloop_event():
     check_passable(center_x, center_y)
 
     for ghost in GHOST:ghost.update()
-    #update_ghost_target() # Ghost target update
+    
     move_characters()
     check_eaten_dots()
     handling_when_pacman_eat_power()
