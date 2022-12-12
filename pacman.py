@@ -162,11 +162,14 @@ class Ghost:
         if self.in_box:
             self.ghost_target = (440, 388-100)
 
-            if  ghost.dead: ghost.dead=0 # respawn_ghosts
+            if  self.dead: self.dead=0 # respawn_ghosts
 
             
         self.x_pos,self.y_pos,self.dir=self.move_G(3 if self.in_box or self.dead else self.id ) # type3 ghost behavior ?? just 
         
+        self.speed=2
+        if powerup_phase:self.speed=1# slow if powerup phase
+        if self.dead: self.speed =4 # faster when dead
 
         if debugmode:# draw home collision
             draw.rect(screen, color='green', rect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3),width=1) # home box
@@ -457,7 +460,7 @@ def check_gameover(): # player hit ghost
     else:
         handle_game_over()
 
-def move_pacman():
+def move_characters():
     global player_x, player_y
 
     if time.get_ticks()<2000: # 2000 miliseconds == 3 seconds
@@ -476,6 +479,7 @@ def move_pacman():
         if player_x > screen.get_width():player_x = -50+3 
         if player_x < -50:player_x = screen.get_width()-3
         
+    for ghost in GHOST:ghost.update()
 
 def handling_when_pacman_hit_ghost():
     global score
@@ -509,10 +513,6 @@ def handling_when_pacman_eat_power():
             for ghost in GHOST:
                 ghost.eaten_by_pacman=0 
 
-    for ghost in GHOST:
-        ghost.speed=2
-        if powerup_phase:ghost.speed=1# slow if powerup phase
-        if ghost.dead: ghost.speed =4 # faster when dead
 
 def mainloop_event():
     global player_dir_wish, player_dir, game_over, lives, count_dot
@@ -557,9 +557,9 @@ while mainloop_event():
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
     check_passable(center_x, center_y)
 
-    for ghost in GHOST:ghost.update()
+    move_characters()
     
-    move_pacman()
+    
     check_eaten_dots()
     handling_when_pacman_eat_power()
     handling_when_pacman_hit_ghost()
