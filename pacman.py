@@ -58,13 +58,17 @@ PLAYER_SPEED = 2
 
 IMG_W = 45 #pixel size for characters
 IMG_H = 45
+
 GRID_H = 28
 GRID_W = 30
+
 INFO_HEIGHT=50 # space to display score, lives etc
 
-GAP_H = IMG_H-GRID_H # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
-GAP_W = IMG_W-GRID_W
+GAP_H = GRID_H//2 #IMG_H - GRID_H  # buffer so that player don't hit the cell while there is a space between the edge and the actual wall  (originally num3)
+GAP_W = GRID_W//2 #IMG_W - GRID_W
+print(GAP_H,GAP_W)
 
+DIRECTION_DICT={K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}
 
 COLOR_WALL = 'blue' # maze color
 
@@ -130,12 +134,12 @@ class Ghost:
         self.center_x = self.x_pos + 23
         self.center_y = self.y_pos + 23
         self.in_box = (350 < self.x_pos < 550 and 370 < self.y_pos < 480)
+
         self.can_move  = self.check_collisions()
+
         self.rect = rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
 
-        if debugmode:
-            draw.circle(screen, 'green', (self.center_x-1, self.center_y-1), 20, 1) 
-            draw.rect(screen, color='red', rect=self.rect, width=1 )
+
 
 
         self.ghost_target=(380, 400)# ghost home box  as default
@@ -172,12 +176,17 @@ class Ghost:
         if self.dead: self.speed =4 # faster when dead
 
         if debugmode:# draw home collision
+
             draw.rect(screen, color='green', rect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3),width=1) # home box
 
             draw.circle(screen, color='red', center=(380, 400), radius=5 ,width=0) # ghost home
             draw.circle(screen, color='red', center=(450,100), radius=5 ,width=0) # gate target
 
             draw.circle(screen, color=('red','pink','cyan','orange')[self.id], center=self.ghost_target, radius=(self.id)*5 ,width=1) #target
+            
+            draw.circle(screen, 'green', (self.center_x-1, self.center_y-1), 20, 1)  # rect
+
+            draw.rect(screen, color='purple', rect=self.rect, width=1 ) # ghost rect
 
     def draw(self):
         
@@ -198,23 +207,23 @@ class Ghost:
     def check_collisions(self):
         
         if 0 < self.center_x // 30 < 29:
-            row=int( self.center_y // GRID_H )              # don't know why but data was float without int()
-            col=int( self.center_x // GRID_W )              # don't know why but data was float without int()
-            row_U=int( (self.center_y - GAP_H) // GRID_H )  # don't know why but data was float without int()
-            row_D=int( (self.center_y + GAP_H) // GRID_H )  # don't know why but data was float without int()
-            col_L=int( (self.center_x - GAP_W) // GRID_W )  # don't know why but data was float without int()
-            col_R=int( (self.center_x + GAP_W) // GRID_W )  # don't know why but data was float without int()
+            row=int( self.center_y // GRID_H )              # data was float without int() !!!!!!
+            col=int( self.center_x // GRID_W )              
+            row_U=int( (self.center_y - GAP_H) // GRID_H )  
+            row_D=int( (self.center_y + GAP_H) // GRID_H )  
+            col_L=int( (self.center_x - GAP_W) // GRID_W )  
+            col_R=int( (self.center_x + GAP_W) // GRID_W )  
 
-            self.Cell_U = cell_U = level[row_U][col]    # up   RADIUS aka num3, GRID_H aka num1, GRID_W aka num2
-            self.Cell_D = cell_D = level[row_D][col]    # down
-            self.Cell_R = cell_R = level[row][col_R]    # right
-            self.Cell_L = cell_L = level[row][col_L]    # left
+            self.Cell_U = level[row_U][col]    # up   RADIUS aka num3, GRID_H aka num1, GRID_W aka num2
+            self.Cell_D = level[row_D][col]    # down
+            self.Cell_R = level[row][col_R]    # right
+            self.Cell_L = level[row][col_L]    # left
             
-            self.Cell_R = cellF = level[row][col +1]# right side
-            self.Cell_L = cellE = level[row][col -1]# left side
+            self.cellF = level[row][col +1] # right side
+            self.cellE = level[row][col -1] # left side
             
             if debugmode: # draw rect
-                COLOR_TOGGLE=((255,0,0),(0,255,0))
+                COLOR_TOGGLE=('purple','green')
                 draw.rect(screen,color=COLOR_TOGGLE[self.can_move[0]],rect=(col_R*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show right cell 
                 draw.rect(screen,color=COLOR_TOGGLE[self.can_move[1]],rect=(col_L*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show left cell 
                 draw.rect(screen,color=COLOR_TOGGLE[self.can_move[2]],rect=(col*GRID_W , row_U*GRID_H, GRID_W,GRID_H), width=1) # show upper cell 
@@ -229,12 +238,12 @@ class Ghost:
             in_sweetspot_V= (12 <= self.center_y % GRID_H <= 18)
             in_sweetspot_H= (12 <= self.center_x % GRID_W <= 18)
 
-            self.can_move[0] = cellcheck(cell_R) or (is_dirV and in_sweetspot_V and cellcheck(cellF)) #or (is_dirH and in_sweetspot_V and cellcheck(cellC))
-            self.can_move[1] = cellcheck(cell_L) or (is_dirV and in_sweetspot_V and cellcheck(cellE)) #or (is_dirH and in_sweetspot_V and cellcheck(cellB))
-            self.can_move[2] = cellcheck(cell_U) or (cell_U == '═' )
-            self.can_move[3] = cellcheck(cell_D) or (cell_D == '═' and self.dead) # only 
+            self.can_move[0] = cellcheck(self.Cell_R) or (is_dirV and in_sweetspot_V and cellcheck(self.cellF)) or (is_dirH and in_sweetspot_V and cellcheck(self.Cell_R))
+            self.can_move[1] = cellcheck(self.Cell_L) or (is_dirV and in_sweetspot_V and cellcheck(self.cellE)) or (is_dirH and in_sweetspot_V and cellcheck(self.Cell_L))
+            self.can_move[2] = cellcheck(self.Cell_U) or (self.Cell_U == '═' )
+            self.can_move[3] = cellcheck(self.Cell_D) or (self.Cell_D == '═' and self.dead) # only 
 
-            if self.dead and cell_D=='═':
+            if self.dead and self.Cell_D=='═':
                 self.dir=3 # if ghost is dead and down is 9 (home entry) > move down to enter ghost home ##### BUGFIX
         
         else: self.can_move[0] = self.can_move[1] = 1
@@ -283,15 +292,20 @@ class Ghost:
             if cond3 and self.can_move[3]:    self.dir = 3
             if cond2 and self.can_move[2]:    self.dir = 2
         '''
-        if index==3:
-            if cond0:self.dir=0
-            elif cond1:self.dir=1
-            elif cond2:self.dir=2
-            elif cond3:self.dir=3
 
         # home gate handling
         if self.Cell_D=='═' and self.dead and self.can_move[3]:    self.dir=3
         if self.Cell_U=='═' and self.in_box  and self.can_move[2] :self.dir=2
+
+        if index==3 or 1:
+            if   cond0 and self.can_move[0]:self.dir=0
+            elif cond3 and self.can_move[3]:self.dir=3
+            elif cond1 and self.can_move[1]:self.dir=1
+            elif cond2 and self.can_move[2]:self.dir=2
+            elif self.can_move[0]:self.dir=0
+            elif self.can_move[3]:self.dir=3
+            elif self.can_move[1]:self.dir=1
+            elif self.can_move[2]:self.dir=2
 
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
@@ -335,7 +349,7 @@ def reset_game():
     count_dot=boards_data.count('·')+boards_data.count('■') # 
     level = copy.deepcopy(boards)
 
-reset_game()
+
 
 def draw_HUD():
     score_text = myfont.render(f'Score: {score}', True, 'white')
@@ -427,7 +441,6 @@ def draw_characters():
 
 # check collisions based on center x and center y of player +/- RADIUS number
 def check_passable(col, row):  # originally check_position
-    global player_can_move
     if 29 <= col // 30 : return [1,1,0,0] # only horizontal warp is passable
 
     index_R=int(row // GRID_H)
@@ -445,7 +458,11 @@ def check_passable(col, row):  # originally check_position
     tU = (dir_V and cell_U in ' ·■') or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R - 1][index_C] in ' ·■')) 
     tD = (dir_V and cell_D in ' ·■') or ( dir_H and( 12 <= col % GRID_W <= 18)and(level[index_R + 1][index_C] in ' ·■')) 
 
-    player_can_move = [tR,tL,tU,tD]
+    if debugmode:
+        pass
+        # draw rect
+
+    return [tR,tL,tU,tD]
 
 def display_FPS(): # fps display  ### https://stackoverflow.com/questions/67946230/show-fps-in-pygame
     _fps_t = myfont.render(f'FPS: {timer.get_fps():.3f}' , 1, "green")
@@ -464,7 +481,7 @@ def move_characters():
     global player_x, player_y
 
     if time.get_ticks()<2000: # 2000 miliseconds == 3 seconds
-        print('get_time', timer.get_time(), 'get_ticks',time.get_ticks())
+        #print('get_time', timer.get_time(), 'get_ticks',time.get_ticks())
         return # before 3 seconds
     
     if game_over or count_dot==0:       return # gameover or game_clear
@@ -522,7 +539,7 @@ def mainloop_event():
 
         elif e.type == KEYDOWN: 
             
-            player_dir_wish={K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}.get(e.key,-1) # key defines player_dir , if K_SPACE:-1,
+            player_dir_wish=DIRECTION_DICT.get(e.key,-1) # key defines player_dir , if K_SPACE:-1,
 
         # player_dir : RLUD
         elif e.type == KEYUP:
@@ -535,7 +552,7 @@ def mainloop_event():
                 game_over  = False
 
             # need to learn why the following was better than simply player_dir_wish= player_dir
-            if {K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}.get(e.key,-1)==player_dir_wish:
+            if DIRECTION_DICT.get(e.key,-1)==player_dir_wish:
                 player_dir_wish= player_dir
 
     for i in range(4):
@@ -543,6 +560,9 @@ def mainloop_event():
             player_dir = i
 
     return True
+
+
+reset_game()
 
 while mainloop_event():
 
@@ -555,7 +575,7 @@ while mainloop_event():
     center_x = player_x + IMG_W//2 -1 # don't know why but without -1, pacman got stuck
     center_y = player_y + IMG_H//2 -1 # don't know why but without -1, pacman got stuck
     player_collision = draw.circle(screen, ((0,0,0,0),'green')[debugmode] , (center_x, center_y), 20, (1,1)[debugmode]) # debug
-    check_passable(center_x, center_y)
+    player_can_move = check_passable(center_x, center_y)
 
     move_characters()
     
@@ -566,17 +586,20 @@ while mainloop_event():
 
 
     #######  draw visuals
-    if not debugmode:
-        screen.fill('black')
     
     draw_board()
     draw_characters()
     draw_HUD()
+
+    if not debugmode:
+        screen.fill('black')
 
     if debugmode:display_FPS()
     display.flip()
 
 quit()
 
+
+######### TODO  ghost behavior should be fixed in check_collisions(self):
 ######### TODO arrange packman class to see if the logic can simpler or not
 ######### TODO arrange gamemanager class to see if the logic can simpler or not
