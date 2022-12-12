@@ -52,7 +52,7 @@ debugmode=1
 debugmode_board=0
 
 # constants
-FPS = 120 # 120, 60 , 240
+FPS = 60 # 120, 60 , 240
 
 PLAYER_SPEED = 2
 
@@ -73,7 +73,9 @@ SCREEN_H=GRID_H*(count_R-1)+INFO_HEIGHT
 
 player_start_posX=(GRID_W*count_C//2) #450 #- GAP_H*2 # centerize
 player_start_posY=663
+
 gate_position=(440  ,0 )
+GHOST_HOME=(380, 400)
 
 screen = display.set_mode([SCREEN_W, SCREEN_H])
 timer = time.Clock()
@@ -135,6 +137,39 @@ class Ghost:
             draw.circle(screen, 'green', (self.center_x-1, self.center_y-1), 20, 1) 
             draw.rect(screen, color='red', rect=self.rect, width=1 )
 
+
+        self.ghost_target=(380, 400)# ghost home box  as default
+        
+        self.in_box= (350 < self.x_pos < 350  + 200  )and (385 - GAP_H*3 < self.y_pos < 385 + 100)
+
+        if not self.dead:
+            if powerup_phase:
+                if self.eaten_by_pacman: # home returning ghost
+                    if self.in_box:
+                        self.ghost_target=(player_x, player_y)
+                    else:
+                        self.ghost_target=(450, 200)
+                else: # running away ghost
+                    if self.id==3:
+                        self.ghost_target = (450, 450)
+                    else:   self.ghost_target = ((0,SCREEN_W)[player_x < 450], (0,SCREEN_H)[player_y < 450])# away from pacman 
+            else:
+                self.ghost_target = (400, 100) if self.in_box else (player_x + 22, player_y + 22)
+        else:# ghost is dead
+            self.ghost_target=GHOST_HOME
+
+        
+        if self.in_box:
+            self.ghost_target = (440, 388-100)
+
+        if debugmode:# draw home collision
+            draw.rect(screen, color='green', rect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3),width=1) # home box
+
+            draw.circle(screen, color='red', center=(380, 400), radius=5 ,width=0) # ghost home
+            draw.circle(screen, color='red', center=(450,100), radius=5 ,width=0) # gate target
+
+            draw.circle(screen, color=('red','pink','cyan','orange')[self.id], center=self.ghost_target, radius=(self.id)*5 ,width=1) #target
+
     def draw(self):
         
         if powerup_phase and not self.eaten_by_pacman:# using self.id
@@ -170,10 +205,11 @@ class Ghost:
             self.Cell_L = cellE = level[row][col -1]# left side
             
             if debugmode: # draw rect
-                if self.can_move[0] or 1:draw.rect(screen,color=(255,0,0),rect=(col_R*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show right cell 
-                if self.can_move[1] or 1:draw.rect(screen,color=(255,0,0),rect=(col_L*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show left cell 
-                if self.can_move[2] or 1:draw.rect(screen,color=(255,0,0),rect=(col*GRID_W , row_U*GRID_H, GRID_W,GRID_H), width=1) # show upper cell 
-                if self.can_move[3] or 1:draw.rect(screen,color=(255,0,0),rect=(col*GRID_W , row_D*GRID_H, GRID_W,GRID_H), width=1) # show down cell 
+                COLOR_TOGGLE=((255,0,0),(0,255,0))
+                draw.rect(screen,color=COLOR_TOGGLE[self.can_move[0]],rect=(col_R*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show right cell 
+                draw.rect(screen,color=COLOR_TOGGLE[self.can_move[1]],rect=(col_L*GRID_W , row*GRID_H, GRID_W,GRID_H), width=1) # show left cell 
+                draw.rect(screen,color=COLOR_TOGGLE[self.can_move[2]],rect=(col*GRID_W , row_U*GRID_H, GRID_W,GRID_H), width=1) # show upper cell 
+                draw.rect(screen,color=COLOR_TOGGLE[self.can_move[3]],rect=(col*GRID_W , row_D*GRID_H, GRID_W,GRID_H), width=1) # show down cell 
 
             not_alive= (self.in_box or self.dead)
 
@@ -238,6 +274,11 @@ class Ghost:
             if cond3 and self.can_move[3]:    self.dir = 3
             if cond2 and self.can_move[2]:    self.dir = 2
         '''
+        if index==3:
+            if cond0:self.dir=0
+            elif cond1:self.dir=1
+            elif cond2:self.dir=2
+            elif cond3:self.dir=3
 
         # home gate handling
         if self.Cell_D=='═' and self.dead and self.can_move[3]:    self.dir=3
@@ -420,6 +461,9 @@ def update_ghost_target():# update ghost's target (pacman, home or  runaway corn
                     else:   ghost.ghost_target = ((0,SCREEN_W)[player_x < 450], (0,SCREEN_H)[player_y < 450])# away from pacman 
             else:
                 ghost.ghost_target = (400, 100) if ghost.in_box else (player_x + 22, player_y + 22)
+        else:# ghost is dead
+            ghost.ghost_target=GHOST_HOME
+
         
         if ghost.in_box:
             ghost.ghost_target = (440, 388-100)
@@ -542,7 +586,9 @@ def mainloop_event():
 
 while mainloop_event():
 
-    screen.fill('black')
+    if debugmode:
+        screen.fill('black')
+
     timer.tick(FPS)# clock
     counter =  (counter + 1)%20 # conter increment 
 
@@ -552,7 +598,7 @@ while mainloop_event():
     check_passable(center_x, center_y)
 
     for ghost in GHOST:ghost.update()
-    update_ghost_target() # Ghost target update
+    #update_ghost_target() # Ghost target update
     move_characters()
     check_eaten_dots()
     handling_when_pacman_eat_power()
@@ -560,7 +606,8 @@ while mainloop_event():
     respawn_ghosts()
 
     #######  draw visuals
-    #screen.fill('black')
+    if not debugmode:
+        screen.fill('black')
     
     draw_board()
     draw_characters()
