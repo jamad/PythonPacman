@@ -456,7 +456,7 @@ def check_gameover(): # player hit ghost
     else:
         handle_game_over()
 
-def move_characters():
+def move_pacman():
     global player_x, player_y
 
     if time.get_ticks()<2000: # 2000 miliseconds == 3 seconds
@@ -562,7 +562,7 @@ while mainloop_event():
 
     for ghost in GHOST:ghost.update()
     
-    move_characters()
+    move_pacman()
     check_eaten_dots()
     handling_when_pacman_eat_power()
     handling_when_pacman_hit_ghost()
@@ -581,6 +581,5 @@ while mainloop_event():
 
 quit()
 
-######### TODO move main functions into ghost class method
 ######### TODO arrange packman class to see if the logic can simpler or not
 ######### TODO arrange gamemanager class to see if the logic can simpler or not
