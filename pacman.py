@@ -162,10 +162,11 @@ class Ghost:
         if self.in_box:
             self.ghost_target = (440, 388-100)
 
+            if  ghost.dead: ghost.dead=0 # respawn_ghosts
+
             
         self.x_pos,self.y_pos,self.dir=self.move_G(3 if self.in_box or self.dead else self.id ) # type3 ghost behavior ?? just 
         
-            
 
         if debugmode:# draw home collision
             draw.rect(screen, color='green', rect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3),width=1) # home box
@@ -495,10 +496,6 @@ def handling_when_pacman_hit_ghost():
         if any ( player_collision.colliderect(ghost.rect) and  not ghost.dead for ghost in GHOST):
             check_gameover()
 
-def respawn_ghosts():
-    for ghost in GHOST:
-        if ghost.in_box and ghost.dead:
-            ghost.dead=0
 
 def handling_when_pacman_eat_power():
     global counter, powerup_phase, powerup_blink_on, power_counter, ghost_speeds
@@ -566,7 +563,7 @@ while mainloop_event():
     check_eaten_dots()
     handling_when_pacman_eat_power()
     handling_when_pacman_hit_ghost()
-    respawn_ghosts()
+
 
     #######  draw visuals
     if not debugmode:
