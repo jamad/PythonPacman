@@ -298,14 +298,27 @@ class Ghost:
         if self.Cell_U=='═' and self.in_box  and self.can_move[2] :self.dir=2
 
         if index==3 or 1:
-            if   cond0 and self.can_move[0]:self.dir=0
-            elif cond3 and self.can_move[3]:self.dir=3
-            elif cond1 and self.can_move[1]:self.dir=1
-            elif cond2 and self.can_move[2]:self.dir=2
-            elif self.can_move[0]:self.dir=0
-            elif self.can_move[3]:self.dir=3
-            elif self.can_move[1]:self.dir=1
-            elif self.can_move[2]:self.dir=2
+            dist_to_pacman_x=abs(player_x - self.center_x)
+            dist_to_pacman_y=abs(player_y - self.center_y)
+            
+            if dist_to_pacman_x < dist_to_pacman_y:
+                # priority is vertical
+                
+                if cond2:self.dir=2
+                elif cond3:self.dir=3
+            else:
+                if cond1:self.dir=1
+                elif cond0:self.dir=0
+
+
+                if   cond0 and self.can_move[0]:self.dir=0
+                elif cond3 and self.can_move[3]:self.dir=3
+                elif cond1 and self.can_move[1]:self.dir=1
+                elif cond2 and self.can_move[2]:self.dir=2
+                elif self.can_move[0]:self.dir=0
+                elif self.can_move[3]:self.dir=3
+                elif self.can_move[1]:self.dir=1
+                elif self.can_move[2]:self.dir=2
 
         # move by direction 
         if self.dir==0: self.x_pos += self.speed
