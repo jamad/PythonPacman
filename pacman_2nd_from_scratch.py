@@ -17,7 +17,7 @@ COLOR_WALL = 'blue' # maze color
 FPS=60
 
 screen=display.set_mode([WIDTH,HEIGHT])
-timer=time.Clock()
+clock=time.Clock() # originally variable timer 
 myfont=font.Font('freesansbold.ttf',20)
 
 boards_data='''\
@@ -86,21 +86,26 @@ player_x=GRID_W*29/2
 player_y=GRID_H*24
 player_dir=0
 
-def draw_player():
+def draw_player(milsec):
     pos=(player_x, player_y)
-    img_player=player_images[counter // 5]
+    img_player=player_images[ (milsec//100) %4 ] #player animation
     if player_dir == 0:      screen.blit(img_player, pos)
     elif player_dir == 1:    screen.blit(transform.flip(img_player, True, False), pos)
     elif player_dir == 2:    screen.blit(transform.rotate(img_player, 90), pos)
     elif player_dir == 3:    screen.blit(transform.rotate(img_player, -90), pos)
 
+start_ticks=time.get_ticks()#
+
 while QUIT not in (e.type for e in event.get()):# main loop continues until quit button
-     timer.tick(FPS)
+     clock.tick(FPS)
+     millisec=time.get_ticks()-start_ticks # how much milliseconds passed since start
+
+     
      screen.fill('black')
      
      # draw screen
      draw_board()
-     draw_player()
+     draw_player(millisec)
      
      display.flip()
 
