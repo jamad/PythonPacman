@@ -4,8 +4,8 @@ from math import pi
 
 init()
 
-GRID_H=16 #pixel for unit block 
-GRID_W=16 #pixel for unit block
+GRID_H=24 #pixel for unit block 
+GRID_W=24 #pixel for unit block
 GRID_COUNT_Y=33
 GRID_COUNT_X=30 
 WIDTH=GRID_COUNT_X*GRID_W
@@ -86,26 +86,38 @@ player_x=GRID_W*29/2
 player_y=GRID_H*24
 player_dir=0
 
-def draw_player(milsec):
-    pos=(player_x, player_y)
-    img_player=player_images[ (milsec//100) %4 ] #player animation
-    if player_dir == 0:      screen.blit(img_player, pos)
-    elif player_dir == 1:    screen.blit(transform.flip(img_player, True, False), pos)
-    elif player_dir == 2:    screen.blit(transform.rotate(img_player, 90), pos)
-    elif player_dir == 3:    screen.blit(transform.rotate(img_player, -90), pos)
+def draw_player(milsec,pacman_dir):
+
+     pos=(player_x, player_y)
+     img_player=player_images[ (milsec//100) %4 ] #player animation
+     if pacman_dir == 0:      screen.blit(img_player, pos)
+     elif pacman_dir == 1:    screen.blit(transform.flip(img_player, True, False), pos)
+     elif pacman_dir == 2:    screen.blit(transform.rotate(img_player, 90), pos)
+     elif pacman_dir == 3:    screen.blit(transform.rotate(img_player, -90), pos)
+
+     return pacman_dir
 
 start_ticks=time.get_ticks()#
 
-while QUIT not in (e.type for e in event.get()):# main loop continues until quit button
+mainloop=True
+while mainloop:# main loop continues until quit button
+
+     # game time
      clock.tick(FPS)
      millisec=time.get_ticks()-start_ticks # how much milliseconds passed since start
 
+     # user input handling
+     for e in event.get():
+          if e.type==QUIT:    
+               mainloop=False
+          elif e.type==KEYDOWN:
+               player_dir={K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}.get(e.key,player_dir)
      
+     ###################### draw screen
      screen.fill('black')
-     
-     # draw screen
+
      draw_board()
-     draw_player(millisec)
+     draw_player(millisec,player_dir)
      
      display.flip()
 
