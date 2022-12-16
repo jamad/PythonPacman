@@ -4,8 +4,8 @@ from math import pi
 
 init()
 
-GRID_H=24 #pixel
-GRID_W=24 #pixel
+GRID_H=16 #pixel for unit block 
+GRID_W=16 #pixel for unit block
 GRID_COUNT_Y=33
 GRID_COUNT_X=30 
 WIDTH=GRID_COUNT_X*GRID_W
@@ -64,8 +64,8 @@ def draw_board():
             cell=level[i][j]
             # 0: ' ', 1: '·', 2:'■',3:'│',4:'─',5:'┐',6:'┌',7:'└',8:'┘',9:'═', 
             # 0 = empty , 1 = dot, 2 = power dot, 3 = v line, 4 = h line, 5, 6,7,8 = corners, 9 = home gate
-            if cell == '·':draw.circle(   screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), 4)
-            if cell == '■':draw.circle(   screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), 10 if 1 else 8)
+            if cell == '·':draw.circle(   screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), GRID_H//8)
+            if cell == '■':draw.circle(   screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), GRID_H*5//16 if 1 else GRID_H//4)
             if cell == '│':draw.line(     screen, COLOR_WALL, (GRID_W*(j+.5), i * GRID_H),(GRID_W*(j+.5), (i+1)*GRID_H),3)
             if cell == '─':draw.line(     screen, COLOR_WALL, (GRID_W*j,  GRID_H*(i+.5)), (GRID_W*(j+1), GRID_H*(i+.5)),3)
             if cell == '┐':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,GRID_H*(i+.5), GRID_W, GRID_H),0, pi / 2, 3)
