@@ -12,13 +12,7 @@ screen=display.set_mode([WIDTH,HEIGHT])
 timer=time.Clock()
 myfont=font.Font('freesansbold.ttf',20)
 
-
-def main_loop():
-    for ev in event.get():
-        if ev.type==QUIT:return 0
-    return 1
-
-while main_loop():
+while QUIT not in (e.type for e in event.get()):# main loop continues until quit button
     timer.tick(FPS)
     screen.fill('black')
     
