@@ -74,6 +74,25 @@ def draw_board():
             if cell == '┘':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,GRID_H*(i-.4),  GRID_W, GRID_H), 3 * pi / 2,2 * pi, 3)
             if cell == '═':draw.line(     screen, 'white',    (GRID_W*j, GRID_H*(i+.5)), (GRID_W*j + GRID_W, GRID_H*(i+.5)), 3)
             
+# image assets
+load_image=lambda type,p:transform.scale(image.load(f'assets/{type}_images/{p}.png'),(GRID_W*1, GRID_H*1))
+player_images = [load_image('player',i) for i in (1,2,3,2)]# 4 images
+ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
+spooked_img   = load_image('ghost','powerup') 
+dead_img      = load_image('ghost','dead') 
+
+counter=0
+player_x=GRID_W*29/2
+player_y=GRID_H*24
+player_dir=0
+
+def draw_player():
+    pos=(player_x, player_y)
+    img_player=player_images[counter // 5]
+    if player_dir == 0:      screen.blit(img_player, pos)
+    elif player_dir == 1:    screen.blit(transform.flip(img_player, True, False), pos)
+    elif player_dir == 2:    screen.blit(transform.rotate(img_player, 90), pos)
+    elif player_dir == 3:    screen.blit(transform.rotate(img_player, -90), pos)
 
 while QUIT not in (e.type for e in event.get()):# main loop continues until quit button
      timer.tick(FPS)
@@ -81,6 +100,7 @@ while QUIT not in (e.type for e in event.get()):# main loop continues until quit
      
      # draw screen
      draw_board()
+     draw_player()
      
      display.flip()
 
