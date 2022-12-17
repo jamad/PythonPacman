@@ -58,6 +58,7 @@ boards_data='''\
 boards=[list(s) for s in boards_data.split('\n')]# 0 should not be trimmed!
 level = copy.deepcopy(boards)
 
+WALL_THICKNESS=2
 def draw_board(millisec):
     for i in range(GRID_COUNT_Y):
         for j in range(GRID_COUNT_X):
@@ -66,13 +67,13 @@ def draw_board(millisec):
             # 0 = empty , 1 = dot, 2 = power dot, 3 = v line, 4 = h line, 5, 6,7,8 = corners, 9 = home gate
             if cell == '·':draw.circle(   screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), GRID_H//8)
             if cell == '■':draw.circle(   screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), GRID_H*5//16 if millisec%(FPS*4)<FPS*2 else GRID_H//4)
-            if cell == '│':draw.line(     screen, COLOR_WALL, (GRID_W*(j+.5), i * GRID_H),(GRID_W*(j+.5), (i+1)*GRID_H),3)
-            if cell == '─':draw.line(     screen, COLOR_WALL, (GRID_W*j,  GRID_H*(i+.5)), (GRID_W*(j+1), GRID_H*(i+.5)),3)
-            if cell == '┐':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,GRID_H*(i+.5), GRID_W, GRID_H),0, pi / 2, 3)
-            if cell == '┌':draw.arc(      screen, COLOR_WALL, (GRID_W*(j+.5),   GRID_H*(i+.5),GRID_W, GRID_H), pi / 2, pi, 3)
-            if cell == '└':draw.arc(      screen, COLOR_WALL, (GRID_W*(j+.5),   GRID_H*(i-.4),  GRID_W, GRID_H), pi, 3* pi / 2, 3)            
-            if cell == '┘':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.4)- 2,GRID_H*(i-.4),  GRID_W, GRID_H), 3 * pi / 2,2 * pi, 3)
-            if cell == '═':draw.line(     screen, 'white',    (GRID_W*j, GRID_H*(i+.5)), (GRID_W*j + GRID_W, GRID_H*(i+.5)), 3)
+            if cell == '│':draw.line(     screen, COLOR_WALL, (GRID_W*(j+.5), i * GRID_H),(GRID_W*(j+.5), (i+1)*GRID_H),WALL_THICKNESS)
+            if cell == '─':draw.line(     screen, COLOR_WALL, (GRID_W*j,GRID_H*(i+.5)), (GRID_W*(j+1), GRID_H*(i+.5)),WALL_THICKNESS)
+            if cell == '┐':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.5),GRID_H*(i+.5),GRID_W, GRID_H),0, pi / 2, WALL_THICKNESS)
+            if cell == '┌':draw.arc(      screen, COLOR_WALL, (GRID_W*(j+.5),GRID_H*(i+.5),GRID_W, GRID_H), pi / 2, pi, WALL_THICKNESS)
+            if cell == '└':draw.arc(      screen, COLOR_WALL, (GRID_W*(j+.5),GRID_H*(i-.5),GRID_W, GRID_H), pi, 3* pi / 2, WALL_THICKNESS)            
+            if cell == '┘':draw.arc(      screen, COLOR_WALL, (GRID_W*(j-.5),GRID_H*(i-.5),GRID_W, GRID_H), 3 * pi / 2,2 * pi, WALL_THICKNESS)
+            if cell == '═':draw.line(     screen, 'white',    (GRID_W*j,GRID_H*(i+.5)), (GRID_W*(j+1), GRID_H*(i+.5)), WALL_THICKNESS)
             
 # image assets
 load_image=lambda type,p:transform.scale(image.load(f'assets/{type}_images/{p}.png'),(GRID_W*1, GRID_H*1))
