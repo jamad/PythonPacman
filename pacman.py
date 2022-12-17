@@ -176,8 +176,12 @@ class Ghost:
         if self.dead: self.speed =4 # faster when dead
 
         if debugmode:# draw home collision
+ 
+            _myrect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3)
+            draw.rect(screen, color='green', rect=_myrect,width=1) # home box    
+            _mytext=font.Font('freesansbold.ttf', 12).render(f'home box', 1, (255,255,0))             
+            screen.blit(_mytext,Rect(GRID_W*12 , GRID_H*14  ,GRID_W*12, GRID_H*6))
 
-            draw.rect(screen, color='green', rect=Rect(GRID_W*12 , GRID_H*14  ,GRID_W*6, GRID_H*3),width=1) # home box
 
             draw.circle(screen, color='red', center=(380, 400), radius=5 ,width=0) # ghost home
             draw.circle(screen, color='red', center=(450,100), radius=5 ,width=0) # gate target
