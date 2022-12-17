@@ -1,6 +1,6 @@
 from pygame import *
 import copy
-from math import pi
+from math import pi, cos, sin
 
 init()
 
@@ -13,6 +13,8 @@ HEIGHT_HUD=32
 HEIGHT=GRID_COUNT_Y*GRID_H+HEIGHT_HUD
 
 COLOR_WALL = 'blue' # maze color
+
+WALL_THICKNESS= 5 ######## better to have the odd number!  3 is better than 2, 7 is better than 8 !!!!
 
 FPS=60
 
@@ -58,23 +60,55 @@ boards_data='''\
 boards=[list(s) for s in boards_data.split('\n')]# 0 should not be trimmed!
 level = copy.deepcopy(boards)
 
-WALL_THICKNESS=2
+#wall parts
+from PIL import Image, ImageDraw
+
+# - generate PIL image with transparent background -
+size = GRID_H
+img_corner = Image.new("RGBA", (GRID_W*2, GRID_H*2))
+my_draw = ImageDraw.Draw(img_corner)
+my_rect = (0, 0, GRID_W, GRID_H)
+
+P=[]
+segments=48
+#cx,cy,_,_=my_rect
+r =GRID_W/2
+#P=[(r,0),(r,r/2),(r/2,r),(0,r)]
+
+for i in range(segments+1):
+     a=pi/2  / segments*i
+     P.append((r*cos(a)  ,r*sin(a)) )
+print(P)
+for p1,p2 in zip(P,P[1:]):
+     my_draw.line((p1, p2), fill=COLOR_WALL, width=WALL_THICKNESS)
+#my_draw.line(((0,0), P[0]), fill=COLOR_WALL, width=WALL_THICKNESS)
+#my_draw.line((P[-1], (0,0)), fill=COLOR_WALL, width=WALL_THICKNESS)
+
+# - convert into PyGame image -
+data = img_corner.tobytes()
+img_corner = image.fromstring(data, img_corner.size, img_corner.mode)
+
+
+
 def draw_board(millisec):
-    for i in range(GRID_COUNT_Y):
-        for j in range(GRID_COUNT_X):
-            c=level[i][j]
-            if c=='│':draw.line(   screen, COLOR_WALL, (GRID_W*(j+.5),GRID_H*i),(GRID_W*(j+.5), GRID_H*(i+1)),WALL_THICKNESS)
-            if c=='─':draw.line(   screen, COLOR_WALL, (GRID_W*j,GRID_H*(i+.5)),(GRID_W*(j+1), GRID_H*(i+.5)),WALL_THICKNESS)
-            if c=='┐':draw.arc(    screen, COLOR_WALL, (GRID_W*(j-.5),GRID_H*(i+.5),GRID_W, GRID_H),0, pi / 2, WALL_THICKNESS)
-            if c=='┌':draw.arc(    screen, COLOR_WALL, (GRID_W*(j+.5),GRID_H*(i+.5),GRID_W, GRID_H), pi / 2, pi, WALL_THICKNESS)
-            if c=='└':draw.arc(    screen, COLOR_WALL, (GRID_W*(j+.5),GRID_H*(i-.5),GRID_W, GRID_H), pi, 3* pi / 2, WALL_THICKNESS)            
-            if c=='┘':draw.arc(    screen, COLOR_WALL, (GRID_W*(j-.5),GRID_H*(i-.5),GRID_W, GRID_H), 3 * pi / 2,2 * pi, WALL_THICKNESS)
-            if c=='═':draw.line(   screen, 'white',    (GRID_W*j,GRID_H*(i+.5)), (GRID_W*(j+1), GRID_H*(i+.5)), WALL_THICKNESS)
-            if c=='·':draw.circle( screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), GRID_H//8)
-            if c=='■':
-               if millisec%(FPS*4)<FPS*2:
-                    draw.circle( screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), GRID_H*5//16)
-               else:draw.circle( screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), GRID_H//4)
+     for i in range(GRID_COUNT_Y):
+          for j in range(GRID_COUNT_X):
+               c=level[i][j]
+               if c=='│':draw.line(   screen, COLOR_WALL, (GRID_W*(j+.5),GRID_H*i),(GRID_W*(j+.5), GRID_H*(i+1)),WALL_THICKNESS)
+               if c=='─':draw.line(   screen, COLOR_WALL, (GRID_W*j,GRID_H*(i+.5)),(GRID_W*(j+1), GRID_H*(i+.5)),WALL_THICKNESS)
+               if c=='┘':screen.blit(img_corner, (GRID_W*(j),GRID_H*(i)))# <- display image
+               if c=='┐':screen.blit(transform.rotate(img_corner, 90),  (GRID_W*(j),GRID_H*(i-1)))
+               if c=='┌':screen.blit(transform.rotate(img_corner, 180),  (GRID_W*(j-1),GRID_H*(i-1)))
+               if c=='└':screen.blit(transform.rotate(img_corner, -90),  (GRID_W*(j-1),GRID_H*(i)))
+               if c=='═':draw.line(   screen, 'white',    (GRID_W*j,GRID_H*(i+.5)), (GRID_W*(j+1), GRID_H*(i+.5)), WALL_THICKNESS)
+               if c=='·':draw.circle( screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), GRID_H//8)
+               if c=='■':
+                    if millisec%(FPS*4)<FPS*2:
+                         draw.circle( screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), GRID_H*5//16)
+                    else:draw.circle( screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), GRID_H//4)
+               
+               #draw.rect(screen,color=(0,32,0),rect=(j*GRID_W, i*GRID_H, GRID_W,GRID_H), width=1) # grid cell draw 
+
             
 # image assets
 load_image=lambda type,p:transform.scale(image.load(f'assets/{type}_images/{p}.png'),(GRID_W*1, GRID_H*1))
