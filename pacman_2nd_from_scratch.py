@@ -60,7 +60,7 @@ boards_data='''\
 boards=[list(s) for s in boards_data.split('\n')]# 0 should not be trimmed!
 level = copy.deepcopy(boards)
 
-#wall parts
+#################################################### wall parts image
 from PIL import Image, ImageDraw
 
 # - generate PIL image with transparent background -
@@ -69,26 +69,17 @@ img_corner = Image.new("RGBA", (GRID_W*2, GRID_H*2))
 my_draw = ImageDraw.Draw(img_corner)
 my_rect = (0, 0, GRID_W, GRID_H)
 
-P=[]
 segments=48
-#cx,cy,_,_=my_rect
+a=pi/2/ segments
 r =GRID_W/2
-#P=[(r,0),(r,r/2),(r/2,r),(0,r)]
-
-for i in range(segments+1):
-     a=pi/2  / segments*i
-     P.append((r*cos(a)  ,r*sin(a)) )
-print(P)
+P=[(r*cos(a*i)  ,r*sin(a*i))for i in range(segments+1)]
 for p1,p2 in zip(P,P[1:]):
      my_draw.line((p1, p2), fill=COLOR_WALL, width=WALL_THICKNESS)
-#my_draw.line(((0,0), P[0]), fill=COLOR_WALL, width=WALL_THICKNESS)
-#my_draw.line((P[-1], (0,0)), fill=COLOR_WALL, width=WALL_THICKNESS)
 
 # - convert into PyGame image -
 data = img_corner.tobytes()
 img_corner = image.fromstring(data, img_corner.size, img_corner.mode)
-
-
+#################################################### wall parts image end
 
 def draw_board(millisec):
      for i in range(GRID_COUNT_Y):
@@ -106,8 +97,6 @@ def draw_board(millisec):
                     if millisec%(FPS*4)<FPS*2:
                          draw.circle( screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), GRID_H*5//16)
                     else:draw.circle( screen, 'white',    (GRID_W*(j+.5), GRID_H*(i+.5)), GRID_H//4)
-               
-               #draw.rect(screen,color=(0,32,0),rect=(j*GRID_W, i*GRID_H, GRID_W,GRID_H), width=1) # grid cell draw 
 
             
 # image assets
