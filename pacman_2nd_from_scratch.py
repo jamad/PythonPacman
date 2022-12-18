@@ -97,7 +97,6 @@ def draw_board(millisec):
                     if millisec%(FPS*4)<FPS*2:
                          draw.circle( screen, 'white',    (GRID_SIZE*(j+.5), GRID_SIZE*(i+.5)), GRID_SIZE*5//16)
                     else:draw.circle( screen, 'white',    (GRID_SIZE*(j+.5), GRID_SIZE*(i+.5)), GRID_SIZE//4)
-
             
 # image assets
 load_image=lambda type,p:transform.scale(image.load(f'assets/{type}_images/{p}.png'),(GRID_SIZE*1, GRID_SIZE*1))
@@ -119,29 +118,25 @@ def update_available_direction(player_dir,player_x, player_y):
      player_center_x=int(player_x + GRID_SIZE/2)# prevent float value for level index
      player_center_y=int(player_y + GRID_SIZE/2)# prevent float value for level index
 
-     c=player_center_x//GRID_SIZE
-     r=player_center_y//GRID_SIZE
+     if GRID_COUNT_X <= (player_x // GRID_SIZE) +1 :return [1,1,0,0] # warping zone
 
      turns=[0]*4 # RLUD
 
      space_visual=(GRID_SIZE - WALL_THICKNESS) // 2  # actual collision to the visual of the wall # originally num3
-
-     if GRID_COUNT_X < player_center_x // GRID_SIZE : # warping zone
-          return [1,1,0,0]
-     else:
-
-          cell_L=level[r][(player_center_x - GRID_SIZE//2)//GRID_SIZE]
-          cell_R=level[r][(player_center_x + GRID_SIZE//2)//GRID_SIZE]
-          cell_U=level[(player_center_y - GRID_SIZE//2)//GRID_SIZE][c]
-          cell_D=level[(player_center_y + GRID_SIZE//2)//GRID_SIZE][c]
-          
-          
-          # check if backward is passable
-          if cell_R in ' ·■':turns[0]=1 # moving left, right wall is passable type, right is passable
-          if cell_L in ' ·■':turns[1]=1 # moving right, left wall is passable type, left is passable
-          if cell_U in ' ·■':turns[2]=1 # moving down, up wall is passable type, up is passable
-          if cell_D in ' ·■':turns[3]=1 # moving up, down wall is passable type, down is passable
+     c=player_center_x//GRID_SIZE
+     r=player_center_y//GRID_SIZE
+     cell_L=level[r][(player_center_x - space_visual)//GRID_SIZE]
+     cell_R=level[r][(player_center_x + space_visual)//GRID_SIZE]
+     cell_U=level[(player_center_y - space_visual)//GRID_SIZE][c]
+     cell_D=level[(player_center_y + space_visual)//GRID_SIZE][c]
      
+     # check passable direction
+     if cell_R in ' ·■':turns[0]=1 # moving left, right wall is passable type, right is passable
+     if cell_L in ' ·■':turns[1]=1 # moving right, left wall is passable type, left is passable
+     if cell_U in ' ·■':turns[2]=1 # moving down, up wall is passable type, up is passable
+     if cell_D in ' ·■':turns[3]=1 # moving up, down wall is passable type, down is passable
+
+
      # DEBUG DRAW
 
      _myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
