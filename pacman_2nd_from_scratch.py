@@ -123,7 +123,9 @@ def update_available_direction(player_dir,player_x, player_y):
 
      turns=[0]*4 # RLUD
 
-     visual_offset=(GRID_SIZE - WALL_THICKNESS) // 2  # actual collision to the visual of the wall # originally num3
+     #visual_offset=(GRID_SIZE - WALL_THICKNESS) // 2  # actual collision to the visual of the wall # originally num3
+     visual_offset=(GRID_SIZE) // 2  # actual collision to the visual of the wall # originally num3
+     
      c=player_center_x//GRID_SIZE
      r=player_center_y//GRID_SIZE
      cell_R=level[r][(player_center_x + visual_offset)//GRID_SIZE]
@@ -155,6 +157,7 @@ def draw_player(milsec,pacman_dir, player_x, player_y):
      player_speed=GRID_SIZE//12
 
      if PACMAN_CAN_GO[pacman_dir]:# move if pacman can move otherwise, stay
+          
           if pacman_dir==0 :player_x+=player_speed
           if pacman_dir==1 :player_y+=player_speed
           if pacman_dir==2 :player_x-=player_speed
@@ -168,7 +171,7 @@ def draw_player(milsec,pacman_dir, player_x, player_y):
 
      return (player_x,player_y)
 
-player_dir_command=0
+player_wish_dir=0
 
 start_ticks=time.get_ticks()# game initial time to register
 mainloop=True
@@ -184,15 +187,15 @@ while mainloop:# main loop continues until quit button
                mainloop=False
           elif e.type==KEYDOWN:
                if e.key == K_ESCAPE:mainloop = False
-               else:player_dir_command={K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}.get(e.key, player_dir)# change player direction
+               else:player_wish_dir = {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}.get(e.key, player_dir)# change player direction
           elif e.type==KEYUP:
-               if e.key == K_RIGHT and player_dir_command==0:player_dir_command = player_dir
-               if e.key == K_DOWN and player_dir_command==1:player_dir_command = player_dir
-               if e.key == K_LEFT and player_dir_command==2:player_dir_command = player_dir
-               if e.key == K_UP and player_dir_command==3:player_dir_command = player_dir
+               if e.key == K_ESCAPE:mainloop = False
+               elif player_wish_dir == {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}.get(e.key, player_dir):
+                    player_wish_dir = player_dir
 
+     # change direction if player wish is available 
      for i in range(4):
-          if player_dir_command==i and PACMAN_CAN_GO[i]:
+          if player_wish_dir==i and PACMAN_CAN_GO[i]:
                player_dir = i 
           
 
