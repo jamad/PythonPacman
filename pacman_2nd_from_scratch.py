@@ -1,3 +1,5 @@
+#screen.blit(transform.rotate(img_player, 90*pacman_dir), pos) # this logic needs RDLU instead of RLUD
+
 from pygame import *
 import copy
 from math import pi, cos, sin
@@ -122,19 +124,19 @@ def update_available_direction(player_dir,player_x, player_y):
 
      turns=[0]*4 # RLUD
 
-     space_visual=(GRID_SIZE - WALL_THICKNESS) // 2  # actual collision to the visual of the wall # originally num3
+     visual_offset=(GRID_SIZE - WALL_THICKNESS) // 2  # actual collision to the visual of the wall # originally num3
      c=player_center_x//GRID_SIZE
      r=player_center_y//GRID_SIZE
-     cell_L=level[r][(player_center_x - space_visual)//GRID_SIZE]
-     cell_R=level[r][(player_center_x + space_visual)//GRID_SIZE]
-     cell_U=level[(player_center_y - space_visual)//GRID_SIZE][c]
-     cell_D=level[(player_center_y + space_visual)//GRID_SIZE][c]
+     cell_R=level[r][(player_center_x + visual_offset)//GRID_SIZE]
+     cell_L=level[r][(player_center_x - visual_offset)//GRID_SIZE]
+     cell_U=level[(player_center_y - visual_offset)//GRID_SIZE][c]
+     cell_D=level[(player_center_y + visual_offset)//GRID_SIZE][c]
      
      # check passable direction
      if cell_R in ' ·■':turns[0]=1 # moving left, right wall is passable type, right is passable
-     if cell_L in ' ·■':turns[1]=1 # moving right, left wall is passable type, left is passable
-     if cell_U in ' ·■':turns[2]=1 # moving down, up wall is passable type, up is passable
-     if cell_D in ' ·■':turns[3]=1 # moving up, down wall is passable type, down is passable
+     if cell_D in ' ·■':turns[1]=1 # moving up, down wall is passable type, down is passable
+     if cell_L in ' ·■':turns[2]=1 # moving right, left wall is passable type, left is passable
+     if cell_U in ' ·■':turns[3]=1 # moving down, up wall is passable type, up is passable
 
 
      # DEBUG DRAW
@@ -155,19 +157,19 @@ def update_available_direction(player_dir,player_x, player_y):
 
 def draw_player(milsec,pacman_dir, player_x, player_y):
      
-     player_speed=GRID_SIZE//6
+     player_speed=GRID_SIZE//12
+
      if PACMAN_CAN_GO[pacman_dir]:# move if pacman can move otherwise, stay
           if pacman_dir==0 :player_x+=player_speed
-          if pacman_dir==1 :player_x-=player_speed
-          if pacman_dir==2 :player_y-=player_speed
-          if pacman_dir==3 :player_y+=player_speed
+          if pacman_dir==1 :player_y+=player_speed
+          if pacman_dir==2 :player_x-=player_speed
+          if pacman_dir==3 :player_y-=player_speed
 
+     # animated pacman
      pos=(player_x, player_y)
      img_player=player_images[ (milsec//100) %4 ] #player animation
-     if pacman_dir == 0:      screen.blit(img_player, pos)
-     elif pacman_dir == 1:    screen.blit(transform.flip(img_player, True, False), pos)
-     elif pacman_dir == 2:    screen.blit(transform.rotate(img_player, 90), pos)
-     elif pacman_dir == 3:    screen.blit(transform.rotate(img_player, -90), pos)
+     screen.blit(transform.rotate(img_player, -90*pacman_dir), pos) # this logic needs RDLU instead of RLUD
+     #elif pacman_dir == 1:    screen.blit(transform.flip(img_player, True, False), pos)
 
      return (player_x,player_y)
 
@@ -185,7 +187,7 @@ while mainloop:# main loop continues until quit button
                mainloop=False
           elif e.type==KEYDOWN:
                if e.key == K_ESCAPE:mainloop = False
-               else:player_dir={K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}.get(e.key, player_dir)# change player direction
+               else:player_dir={K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}.get(e.key, player_dir)# change player direction
 
 
      ###################### draw screen
