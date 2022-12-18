@@ -130,8 +130,8 @@ def update_available_direction(player_dir,player_x, player_y):
           return [1,1,0,0]
      else:
 
-          cell_L=level[r][c-1]
-          cell_R=level[r][c+1]
+          cell_L=level[r][(player_center_x - GRID_SIZE//2)//GRID_SIZE]
+          cell_R=level[r][(player_center_x + GRID_SIZE//2)//GRID_SIZE]
           cell_U=level[r-1][c]
           cell_D=level[r+1][c]
           
@@ -150,11 +150,9 @@ def update_available_direction(player_dir,player_x, player_y):
      screen.blit(_mytext,_myrect)
 
      
-     draw.circle(screen, color='purple', center=(c*GRID_SIZE,r*GRID_SIZE), radius=5 ,width=0) # ghost home
-
-     draw.rect(screen, color='purple', rect=(c*GRID_SIZE, r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # ghost rect
-
-     draw.circle(screen, color='red', center=(player_center_x,player_center_y), radius=5 ,width=0) # ghost home
+     draw.circle(screen, color='purple', center=(c*GRID_SIZE,r*GRID_SIZE), radius=5 ,width=0) # player's grid position
+     draw.rect(screen, color='purple', rect=(c*GRID_SIZE, r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # 
+     draw.circle(screen, color='red', center=(player_center_x,player_center_y), radius=5 ,width=0) # player's center
      
 
      return turns
@@ -164,14 +162,10 @@ def draw_player(milsec,pacman_dir, player_x, player_y):
      
      player_speed=GRID_SIZE//6
      if PACMAN_CAN_GO[pacman_dir]:# move if pacman can move otherwise, stay
-          if pacman_dir==0 :
-               player_x+=player_speed
-          if pacman_dir==1 :
-               player_x-=player_speed
-          if pacman_dir==2 :
-               player_y-=player_speed
-          if pacman_dir==3 :
-               player_y+=player_speed
+          if pacman_dir==0 :player_x+=player_speed
+          if pacman_dir==1 :player_x-=player_speed
+          if pacman_dir==2 :player_y-=player_speed
+          if pacman_dir==3 :player_y+=player_speed
 
      pos=(player_x, player_y)
      img_player=player_images[ (milsec//100) %4 ] #player animation
@@ -182,9 +176,7 @@ def draw_player(milsec,pacman_dir, player_x, player_y):
 
      return (player_x,player_y)
 
-
-start_ticks=time.get_ticks()#
-
+start_ticks=time.get_ticks()# game initial time to register
 mainloop=True
 while mainloop:# main loop continues until quit button
 
