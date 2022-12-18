@@ -132,8 +132,8 @@ def update_available_direction(player_dir,player_x, player_y):
 
           cell_L=level[r][(player_center_x - GRID_SIZE//2)//GRID_SIZE]
           cell_R=level[r][(player_center_x + GRID_SIZE//2)//GRID_SIZE]
-          cell_U=level[r-1][c]
-          cell_D=level[r+1][c]
+          cell_U=level[(player_center_y - GRID_SIZE//2)//GRID_SIZE][c]
+          cell_D=level[(player_center_y + GRID_SIZE//2)//GRID_SIZE][c]
           
           
           # check if backward is passable
