@@ -42,8 +42,8 @@ boards_data='''\
 boards=[list(s) for s in boards_data.split('\n')]# 0 should not be trimmed!
 level = copy.deepcopy(boards)
 
-print()
 init()
+FPS=120
 
 GRID_SIZE=24 #pixel for unit block
 
@@ -55,14 +55,11 @@ HEIGHT_HUD=32
 COLOR_WALL = 'blue' # maze color
 WALL_THICKNESS= 5 ######## better to have the odd number!  3 is better than 2, 7 is better than 8 !!!!
 
-FPS=60
-
 screen=display.set_mode([GRID_COUNT_X*GRID_SIZE ,GRID_COUNT_Y*GRID_SIZE+HEIGHT_HUD])
 clock=time.Clock() # originally variable timer 
 myfont=font.Font('freesansbold.ttf',20)
 
-
-#################################################### wall parts image
+#################################################### wall parts image creation
 from PIL import Image, ImageDraw
 
 # - generate PIL image with transparent background -
@@ -84,21 +81,23 @@ img_corner = image.fromstring(data, img_corner.size, img_corner.mode)
 #################################################### wall parts image end
 
 def draw_board(millisec):
+     G=GRID_SIZE
+     HG=GRID_SIZE/2
      for i in range(GRID_COUNT_Y):
           for j in range(GRID_COUNT_X):
                c=level[i][j]
-               if c=='│':draw.line(   screen, COLOR_WALL, (GRID_SIZE*(j+.5),GRID_SIZE*i),(GRID_SIZE*(j+.5), GRID_SIZE*(i+1)),WALL_THICKNESS)
-               if c=='─':draw.line(   screen, COLOR_WALL, (GRID_SIZE*j,GRID_SIZE*(i+.5)),(GRID_SIZE*(j+1), GRID_SIZE*(i+.5)),WALL_THICKNESS)
-               if c=='┘':screen.blit(img_corner, (GRID_SIZE*(j),GRID_SIZE*(i)))# <- display image
-               if c=='┐':screen.blit(transform.rotate(img_corner, 90),  (GRID_SIZE*(j),GRID_SIZE*(i-1)))
-               if c=='┌':screen.blit(transform.rotate(img_corner, 180),  (GRID_SIZE*(j-1),GRID_SIZE*(i-1)))
-               if c=='└':screen.blit(transform.rotate(img_corner, -90),  (GRID_SIZE*(j-1),GRID_SIZE*(i)))
-               if c=='═':draw.line(   screen, 'white',    (GRID_SIZE*j,GRID_SIZE*(i+.5)), (GRID_SIZE*(j+1), GRID_SIZE*(i+.5)), WALL_THICKNESS)
-               if c=='·':draw.circle( screen, 'white',    (GRID_SIZE*(j+.5), GRID_SIZE*(i+.5)), GRID_SIZE//8)
+               if c=='│':draw.line(   screen, COLOR_WALL, (G*j+HG,G*i),(G*j+HG, G*i+G),WALL_THICKNESS)
+               if c=='─':draw.line(   screen, COLOR_WALL, (G*j,G*i+HG),(G*j+G, G*i+HG),WALL_THICKNESS)
+               if c=='┘':screen.blit(img_corner, (G*j,G*i))# <- display image
+               if c=='┐':screen.blit(transform.rotate(img_corner, 90),     (G*j,G*i-G))
+               if c=='┌':screen.blit(transform.rotate(img_corner, 180),    (G*j-G,G*i-G))
+               if c=='└':screen.blit(transform.rotate(img_corner, -90),    (G*j-G,G*i))
+               if c=='═':draw.line(   screen, 'white', (G*j,G*i+HG), (G*j+G, G*i+HG), WALL_THICKNESS)
+               if c=='·':draw.circle( screen, 'white', (G*j+HG, G*i+HG), G//8)
                if c=='■':
                     if millisec%(FPS*4)<FPS*2:
-                         draw.circle( screen, 'white',    (GRID_SIZE*(j+.5), GRID_SIZE*(i+.5)), GRID_SIZE*5//16)
-                    else:draw.circle( screen, 'white',    (GRID_SIZE*(j+.5), GRID_SIZE*(i+.5)), GRID_SIZE//4)
+                         draw.circle( screen, 'white', (G*(j+.5), G*(i+.5)), G*5//16)
+                    else:draw.circle( screen, 'white', (G*(j+.5), G*(i+.5)), G//4)
             
 # image assets
 load_image=lambda type,p:transform.scale(image.load(f'assets/{type}_images/{p}.png'),(GRID_SIZE*1, GRID_SIZE*1))
@@ -109,8 +108,8 @@ dead_img      = load_image('ghost','dead')
 
 counter=0
 
-player_x=GRID_SIZE*2
-player_y=GRID_SIZE*2
+player_x=GRID_SIZE*(GRID_COUNT_X/2)
+player_y=GRID_SIZE*24
 
 player_dir=0
 
@@ -138,20 +137,16 @@ def update_available_direction(player_dir,player_x, player_y):
      if cell_L in ' ·■':turns[2]=1 # moving right, left wall is passable type, left is passable
      if cell_U in ' ·■':turns[3]=1 # moving down, up wall is passable type, up is passable
 
-
      # DEBUG DRAW
-
      _myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
      _mystr=f'{PACMAN_CAN_GO},{r},{c},{player_x},{player_center_x},{c*GRID_SIZE}'
      _mytext=font.Font('freesansbold.ttf', 12).render(_mystr, 1, (255,255,0))             
      screen.blit(_mytext,_myrect)
 
-     
      draw.circle(screen, color='purple', center=(c*GRID_SIZE,r*GRID_SIZE), radius=5 ,width=0) # player's grid position
      draw.rect(screen, color='purple', rect=(c*GRID_SIZE, r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # 
      draw.circle(screen, color='red', center=(player_center_x,player_center_y), radius=5 ,width=0) # player's center
      
-
      return turns
 
 
@@ -173,6 +168,8 @@ def draw_player(milsec,pacman_dir, player_x, player_y):
 
      return (player_x,player_y)
 
+player_dir_command=0
+
 start_ticks=time.get_ticks()# game initial time to register
 mainloop=True
 while mainloop:# main loop continues until quit button
@@ -187,8 +184,17 @@ while mainloop:# main loop continues until quit button
                mainloop=False
           elif e.type==KEYDOWN:
                if e.key == K_ESCAPE:mainloop = False
-               else:player_dir={K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}.get(e.key, player_dir)# change player direction
+               else:player_dir_command={K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}.get(e.key, player_dir)# change player direction
+          elif e.type==KEYUP:
+               if e.key == K_RIGHT and player_dir_command==0:player_dir_command = player_dir
+               if e.key == K_DOWN and player_dir_command==1:player_dir_command = player_dir
+               if e.key == K_LEFT and player_dir_command==2:player_dir_command = player_dir
+               if e.key == K_UP and player_dir_command==3:player_dir_command = player_dir
 
+     for i in range(4):
+          if player_dir_command==i and PACMAN_CAN_GO[i]:
+               player_dir = i 
+          
 
      ###################### draw screen
      screen.fill('black')
@@ -199,12 +205,6 @@ while mainloop:# main loop continues until quit button
      draw_board(millisec)
      (player_x,player_y)=draw_player(millisec,player_dir,player_x,player_y)
      
-     
      display.flip()
 
 quit()
-
-
-
-
-    
