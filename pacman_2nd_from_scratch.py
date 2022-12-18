@@ -1,4 +1,5 @@
 #screen.blit(transform.rotate(img_player, 90*pacman_dir), pos) # this logic needs RDLU instead of RLUD
+debugmode=1
 
 from pygame import *
 import copy
@@ -29,7 +30,7 @@ boards_data='''\
 ││············││············││
 ││·┌──┐·┌───┐·││·┌───┐·┌──┐·││
 ││·└─┐│·└───┘·└┘·└───┘·│┌─┘·││
-││■··││················││··■││
+││■··││·······  ·······││··■││
 │└─┐·││·┌┐·┌──────┐·┌┐·││·┌─┘│
 │┌─┘·└┘·││·└──┐┌──┘·││·└┘·└─┐│
 ││······││····││····││······││
@@ -55,9 +56,12 @@ HEIGHT_HUD=32
 COLOR_WALL = 'blue' # maze color
 WALL_THICKNESS= 5 ######## better to have the odd number!  3 is better than 2, 7 is better than 8 !!!!
 
+DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction
+
 screen=display.set_mode([GRID_COUNT_X*GRID_SIZE ,GRID_COUNT_Y*GRID_SIZE+HEIGHT_HUD])
 clock=time.Clock() # originally variable timer 
-myfont=font.Font('freesansbold.ttf',20)
+
+myfont=font.Font('freesansbold.ttf',16)
 
 #################################################### wall parts image creation
 from PIL import Image, ImageDraw
@@ -95,10 +99,9 @@ def draw_board(millisec):
                if c=='═':draw.line(   screen, 'white', (G*j,G*i+HG), (G*j+G, G*i+HG), WALL_THICKNESS)
                if c=='·':draw.circle( screen, 'white', (G*j+HG, G*i+HG), G//8)
                if c=='■':
-                    if millisec%(FPS*4)<FPS*2:
-                         draw.circle( screen, 'white', (G*(j+.5), G*(i+.5)), G*5//16)
-                    else:draw.circle( screen, 'white', (G*(j+.5), G*(i+.5)), G//4)
-            
+                    radius=(G*1.5//4,G*1.5*5//16)[millisec%(FPS*4)<FPS*2]
+                    draw.circle( screen, 'white', (G*(j+.5), G*(i+.5)), radius )
+                    
 # image assets
 load_image=lambda type,p:transform.scale(image.load(f'assets/{type}_images/{p}.png'),(GRID_SIZE*1, GRID_SIZE*1))
 player_images = [load_image('player',i) for i in (1,2,3,2)]# 4 images
@@ -140,10 +143,13 @@ def update_available_direction(player_dir,player_x, player_y):
      if cell_U in ' ·■':turns[3]=1 # moving down, up wall is passable type, up is passable
 
      # DEBUG DRAW
-     _myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
-     _mystr=f'{PACMAN_CAN_GO},{r},{c},{player_x},{player_center_x},{c*GRID_SIZE}'
-     _mytext=font.Font('freesansbold.ttf', 12).render(_mystr, 1, (255,255,0))             
-     screen.blit(_mytext,_myrect)
+     if debugmode:
+          #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
+          _myrect=Rect(GRID_SIZE,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
+          
+          _mystr=f'{PACMAN_CAN_GO},{r},{c},{player_x},{player_center_x},{c*GRID_SIZE}'
+          _mytext=myfont.render(_mystr, 1, (255,255,0))             
+          screen.blit(_mytext,_myrect)
 
      draw.circle(screen, color='purple', center=(c*GRID_SIZE,r*GRID_SIZE), radius=5 ,width=0) # player's grid position
      draw.rect(screen, color='purple', rect=(c*GRID_SIZE, r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # 
@@ -153,25 +159,26 @@ def update_available_direction(player_dir,player_x, player_y):
 
 
 def draw_player(milsec,pacman_dir, player_x, player_y):
-     
      player_speed=GRID_SIZE//12
-
      if PACMAN_CAN_GO[pacman_dir]:# move if pacman can move otherwise, stay
-          
           if pacman_dir==0 :player_x+=player_speed
           if pacman_dir==1 :player_y+=player_speed
           if pacman_dir==2 :player_x-=player_speed
           if pacman_dir==3 :player_y-=player_speed
+     
+     if GRID_SIZE*GRID_COUNT_X-GRID_SIZE < player_x: 
+          player_x= -GRID_SIZE
+     if player_x<0:
+          player_x=GRID_SIZE*GRID_COUNT_X
 
-     # animated pacman
+     # draw animated pacman at the new position
      pos=(player_x, player_y)
      img_player=player_images[ (milsec//100) %4 ] #player animation
      screen.blit(transform.rotate(img_player, -90*pacman_dir), pos) # this logic needs RDLU instead of RLUD
-     #elif pacman_dir == 1:    screen.blit(transform.flip(img_player, True, False), pos)
 
-     return (player_x,player_y)
+     return (player_x,player_y)# update player's position
 
-player_wish_dir=0
+player_wish_dir=-1
 
 start_ticks=time.get_ticks()# game initial time to register
 mainloop=True
@@ -187,10 +194,10 @@ while mainloop:# main loop continues until quit button
                mainloop=False
           elif e.type==KEYDOWN:
                if e.key == K_ESCAPE:mainloop = False
-               else:player_wish_dir = {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}.get(e.key, player_dir)# change player direction
+               else:player_wish_dir = DIR_DICT.get(e.key, player_dir)# change player direction
           elif e.type==KEYUP:
                if e.key == K_ESCAPE:mainloop = False
-               elif player_wish_dir == {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}.get(e.key, player_dir):
+               elif player_wish_dir == DIR_DICT.get(e.key, player_dir):
                     player_wish_dir = player_dir
 
      # change direction if player wish is available 
@@ -198,13 +205,11 @@ while mainloop:# main loop continues until quit button
           if player_wish_dir==i and PACMAN_CAN_GO[i]:
                player_dir = i 
           
-
      ###################### draw screen
      screen.fill('black')
 
      PACMAN_CAN_GO=update_available_direction(player_dir,player_x, player_y)
      
-
      draw_board(millisec)
      (player_x,player_y)=draw_player(millisec,player_dir,player_x,player_y)
      
