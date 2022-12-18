@@ -2,25 +2,6 @@ from pygame import *
 import copy
 from math import pi, cos, sin
 
-init()
-
-GRID_SIZE=24 #pixel for unit block 
-GRID_COUNT_Y=33
-GRID_COUNT_X=30 
-WIDTH=GRID_COUNT_X*GRID_SIZE
-HEIGHT_HUD=32
-HEIGHT=GRID_COUNT_Y*GRID_SIZE+HEIGHT_HUD
-
-COLOR_WALL = 'blue' # maze color
-
-WALL_THICKNESS= 5 ######## better to have the odd number!  3 is better than 2, 7 is better than 8 !!!!
-
-FPS=60
-
-screen=display.set_mode([WIDTH,HEIGHT])
-clock=time.Clock() # originally variable timer 
-myfont=font.Font('freesansbold.ttf',20)
-
 boards_data='''\
 ┌────────────────────────────┐
 │┌────────────┐┌────────────┐│
@@ -58,6 +39,26 @@ boards_data='''\
 
 boards=[list(s) for s in boards_data.split('\n')]# 0 should not be trimmed!
 level = copy.deepcopy(boards)
+
+print()
+init()
+
+GRID_SIZE=24 #pixel for unit block
+
+GRID_COUNT_X=len(boards[0])   #30
+GRID_COUNT_Y=len(boards)      #33
+
+HEIGHT_HUD=32
+
+COLOR_WALL = 'blue' # maze color
+WALL_THICKNESS= 5 ######## better to have the odd number!  3 is better than 2, 7 is better than 8 !!!!
+
+FPS=60
+
+screen=display.set_mode([GRID_COUNT_X*GRID_SIZE ,GRID_COUNT_Y*GRID_SIZE+HEIGHT_HUD])
+clock=time.Clock() # originally variable timer 
+myfont=font.Font('freesansbold.ttf',20)
+
 
 #################################################### wall parts image
 from PIL import Image, ImageDraw
@@ -106,57 +107,62 @@ spooked_img   = load_image('ghost','powerup')
 dead_img      = load_image('ghost','dead') 
 
 counter=0
-player_x=GRID_SIZE*29/2
-player_y=GRID_SIZE*24
+
+player_x=GRID_SIZE*2
+player_y=GRID_SIZE*2
+
 player_dir=0
 
-PACMAN_CAN_GO=[1]*4# direction
+PACMAN_CAN_GO=[0]*4# direction
 
 def update_available_direction(player_dir,player_x, player_y):
-     player_center_x=int(player_x+GRID_SIZE/2)# prevent float value for level index
-     player_center_y=int(player_y+GRID_SIZE/2)# prevent float value for level index
+     player_center_x=int(player_x + GRID_SIZE/2)# prevent float value for level index
+     player_center_y=int(player_y + GRID_SIZE/2)# prevent float value for level index
 
-     turns=[1]*4 # RLUD
+     c=player_center_x//GRID_SIZE
+     r=player_center_y//GRID_SIZE
+
+     turns=[0]*4 # RLUD
 
      space_visual=(GRID_SIZE - WALL_THICKNESS) // 2  # actual collision to the visual of the wall # originally num3
 
-     if GRID_COUNT_X < player_center_x // GRID_SIZE : # warping
-          turns[0]=turns[1]=1
+     if GRID_COUNT_X < player_center_x // GRID_SIZE : # warping zone
+          return [1,1,0,0]
      else:
-          cell_L=level[player_center_y//GRID_COUNT_Y][(player_center_x-space_visual)//GRID_COUNT_X]
-          cell_R=level[player_center_y//GRID_COUNT_Y][(player_center_x+space_visual)//GRID_COUNT_X]
-          cell_U=level[(player_center_y-space_visual)//GRID_COUNT_Y][player_center_x//GRID_COUNT_X]
-          cell_D=level[(player_center_y+space_visual)//GRID_COUNT_Y][player_center_x//GRID_COUNT_X]
+
+          cell_L=level[r][c-1]
+          cell_R=level[r][c+1]
+          cell_U=level[r-1][c]
+          cell_D=level[r+1][c]
+          
           
           # check if backward is passable
-          if player_dir==1 and cell_R in ' ·■':turns[0]=1 # moving left, right wall is passable type, right is passable
-          if player_dir==0 and cell_L in ' ·■':turns[1]=1 # moving right, left wall is passable type, left is passable
-          if player_dir==3 and cell_U in ' ·■':turns[2]=1 # moving down, up wall is passable type, up is passable
-          if player_dir==2 and cell_D in ' ·■':turns[3]=1 # moving up, down wall is passable type, down is passable
+          if cell_R in ' ·■':turns[0]=1 # moving left, right wall is passable type, right is passable
+          if cell_L in ' ·■':turns[1]=1 # moving right, left wall is passable type, left is passable
+          if cell_U in ' ·■':turns[2]=1 # moving down, up wall is passable type, up is passable
+          if cell_D in ' ·■':turns[3]=1 # moving up, down wall is passable type, down is passable
+     
+     # DEBUG DRAW
 
-          # check if up and down are passable
-          if player_dir in (2,3):
-               if GRID_SIZE//2 - 3 <= player_center_x % GRID_COUNT_X <=  GRID_SIZE//2 + 3:
-                    if cell_U in ' ·■': turns[2]=1
-                    if cell_D in ' ·■': turns[3]=1
-               if GRID_SIZE//2 - 3 <= player_center_y % GRID_COUNT_Y <=  GRID_SIZE//2 + 3:
-                    if level[player_center_y//GRID_COUNT_Y][player_center_x//GRID_COUNT_X +1] in ' ·■': turns[0]=1 # already center
-                    if level[player_center_y//GRID_COUNT_Y][player_center_x//GRID_COUNT_X -1] in ' ·■': turns[1]=1 # already center
+     _myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
+     _mystr=f'{PACMAN_CAN_GO},{r},{c},{player_x},{player_center_x},{c*GRID_SIZE}'
+     _mytext=font.Font('freesansbold.ttf', 12).render(_mystr, 1, (255,255,0))             
+     screen.blit(_mytext,_myrect)
+
      
-          # check if up and down are passable
-          if player_dir in (0,1):
-               if GRID_SIZE//2 - 3 <= player_center_x % GRID_COUNT_X <=  GRID_SIZE//2 + 3:
-                    if level[player_center_y//GRID_COUNT_Y-1][player_center_x//GRID_COUNT_X] in ' ·■': turns[2]=1# already center
-                    if level[player_center_y//GRID_COUNT_Y+1][player_center_x//GRID_COUNT_X] in ' ·■': turns[3]=1# already center
-               if GRID_SIZE//2 - 3 <= player_center_y % GRID_COUNT_Y <=  GRID_SIZE//2 + 3:
-                    if cell_R in ' ·■': turns[0]=1 
-                    if cell_L in ' ·■': turns[1]=1 
+     draw.circle(screen, color='purple', center=(c*GRID_SIZE,r*GRID_SIZE), radius=5 ,width=0) # ghost home
+
+     draw.rect(screen, color='purple', rect=(c*GRID_SIZE, r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # ghost rect
+
+     draw.circle(screen, color='red', center=(player_center_x,player_center_y), radius=5 ,width=0) # ghost home
      
-     PACMAN_CAN_GO = turns[:]
+
+     return turns
 
 
 def draw_player(milsec,pacman_dir, player_x, player_y):
-     player_speed=2
+     
+     player_speed=GRID_SIZE//6
      if PACMAN_CAN_GO[pacman_dir]:# move if pacman can move otherwise, stay
           if pacman_dir==0 :
                player_x+=player_speed
@@ -166,9 +172,6 @@ def draw_player(milsec,pacman_dir, player_x, player_y):
                player_y-=player_speed
           if pacman_dir==3 :
                player_y+=player_speed
-     
-     #player_x+=2
-
 
      pos=(player_x, player_y)
      img_player=player_images[ (milsec//100) %4 ] #player animation
@@ -197,13 +200,16 @@ while mainloop:# main loop continues until quit button
                if e.key == K_ESCAPE:mainloop = False
                else:player_dir={K_RIGHT:0,K_LEFT:1,K_UP:2,K_DOWN:3}.get(e.key, player_dir)# change player direction
 
-     update_available_direction(player_dir,player_x, player_y)
 
      ###################### draw screen
      screen.fill('black')
 
+     PACMAN_CAN_GO=update_available_direction(player_dir,player_x, player_y)
+     
+
      draw_board(millisec)
      (player_x,player_y)=draw_player(millisec,player_dir,player_x,player_y)
+     
      
      display.flip()
 
