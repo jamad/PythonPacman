@@ -127,7 +127,7 @@ def update_available_direction(player_dir,player_x, player_y):
 
      turns=[0]*4 # RLUD
 
-     visual_offset=(GRID_SIZE) // 2 + 3 # why +3 is best???? actual collision to the visual of the wall # originally num3 
+     visual_offset=(GRID_SIZE) // 2 + 1 # why +3 is best???? actual collision to the visual of the wall # originally num3 
      
      c=player_center_x//GRID_SIZE
      r=player_center_y//GRID_SIZE
@@ -195,15 +195,17 @@ while mainloop:# main loop continues until quit button
           elif e.type==KEYDOWN:
                if e.key == K_ESCAPE:mainloop = False
                else:player_wish_dir = DIR_DICT.get(e.key, player_dir)# change player direction
+          ''' maybe following is not necessary
           elif e.type==KEYUP:
                if e.key == K_ESCAPE:mainloop = False
                elif player_wish_dir == DIR_DICT.get(e.key, player_dir):
                     player_wish_dir = player_dir
-
+          '''
      # change direction if player wish is available 
      for i in range(4):
-          if player_wish_dir==i and PACMAN_CAN_GO[i]:
-               player_dir = i 
+          if player_wish_dir==i and PACMAN_CAN_GO[i]: # when holding down key 
+               if player_x%GRID_SIZE<2 and player_y%GRID_SIZE<2:# if on the grid
+                    player_dir = i 
           
      ###################### draw screen
      screen.fill('black')
