@@ -177,6 +177,11 @@ def draw_player(milsec):
      img_player=player_images[ (pacman_moving//8) %4] #player animation
      screen.blit(transform.rotate(img_player, -90*player_dir), (player_x, player_y)) # this logic needs RDLU instead of RLUD
 
+def pacman_eats_dot():
+     global player_x,player_y
+     Cell_Current=level[int(player_y)//GRID_SIZE][int(player_x)//GRID_SIZE]
+     if Cell_Current=='·':level[int(player_y)//GRID_SIZE][int(player_x)//GRID_SIZE]=' '
+
 def keyboard_control():
      global player_dir,player_wish_dir,mainloop # need mainloop to exit by ESC etc
      for e in event.get():
@@ -205,9 +210,10 @@ while mainloop:# main loop continues until quit button
      ###################### draw screen
      screen.fill('black')
 
-     
+     pacman_eats_dot()
      draw_board(millisec)
      draw_player(millisec)
+
      
      display.flip()
 
