@@ -1,4 +1,4 @@
-#screen.blit(transform.rotate(img_player, 90*pacman_dir), pos) # this logic needs RDLU instead of RLUD
+#screen.blit(transform.rotate(img_player, 90*player_dir), pos) # this logic needs RDLU instead of RLUD
 debugmode=1
 
 from pygame import *
@@ -59,6 +59,13 @@ WALL_THICKNESS= 1 ######## better to have the odd number!  3 is better than 2, 7
 
 DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction
 
+### global variables
+player_x=GRID_SIZE*(GRID_COUNT_X/2)
+player_y=GRID_SIZE*24
+player_dir=-4
+player_wish_dir=-1
+pacman_moving=0 # for pacman animation
+
 screen=display.set_mode([GRID_COUNT_X*GRID_SIZE ,GRID_COUNT_Y*GRID_SIZE+HEIGHT_HUD])
 clock=time.Clock() # originally variable timer 
 
@@ -75,7 +82,6 @@ my_rect = (0, 0, GRID_SIZE, GRID_SIZE)
 
 segments=48
 a=pi/2/ segments
-
 
 P=[(HG*cos(a*i)  ,HG*sin(a*i))for i in range(segments+1)]
 for p1,p2 in zip(P,P[1:]):
@@ -109,13 +115,6 @@ player_images = [load_image('player',i) for i in (1,2,3,2)]# 4 images
 ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
 spooked_img   = load_image('ghost','powerup') 
 dead_img      = load_image('ghost','dead') 
-
-counter=0
-
-player_x=GRID_SIZE*(GRID_COUNT_X/2)
-player_y=GRID_SIZE*24
-
-player_dir=0
 
 PACMAN_CAN_GO=[0]*4# direction
 
@@ -157,14 +156,15 @@ def update_available_direction(player_dir,player_x, player_y):
      
      return turns
 
-
-def draw_player(milsec,pacman_dir, player_x, player_y):
+def draw_player(milsec):
+     global pacman_moving, player_dir, player_x, player_y
      player_speed=GRID_SIZE//12
-     if PACMAN_CAN_GO[pacman_dir]:# move if pacman can move otherwise, stay
-          if pacman_dir==0 :player_x+=player_speed
-          if pacman_dir==1 :player_y+=player_speed
-          if pacman_dir==2 :player_x-=player_speed
-          if pacman_dir==3 :player_y-=player_speed
+     if -1<player_dir and PACMAN_CAN_GO[player_dir]:# move if pacman can move otherwise, stay
+          if player_dir==0 :player_x+=player_speed
+          if player_dir==1 :player_y+=player_speed
+          if player_dir==2 :player_x-=player_speed
+          if player_dir==3 :player_y-=player_speed
+          pacman_moving+=1 # for animation 
      
      if GRID_SIZE*GRID_COUNT_X-GRID_SIZE < player_x: 
           player_x= -GRID_SIZE
@@ -172,14 +172,22 @@ def draw_player(milsec,pacman_dir, player_x, player_y):
           player_x=GRID_SIZE*GRID_COUNT_X
 
      # draw animated pacman at the new position
-     pos=(player_x, player_y)
-     img_player=player_images[ (milsec//100) %4 ] #player animation
-     screen.blit(transform.rotate(img_player, -90*pacman_dir), pos) # this logic needs RDLU instead of RLUD
+     img_player=player_images[ (pacman_moving//8) %4] #player animation
+     screen.blit(transform.rotate(img_player, -90*player_dir), (player_x, player_y)) # this logic needs RDLU instead of RLUD
 
-     return (player_x,player_y)# update player's position
-
-player_dir=-4
-player_wish_dir=-1
+def keyboard_control():
+     global player_dir,player_wish_dir,mainloop # need mainloop to exit by ESC etc
+     for e in event.get():
+          if e.type==QUIT:
+               mainloop=False # x button to close exe
+          elif e.type==KEYDOWN:
+               if e.key == K_ESCAPE:mainloop = False #Esc key
+               else:player_wish_dir = DIR_DICT.get(e.key, player_dir)# change player direction
+     # change direction if player wish is available 
+     if player_x%GRID_SIZE<2 and player_y%GRID_SIZE<2:# execute if on the grid
+          for i in range(4):
+               if player_wish_dir==i and PACMAN_CAN_GO[i]: # when holding down key 
+                    player_dir = i 
 
 start_ticks=time.get_ticks()# game initial time to register
 mainloop=True
@@ -189,26 +197,15 @@ while mainloop:# main loop continues until quit button
      clock.tick(FPS)
      millisec=time.get_ticks()-start_ticks # how much milliseconds passed since start
 
-     # user input handling
-     for e in event.get():
-          if e.type==QUIT:
-               mainloop=False # x button to close exe
-          elif e.type==KEYDOWN:
-               if e.key == K_ESCAPE:mainloop = False #Esc key
-               else:player_wish_dir = DIR_DICT.get(e.key, player_dir)# change player direction
-     # change direction if player wish is available 
-     for i in range(4):
-          if player_wish_dir==i and PACMAN_CAN_GO[i]: # when holding down key 
-               if player_x%GRID_SIZE<2 and player_y%GRID_SIZE<2:# if on the grid
-                    player_dir = i 
-          
+     keyboard_control() # user key input handling
+     PACMAN_CAN_GO=update_available_direction(player_dir,player_x, player_y)
+     
      ###################### draw screen
      screen.fill('black')
 
-     PACMAN_CAN_GO=update_available_direction(player_dir,player_x, player_y)
      
      draw_board(millisec)
-     (player_x,player_y)=draw_player(millisec,player_dir,player_x,player_y)
+     draw_player(millisec)
      
      display.flip()
 
