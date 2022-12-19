@@ -47,6 +47,7 @@ init()
 FPS=120
 
 GRID_SIZE=24 #pixel for unit block
+HG =GRID_SIZE/2 # half grid
 
 GRID_COUNT_X=len(boards[0])   #30
 GRID_COUNT_Y=len(boards)      #33
@@ -54,7 +55,7 @@ GRID_COUNT_Y=len(boards)      #33
 HEIGHT_HUD=32
 
 COLOR_WALL = 'blue' # maze color
-WALL_THICKNESS= 5 ######## better to have the odd number!  3 is better than 2, 7 is better than 8 !!!!
+WALL_THICKNESS= 1 ######## better to have the odd number!  3 is better than 2, 7 is better than 8 !!!!
 
 DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction
 
@@ -74,8 +75,9 @@ my_rect = (0, 0, GRID_SIZE, GRID_SIZE)
 
 segments=48
 a=pi/2/ segments
-r =GRID_SIZE/2
-P=[(r*cos(a*i)  ,r*sin(a*i))for i in range(segments+1)]
+
+
+P=[(HG*cos(a*i)  ,HG*sin(a*i))for i in range(segments+1)]
 for p1,p2 in zip(P,P[1:]):
      my_draw.line((p1, p2), fill=COLOR_WALL, width=WALL_THICKNESS)
 
@@ -86,7 +88,6 @@ img_corner = image.fromstring(data, img_corner.size, img_corner.mode)
 
 def draw_board(millisec):
      G=GRID_SIZE
-     HG=GRID_SIZE/2
      for i in range(GRID_COUNT_Y):
           for j in range(GRID_COUNT_X):
                c=level[i][j]
@@ -126,8 +127,7 @@ def update_available_direction(player_dir,player_x, player_y):
 
      turns=[0]*4 # RLUD
 
-     #visual_offset=(GRID_SIZE - WALL_THICKNESS) // 2  # actual collision to the visual of the wall # originally num3
-     visual_offset=(GRID_SIZE) // 2  # actual collision to the visual of the wall # originally num3
+     visual_offset=(GRID_SIZE) // 2 + 3 # why +3 is best???? actual collision to the visual of the wall # originally num3 
      
      c=player_center_x//GRID_SIZE
      r=player_center_y//GRID_SIZE
