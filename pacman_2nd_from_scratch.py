@@ -178,6 +178,7 @@ def draw_player(milsec,pacman_dir, player_x, player_y):
 
      return (player_x,player_y)# update player's position
 
+player_dir=-4
 player_wish_dir=-1
 
 start_ticks=time.get_ticks()# game initial time to register
@@ -190,10 +191,10 @@ while mainloop:# main loop continues until quit button
 
      # user input handling
      for e in event.get():
-          if e.type==QUIT:    
-               mainloop=False
+          if e.type==QUIT:
+               mainloop=False # x button to close exe
           elif e.type==KEYDOWN:
-               if e.key == K_ESCAPE:mainloop = False
+               if e.key == K_ESCAPE:mainloop = False #Esc key
                else:player_wish_dir = DIR_DICT.get(e.key, player_dir)# change player direction
      # change direction if player wish is available 
      for i in range(4):
