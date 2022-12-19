@@ -93,12 +93,7 @@ data = img_corner.tobytes()
 img_corner = image.fromstring(data, img_corner.size, img_corner.mode)
 #################################################### wall parts image end
 
-def draw_score():
-     #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
-     _myrect=Rect(GRID_SIZE,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
-     _mytext=myfont.render(f'{score}', 1, (255,255,0))             
-     screen.blit(_mytext,_myrect)
-     pass
+     
 
 def draw_board(millisec):
      G=GRID_SIZE
@@ -191,6 +186,15 @@ def pacman_eats_dot():
      if Cell_Current=='·':
           level[int(player_y)//GRID_SIZE][int(player_x)//GRID_SIZE]=' '
           score+=10
+     if Cell_Current=='■':
+          level[int(player_y)//GRID_SIZE][int(player_x)//GRID_SIZE]=' '
+          score+=50
+
+def draw_score():
+     #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
+     _myrect=Rect(GRID_SIZE,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
+     _mytext=myfont.render(f'SCORE : {score}', 1, (255,255,0))             
+     screen.blit(_mytext,_myrect)
 
 def keyboard_control():
      global player_dir,player_wish_dir,mainloop # need mainloop to exit by ESC etc
