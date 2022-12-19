@@ -195,12 +195,6 @@ while mainloop:# main loop continues until quit button
           elif e.type==KEYDOWN:
                if e.key == K_ESCAPE:mainloop = False
                else:player_wish_dir = DIR_DICT.get(e.key, player_dir)# change player direction
-          ''' maybe following is not necessary
-          elif e.type==KEYUP:
-               if e.key == K_ESCAPE:mainloop = False
-               elif player_wish_dir == DIR_DICT.get(e.key, player_dir):
-                    player_wish_dir = player_dir
-          '''
      # change direction if player wish is available 
      for i in range(4):
           if player_wish_dir==i and PACMAN_CAN_GO[i]: # when holding down key 
