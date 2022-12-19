@@ -122,7 +122,8 @@ def update_available_direction(player_dir,player_x, player_y):
      player_center_x=int(player_x + GRID_SIZE/2)# prevent float value for level index
      player_center_y=int(player_y + GRID_SIZE/2)# prevent float value for level index
 
-     if GRID_COUNT_X <= (player_x // GRID_SIZE) +1 :return [1,1,0,0] # warping zone
+     if GRID_COUNT_X <= (player_x // GRID_SIZE) +2 :
+          return [1,0,1,0] # warping zone  R,D,L,U 
 
      turns=[0]*4 # RLUD
 
@@ -166,10 +167,11 @@ def draw_player(milsec):
           if player_dir==3 :player_y-=player_speed
           pacman_moving+=1 # for animation 
      
-     if GRID_SIZE*GRID_COUNT_X-GRID_SIZE < player_x: 
-          player_x= -GRID_SIZE
      if player_x<0:
-          player_x=GRID_SIZE*GRID_COUNT_X
+          player_x=GRID_SIZE*GRID_COUNT_X-GRID_SIZE
+     elif GRID_SIZE*GRID_COUNT_X-GRID_SIZE < player_x: 
+          #player_x= -GRID_SIZE
+          player_x=0
 
      # draw animated pacman at the new position
      img_player=player_images[ (pacman_moving//8) %4] #player animation
