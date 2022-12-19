@@ -60,6 +60,7 @@ WALL_THICKNESS= 1 ######## better to have the odd number!  3 is better than 2, 7
 DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction
 
 ### global variables
+score=0
 player_x=GRID_SIZE*(GRID_COUNT_X/2)
 player_y=GRID_SIZE*24
 player_dir=-4
@@ -91,6 +92,13 @@ for p1,p2 in zip(P,P[1:]):
 data = img_corner.tobytes()
 img_corner = image.fromstring(data, img_corner.size, img_corner.mode)
 #################################################### wall parts image end
+
+def draw_score():
+     #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
+     _myrect=Rect(GRID_SIZE,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
+     _mytext=myfont.render(f'{score}', 1, (255,255,0))             
+     screen.blit(_mytext,_myrect)
+     pass
 
 def draw_board(millisec):
      G=GRID_SIZE
@@ -145,7 +153,7 @@ def update_available_direction(player_dir,player_x, player_y):
      # DEBUG DRAW
      if debugmode:
           #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
-          _myrect=Rect(GRID_SIZE,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
+          _myrect=Rect(GRID_SIZE*5,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
           
           _mystr=f'{PACMAN_CAN_GO},{r},{c},{player_x},{player_center_x},{c*GRID_SIZE}'
           _mytext=myfont.render(_mystr, 1, (255,255,0))             
@@ -178,9 +186,11 @@ def draw_player(milsec):
      screen.blit(transform.rotate(img_player, -90*player_dir), (player_x, player_y)) # this logic needs RDLU instead of RLUD
 
 def pacman_eats_dot():
-     global player_x,player_y
+     global player_x,player_y,score
      Cell_Current=level[int(player_y)//GRID_SIZE][int(player_x)//GRID_SIZE]
-     if Cell_Current=='·':level[int(player_y)//GRID_SIZE][int(player_x)//GRID_SIZE]=' '
+     if Cell_Current=='·':
+          level[int(player_y)//GRID_SIZE][int(player_x)//GRID_SIZE]=' '
+          score+=10
 
 def keyboard_control():
      global player_dir,player_wish_dir,mainloop # need mainloop to exit by ESC etc
@@ -213,6 +223,7 @@ while mainloop:# main loop continues until quit button
      pacman_eats_dot()
      draw_board(millisec)
      draw_player(millisec)
+     draw_score()
 
      
      display.flip()
