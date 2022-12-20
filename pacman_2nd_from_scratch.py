@@ -198,6 +198,23 @@ def keyboard_control():
                if player_wish_dir==i and PACMAN_CAN_GO[i]: # when holding down key 
                     player_dir = i 
 
+def debugdraw():
+     #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
+     _myrect=Rect(GRID_SIZE*10,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
+     
+     player_center_x=int(player_x + GRID_SIZE/2)# prevent float value for level index
+     player_center_y=int(player_y + GRID_SIZE/2)# prevent float value for level index
+     c=player_center_x//GRID_SIZE
+     r=player_center_y//GRID_SIZE
+     _mystr=f'{PACMAN_CAN_GO},{r},{c},{player_x},{player_center_x},{c*GRID_SIZE}'
+     _mytext=myfont.render(_mystr, 1, (255,255,0))             
+     screen.blit(_mytext,_myrect)
+
+     draw.circle(screen, color='purple', center=(c*GRID_SIZE,r*GRID_SIZE), radius=5 ,width=0) # player's grid position
+     draw.rect(screen, color='purple', rect=(c*GRID_SIZE, r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # 
+     draw.circle(screen, color='red', center=(player_center_x,player_center_y), radius=5 ,width=0) # player's center
+
+
 start_ticks=time.get_ticks()# game initial time to register
 mainloop=True
 while mainloop:# main loop continues until quit button
@@ -218,23 +235,11 @@ while mainloop:# main loop continues until quit button
      draw_board(millisec)
      draw_player(millisec)
      draw_score()
-
+     
+     
      # DEBUG DRAW
      if debugmode:
-          #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
-          _myrect=Rect(GRID_SIZE*10,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
-          
-          player_center_x=int(player_x + GRID_SIZE/2)# prevent float value for level index
-          player_center_y=int(player_y + GRID_SIZE/2)# prevent float value for level index
-          c=player_center_x//GRID_SIZE
-          r=player_center_y//GRID_SIZE
-          _mystr=f'{PACMAN_CAN_GO},{r},{c},{player_x},{player_center_x},{c*GRID_SIZE}'
-          _mytext=myfont.render(_mystr, 1, (255,255,0))             
-          screen.blit(_mytext,_myrect)
-
-          draw.circle(screen, color='purple', center=(c*GRID_SIZE,r*GRID_SIZE), radius=5 ,width=0) # player's grid position
-          draw.rect(screen, color='purple', rect=(c*GRID_SIZE, r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # 
-          draw.circle(screen, color='red', center=(player_center_x,player_center_y), radius=5 ,width=0) # player's center
+          debugdraw()
      
      display.flip()
 
