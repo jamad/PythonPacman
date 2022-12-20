@@ -121,7 +121,8 @@ dead_img      = load_image('ghost','dead')
 
 PACMAN_CAN_GO=[0]*4# direction
 
-def update_available_direction(player_dir,player_x, player_y):
+def update_available_direction():
+     global player_dir,player_x, player_y
      player_center_x=int(player_x + GRID_SIZE/2)# prevent float value for level index
      player_center_y=int(player_y + GRID_SIZE/2)# prevent float value for level index
 
@@ -219,12 +220,13 @@ while mainloop:# main loop continues until quit button
      millisec=time.get_ticks()-start_ticks # how much milliseconds passed since start
 
      keyboard_control() # user key input handling
-     PACMAN_CAN_GO=update_available_direction(player_dir,player_x, player_y)
+     PACMAN_CAN_GO=update_available_direction()
      
+     pacman_eats_dot()
+
      ###################### draw screen
      screen.fill('black')
 
-     pacman_eats_dot()
      draw_board(millisec)
      draw_player(millisec)
      draw_score()
