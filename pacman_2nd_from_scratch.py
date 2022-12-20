@@ -68,6 +68,7 @@ player_dir=-4
 player_wish_dir=-1
 player_speed=GRID_SIZE//12
 pacman_moving=0 # for pacman animation
+powerup_phase=0
 
 screen=display.set_mode([GRID_COUNT_X*GRID_SIZE ,GRID_COUNT_Y*GRID_SIZE+HEIGHT_HUD])
 clock=time.Clock() # originally variable timer 
@@ -170,7 +171,7 @@ def draw_player(milsec):
      screen.blit(transform.rotate(img_player, -90*player_dir), (player_x, player_y)) # this logic needs RDLU instead of RLUD
 
 def pacman_eats_dot():
-     global player_x,player_y,score
+     global player_x,player_y,score, powerup_phase
      Cell_Current=level[int(player_y)//GRID_SIZE][int(player_x)//GRID_SIZE]
      if Cell_Current=='·':
           level[int(player_y)//GRID_SIZE][int(player_x)//GRID_SIZE]=' '
@@ -178,6 +179,14 @@ def pacman_eats_dot():
      if Cell_Current=='■':
           level[int(player_y)//GRID_SIZE][int(player_x)//GRID_SIZE]=' '
           score+=50
+          powerup_phase=1
+
+def powerup_handling():
+     global powerup_phase
+     if powerup_phase:powerup_phase+=1
+     powerup_phase%=600# when 600, stop powerup phase
+
+          
 
 def draw_score():
      #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
@@ -200,6 +209,7 @@ def keyboard_control():
                     player_dir = i 
 
 def debugdraw():
+     global powerup_phase
      #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
      _myrect=Rect(GRID_SIZE*10,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
      
@@ -208,7 +218,7 @@ def debugdraw():
      
      index_c=player_center_x//GRID_SIZE
      index_r=player_center_y//GRID_SIZE
-     _mystr=f'{PACMAN_CAN_GO},{index_r},{index_c},{player_x},{player_center_x}'
+     _mystr=f'{PACMAN_CAN_GO},{index_r},{index_c},{player_x},{player_center_x}, powerup phase : {powerup_phase}'
      _mytext=myfont.render(_mystr, 1, (255,255,0))             
      screen.blit(_mytext,_myrect)
 
@@ -216,6 +226,7 @@ def debugdraw():
      draw.rect(screen, color='purple', rect=(index_c*GRID_SIZE, index_r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # 
      draw.circle(screen, color='red', center=(player_center_x,player_center_y), radius=5 ,width=0) # player's center
 
+     #powerup counter
 
 start_ticks=time.get_ticks()# game initial time to register
 mainloop=True
@@ -229,6 +240,7 @@ while mainloop:# main loop continues until quit button
 
      PACMAN_CAN_GO=update_available_direction()
      pacman_eats_dot()
+     powerup_handling()
 
      ###################### draw screen
      screen.fill('black')
@@ -238,8 +250,7 @@ while mainloop:# main loop continues until quit button
      draw_score()
      
      # DEBUG DRAW
-     if debugmode:
-          debugdraw()
+     if debugmode:debugdraw()
      
      display.flip()
 
