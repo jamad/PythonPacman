@@ -188,11 +188,15 @@ def powerup_handling():
 
           
 
-def draw_score():
+def draw_HUD():
      #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
      _myrect=Rect(GRID_SIZE,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
      _mytext=myfont.render(f'SCORE : {score}', 1, (255,255,0))             
      screen.blit(_mytext,_myrect)
+
+     lives=3
+     for i in range(lives):
+          screen.blit(transform.scale(player_images[0],(HG*2,HG*2)),(GRID_SIZE*(6+i),GRID_SIZE*(GRID_COUNT_Y)))
 
 def keyboard_control():
      global player_dir,player_wish_dir,mainloop # need mainloop to exit by ESC etc
@@ -247,7 +251,7 @@ while mainloop:# main loop continues until quit button
 
      draw_board(millisec)
      draw_player(millisec)
-     draw_score()
+     draw_HUD()
      
      # DEBUG DRAW
      if debugmode:debugdraw()
