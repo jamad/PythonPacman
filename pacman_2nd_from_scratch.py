@@ -93,6 +93,12 @@ data = img_corner.tobytes()
 img_corner = image.fromstring(data, img_corner.size, img_corner.mode)
 #################################################### wall parts image end
 
+# image assets
+load_image=lambda type,p:transform.scale(image.load(f'assets/{type}_images/{p}.png'),(GRID_SIZE*1, GRID_SIZE*1))
+player_images = [load_image('player',i) for i in (1,2,3,2)]# 4 images
+ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
+spooked_img   = load_image('ghost','powerup') 
+dead_img      = load_image('ghost','dead') 
      
 
 def draw_board(millisec):
@@ -112,12 +118,6 @@ def draw_board(millisec):
                     radius=(G*1.5//4,G*1.5*5//16)[millisec%(FPS*4)<FPS*2]
                     draw.circle( screen, 'white', (G*(j+.5), G*(i+.5)), radius )
                     
-# image assets
-load_image=lambda type,p:transform.scale(image.load(f'assets/{type}_images/{p}.png'),(GRID_SIZE*1, GRID_SIZE*1))
-player_images = [load_image('player',i) for i in (1,2,3,2)]# 4 images
-ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
-spooked_img   = load_image('ghost','powerup') 
-dead_img      = load_image('ghost','dead') 
 
 PACMAN_CAN_GO=[0]*4# direction
 
@@ -145,19 +145,6 @@ def update_available_direction():
      if cell_D in ' ·■':turns[1]=1 # moving up, down wall is passable type, down is passable
      if cell_L in ' ·■':turns[2]=1 # moving right, left wall is passable type, left is passable
      if cell_U in ' ·■':turns[3]=1 # moving down, up wall is passable type, up is passable
-
-     # DEBUG DRAW
-     if debugmode:
-          #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
-          _myrect=Rect(GRID_SIZE*5,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
-          
-          _mystr=f'{PACMAN_CAN_GO},{r},{c},{player_x},{player_center_x},{c*GRID_SIZE}'
-          _mytext=myfont.render(_mystr, 1, (255,255,0))             
-          screen.blit(_mytext,_myrect)
-
-     draw.circle(screen, color='purple', center=(c*GRID_SIZE,r*GRID_SIZE), radius=5 ,width=0) # player's grid position
-     draw.rect(screen, color='purple', rect=(c*GRID_SIZE, r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # 
-     draw.circle(screen, color='red', center=(player_center_x,player_center_y), radius=5 ,width=0) # player's center
      
      return turns
 
@@ -220,17 +207,34 @@ while mainloop:# main loop continues until quit button
      millisec=time.get_ticks()-start_ticks # how much milliseconds passed since start
 
      keyboard_control() # user key input handling
+
      PACMAN_CAN_GO=update_available_direction()
-     
      pacman_eats_dot()
 
      ###################### draw screen
      screen.fill('black')
 
+
      draw_board(millisec)
      draw_player(millisec)
      draw_score()
 
+     # DEBUG DRAW
+     if debugmode:
+          #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
+          _myrect=Rect(GRID_SIZE*10,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
+          
+          player_center_x=int(player_x + GRID_SIZE/2)# prevent float value for level index
+          player_center_y=int(player_y + GRID_SIZE/2)# prevent float value for level index
+          c=player_center_x//GRID_SIZE
+          r=player_center_y//GRID_SIZE
+          _mystr=f'{PACMAN_CAN_GO},{r},{c},{player_x},{player_center_x},{c*GRID_SIZE}'
+          _mytext=myfont.render(_mystr, 1, (255,255,0))             
+          screen.blit(_mytext,_myrect)
+
+          draw.circle(screen, color='purple', center=(c*GRID_SIZE,r*GRID_SIZE), radius=5 ,width=0) # player's grid position
+          draw.rect(screen, color='purple', rect=(c*GRID_SIZE, r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # 
+          draw.circle(screen, color='red', center=(player_center_x,player_center_y), radius=5 ,width=0) # player's center
      
      display.flip()
 
