@@ -46,8 +46,9 @@ level = copy.deepcopy(boards)
 init()
 FPS=120
 
-GRID_SIZE=24 #pixel for unit block
-HG =GRID_SIZE/2 # half grid
+HG =12 # half grid
+
+GRID_SIZE=HG*2 #pixel for unit block
 
 GRID_COUNT_X=len(boards[0])   #30
 GRID_COUNT_Y=len(boards)      #33
@@ -61,16 +62,17 @@ DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction
 
 ### global variables
 score=0
-player_x=GRID_SIZE*(GRID_COUNT_X/2)
+player_x=GRID_SIZE*GRID_COUNT_X//2
 player_y=GRID_SIZE*24
 player_dir=-4
 player_wish_dir=-1
+player_speed=GRID_SIZE//12
 pacman_moving=0 # for pacman animation
 
 screen=display.set_mode([GRID_COUNT_X*GRID_SIZE ,GRID_COUNT_Y*GRID_SIZE+HEIGHT_HUD])
 clock=time.Clock() # originally variable timer 
 
-myfont=font.Font('freesansbold.ttf',16)
+myfont=font.Font('freesansbold.ttf',GRID_SIZE//4*3)
 
 #################################################### wall parts image creation
 from PIL import Image, ImageDraw
@@ -123,22 +125,22 @@ PACMAN_CAN_GO=[0]*4# direction
 
 def update_available_direction():
      global player_dir,player_x, player_y
-     player_center_x=int(player_x + GRID_SIZE/2)# prevent float value for level index
-     player_center_y=int(player_y + GRID_SIZE/2)# prevent float value for level index
+     player_center_x=int(player_x + HG)# prevent float value for level index
+     player_center_y=int(player_y + HG)# prevent float value for level index
 
      if GRID_COUNT_X <= (player_x // GRID_SIZE) +2 :
           return [1,0,1,0] # warping zone  R,D,L,U 
 
      turns=[0]*4 # RLUD
 
-     visual_offset=(GRID_SIZE) // 2 + 1 # why +3 is best???? actual collision to the visual of the wall # originally num3 
+     visual_offset=HG + 1 # why is this best????  ---- actual collision to the visual of the wall # originally num3 
      
-     c=player_center_x//GRID_SIZE
-     r=player_center_y//GRID_SIZE
-     cell_R=level[r][(player_center_x + visual_offset)//GRID_SIZE]
-     cell_L=level[r][(player_center_x - visual_offset)//GRID_SIZE]
-     cell_U=level[(player_center_y - visual_offset)//GRID_SIZE][c]
-     cell_D=level[(player_center_y + visual_offset)//GRID_SIZE][c]
+     index_c=player_center_x//GRID_SIZE
+     index_r=player_center_y//GRID_SIZE
+     cell_R=level[index_r][(player_center_x + visual_offset)//GRID_SIZE]
+     cell_L=level[index_r][(player_center_x - visual_offset)//GRID_SIZE]
+     cell_U=level[(player_center_y - visual_offset)//GRID_SIZE][index_c]
+     cell_D=level[(player_center_y + visual_offset)//GRID_SIZE][index_c]
      
      # check passable direction
      if cell_R in ' ·■':turns[0]=1 # moving left, right wall is passable type, right is passable
@@ -150,7 +152,6 @@ def update_available_direction():
 
 def draw_player(milsec):
      global pacman_moving, player_dir, player_x, player_y
-     player_speed=GRID_SIZE//12
      if -1<player_dir and PACMAN_CAN_GO[player_dir]:# move if pacman can move otherwise, stay
           if player_dir==0 :player_x+=player_speed
           if player_dir==1 :player_y+=player_speed
@@ -202,16 +203,17 @@ def debugdraw():
      #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
      _myrect=Rect(GRID_SIZE*10,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
      
-     player_center_x=int(player_x + GRID_SIZE/2)# prevent float value for level index
-     player_center_y=int(player_y + GRID_SIZE/2)# prevent float value for level index
-     c=player_center_x//GRID_SIZE
-     r=player_center_y//GRID_SIZE
-     _mystr=f'{PACMAN_CAN_GO},{r},{c},{player_x},{player_center_x},{c*GRID_SIZE}'
+     player_center_x=int(player_x + HG)# prevent float value for level index
+     player_center_y=int(player_y + HG)# prevent float value for level index
+     
+     index_c=player_center_x//GRID_SIZE
+     index_r=player_center_y//GRID_SIZE
+     _mystr=f'{PACMAN_CAN_GO},{index_r},{index_c},{player_x},{player_center_x}'
      _mytext=myfont.render(_mystr, 1, (255,255,0))             
      screen.blit(_mytext,_myrect)
 
-     draw.circle(screen, color='purple', center=(c*GRID_SIZE,r*GRID_SIZE), radius=5 ,width=0) # player's grid position
-     draw.rect(screen, color='purple', rect=(c*GRID_SIZE, r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # 
+     draw.circle(screen, color='purple', center=(index_c*GRID_SIZE,index_r*GRID_SIZE), radius=5 ,width=0) # player's grid position
+     draw.rect(screen, color='purple', rect=(index_c*GRID_SIZE, index_r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # 
      draw.circle(screen, color='red', center=(player_center_x,player_center_y), radius=5 ,width=0) # player's center
 
 
@@ -231,11 +233,9 @@ while mainloop:# main loop continues until quit button
      ###################### draw screen
      screen.fill('black')
 
-
      draw_board(millisec)
      draw_player(millisec)
      draw_score()
-     
      
      # DEBUG DRAW
      if debugmode:
