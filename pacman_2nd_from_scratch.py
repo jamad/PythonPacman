@@ -1,6 +1,4 @@
 #screen.blit(transform.rotate(img_player, 90*player_dir), pos) # this logic needs RDLU instead of RLUD
-debugmode=1
-
 from pygame import *
 import copy
 from math import pi, cos, sin
@@ -103,23 +101,6 @@ player_images = [load_image('player',i) for i in (1,2,3,2)]# 4 images
 ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
 spooked_img   = load_image('ghost','powerup') 
 dead_img      = load_image('ghost','dead') 
-
-def draw_board(millisec):
-     G=G_SIZE
-     for i in range(GRID_COUNT_Y):
-          for j in range(GRID_COUNT_X):
-               c=level[i][j]
-               if c=='│':draw.line(   screen, COLOR_WALL, (G*j+HG,G*i),(G*j+HG, G*i+G),WALL_THICKNESS)
-               if c=='─':draw.line(   screen, COLOR_WALL, (G*j,G*i+HG),(G*j+G, G*i+HG),WALL_THICKNESS)
-               if c=='┘':screen.blit(img_corner, (G*j,G*i))# <- display image
-               if c=='┐':screen.blit(transform.rotate(img_corner, 90),     (G*j,G*i-G))
-               if c=='┌':screen.blit(transform.rotate(img_corner, 180),    (G*j-G,G*i-G))
-               if c=='└':screen.blit(transform.rotate(img_corner, -90),    (G*j-G,G*i))
-               if c=='═':draw.line(   screen, 'white', (G*j,G*i+HG), (G*j+G, G*i+HG), WALL_THICKNESS)
-               if c=='·':draw.circle( screen, 'white', (G*j+HG, G*i+HG), G//8)
-               if c=='■':
-                    radius=(G*1.5//4,G*1.5*5//16)[millisec%(FPS*4)<FPS*2]
-                    draw.circle( screen, 'white', (G*(j+.5), G*(i+.5)), radius )
                     
 def update_available_direction():
      global player_dir,player_x, player_y
@@ -132,29 +113,6 @@ def update_available_direction():
 
      ir,ic=int(player_y//G_SIZE),int(player_x//G_SIZE)
      return [level[r][c]in ' ·■' for r,c in ((ir,ic+1),(ir+1,ic),(ir,ic-1),(ir-1,ic)) ]# RLUD
-
-def draw_player(milsec):
-     global pacman_moving, player_dir, player_x, player_y
-
-     if PACMAN_CAN_GO[player_dir]:          # move if pacman can move otherwise, stay
-          pacman_moving+=1 # for animation 
-          if player_dir==0 :player_x+=player_speed
-          if player_dir==1 :player_y+=player_speed
-          if player_dir==2 :player_x-=player_speed
-          if player_dir==3 :player_y-=player_speed
-     else:
-          #print('pacman stopped!')
-          pass
-     
-     if player_x<0:
-          player_x=G_SIZE*GRID_COUNT_X-G_SIZE
-     elif G_SIZE*GRID_COUNT_X-G_SIZE < player_x: 
-          #player_x= -GRID_SIZE
-          player_x=0
-
-     # draw animated pacman at the new position
-     img_player=player_images[ (pacman_moving//8) %4] #player animation
-     screen.blit(transform.rotate(img_player, -90*player_dir), (player_x, player_y)) # this logic needs RDLU instead of RLUD
 
 def pacman_eats_dot():
      global player_x,player_y,score, powerup_phase
@@ -172,6 +130,42 @@ def powerup_handling():
      if powerup_phase:powerup_phase+=1
      powerup_phase%=600# when 600, stop powerup phase
 
+def draw_board(millisec):
+     G=G_SIZE
+     for i in range(GRID_COUNT_Y):
+          for j in range(GRID_COUNT_X):
+               c=level[i][j]
+               if c=='│':draw.line(   screen, COLOR_WALL, (G*j+HG,G*i),(G*j+HG, G*i+G),WALL_THICKNESS)
+               if c=='─':draw.line(   screen, COLOR_WALL, (G*j,G*i+HG),(G*j+G, G*i+HG),WALL_THICKNESS)
+               if c=='┘':screen.blit(img_corner, (G*j,G*i))# <- display image
+               if c=='┐':screen.blit(transform.rotate(img_corner, 90),     (G*j,G*i-G))
+               if c=='┌':screen.blit(transform.rotate(img_corner, 180),    (G*j-G,G*i-G))
+               if c=='└':screen.blit(transform.rotate(img_corner, -90),    (G*j-G,G*i))
+               if c=='═':draw.line(   screen, 'white', (G*j,G*i+HG), (G*j+G, G*i+HG), WALL_THICKNESS)
+               if c=='·':draw.circle( screen, 'white', (G*j+HG, G*i+HG), G//8)
+               if c=='■':
+                    radius=(G*1.5//4,G*1.5*5//16)[millisec%(FPS*4)<FPS*2]
+                    draw.circle( screen, 'white', (G*(j+.5), G*(i+.5)), radius )
+
+def draw_player(milsec):
+     global pacman_moving, player_dir, player_x, player_y
+
+     if PACMAN_CAN_GO[player_dir]:          # move if pacman can move otherwise, stay
+          pacman_moving+=1 # for animation 
+          if player_dir==0 :player_x+=player_speed
+          if player_dir==1 :player_y+=player_speed
+          if player_dir==2 :player_x-=player_speed
+          if player_dir==3 :player_y-=player_speed
+     
+     if player_x<0:
+          player_x=G_SIZE*GRID_COUNT_X-G_SIZE
+     elif G_SIZE*GRID_COUNT_X-G_SIZE < player_x: 
+          #player_x= -GRID_SIZE
+          player_x=0
+
+     # draw animated pacman at the new position
+     img_player=player_images[ (pacman_moving//8) %4] #player animation
+     screen.blit(transform.rotate(img_player, -90*player_dir), (player_x, player_y)) # this logic needs RDLU instead of RLUD
 
 def draw_HUD():
      #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
@@ -191,13 +185,7 @@ def keyboard_control():
           elif e.type==KEYDOWN:
                if e.key == K_ESCAPE:mainloop = False #Esc key
                else:player_wish_dir = DIR_DICT.get(e.key, player_dir)# change player direction
-     # change direction if player wish is available 
 
-     if not (player_x%G_SIZE==0 and player_y%G_SIZE==0) : return # direction should not change if not on the grid
-
-     if player_dir==player_wish_dir:return # already player wish     
-     for i in range(4):
-          if player_wish_dir==i and PACMAN_CAN_GO[i]:player_dir = i # when holding down key 
 
 def debugdraw():
      global powerup_phase, player_x, player_y
@@ -233,6 +221,10 @@ while mainloop:# main loop continues until quit button
      
      keyboard_control() # user key input handling
 
+     # process on the grid
+     if (player_x%G_SIZE==player_y%G_SIZE==0) : # direction change only on the grid
+          if  PACMAN_CAN_GO[player_wish_dir]:player_dir = player_wish_dir # change direction if player wish is available 
+
      pacman_eats_dot()
      powerup_handling()
 
@@ -242,9 +234,8 @@ while mainloop:# main loop continues until quit button
      draw_board(millisec)
      draw_player(millisec)
      draw_HUD()
-     
-     # DEBUG DRAW
-     if debugmode:debugdraw()
+
+     if 1:debugdraw()# DEBUG DRAW
      
      display.flip()
 
