@@ -43,6 +43,8 @@ BOARD_DATA='''\
 LEVEL_TEMPLATE=[list(s) for s in BOARD_DATA.split('\n')]# 0 should not be trimmed!
 g_level = copy.deepcopy(LEVEL_TEMPLATE)
 
+
+
 init()
 FPS=120
 HG =12 # half grid ( minimum : 4 ,  maximum  maybe 16)
@@ -52,6 +54,32 @@ G_SIZE=HG*2 # grid size is double of half grid
 GRID_COUNT_X=len(LEVEL_TEMPLATE[0])   #30
 GRID_COUNT_Y=len(LEVEL_TEMPLATE)      #33
 
+
+#### create dictionary for turns! 
+from collections import defaultdict
+DIRECTION=defaultdict(list) 
+DIRECTION[(29,15)]=[1, 0, 1, 0] # exception for warp row=15, col=29
+Q=[(2,2)]
+for (x,y) in Q:
+     if DIRECTION[(x,y)]==[]:
+          data=[]
+          # creat dictionary
+          r,c=y,x
+          if r<0 or c<0:continue
+          for dr,dc in ((0,1),(1,0),(0,-1),(-1,0)): # RDLU
+               try:
+                    cell=g_level[r+dr][c+dc]
+                    if cell in ' ·■═':
+                         data.append(2 if cell=='═' else 1)
+                         Q.append((c+dc, r+dr)) # new x,y to add
+                    else:data.append(0)
+               except Exception as e:
+                    print(e,r,c)
+          DIRECTION[(x,y)]=data
+
+for k in sorted(DIRECTION):
+     print(k,DIRECTION[k])
+print('data done')          
 
 HEIGHT_HUD_UPPER=HG*2
 HEIGHT_HUD_LOWER=HG*2
@@ -130,6 +158,33 @@ class Ghost:
           self.target_x=g_player_x
           self.target_y=g_player_y
 
+          # use DIRECTION for BSF  # objective : determine self.wish_direction
+          
+          Q=[(self.x//G_SIZE,self.y//G_SIZE,[])] 
+          tx,ty=self.target_x//G_SIZE,self.target_y//G_SIZE
+          SEEN=set()
+          for x,y,dir in Q:
+               if (x,y)==(tx,ty):
+                    self.wish_direction= dir and dir[0] or 0# 0 for safety value when target is same position
+                    break
+               if x<0 or y<0:continue
+               if (x,y)in SEEN:continue
+               SEEN.add((x,y))
+
+               try:
+                    _r,_d,_l,_u = DIRECTION.get((x,y),[0,0,0,0])
+                    if _r:Q.append(( x+1 , y , dir+[0]))
+                    if _d:Q.append(( x,  y+1 , dir+[1]))
+                    if _l:Q.append(( x-1 , y , dir+[2]))
+                    if _u:Q.append(( x  ,y-1 , dir+[3]))
+               except Exception as e:
+                    #print(e,(x,y))
+                    pass
+
+               #print(Q)
+
+          #print(len(SEEN))
+          '''
           diffx=(self.target_x - self.x)
           diffy=(self.target_y - self.y)
           if abs(diffx)<abs(diffy):
@@ -138,6 +193,7 @@ class Ghost:
           else:
                if 0<diffx : self.wish_direction=0
                else:self.wish_direction=2
+          '''
 
           # update if on the grid
           if self.x%G_SIZE==self.y%G_SIZE==0:
