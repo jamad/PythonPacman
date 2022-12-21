@@ -116,14 +116,19 @@ class Ghost:
           self.inbox=True
 
      def update(self):
-          pass
+          global g_powerup_phase
+          self.turns=[0]*4
+          self.inbox=True
+          self.spooked=( 0< g_powerup_phase)
 
      def draw(self):
           image=self.img
-          if self.spooked:    image=spooked_img
-          if self.dead:       image=dead_img
+          if self.spooked:    
+               image=spooked_img
+          if self.dead:       
+               image=dead_img
 
-          g_screen.blit(self.img, (self.x, self.y, G_SIZE, G_SIZE))
+          g_screen.blit(image, (self.x, self.y, G_SIZE, G_SIZE))
 
 ghosts=[Ghost(i) for i in range(4)]
 
@@ -255,13 +260,13 @@ while g_mainloop:# main loop continues until quit button
      pacman_eats_dot()
      powerup_handling()
 
+     for ghost in ghosts:ghost.update()
      ###################### draw screen
      g_screen.fill('black')
 
      draw_board(g_millisec)
      draw_player()
-     for ghost in ghosts:
-          ghost.draw()
+     for ghost in ghosts:ghost.draw()
      draw_HUD()
 
      if 1:debugdraw()# DEBUG DRAW
