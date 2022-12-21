@@ -58,7 +58,7 @@ WALL_THICKNESS= 1 ######## better to have the odd number!  3 is better than 2, 7
 DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction
 
 ### global variables
-player_speed=G_SIZE/16 # can be 1 
+player_speed=HG/4 # speed can be float number (for example, 0.25)
 
 score=0
 player_x=G_SIZE*GRID_COUNT_X//2
@@ -140,10 +140,14 @@ def draw_player(milsec):
 
      if PACMAN_CAN_GO[player_dir]:          # move if pacman can move otherwise, stay
           pacman_moving+=1 # for animation 
-          if player_dir==0 :player_x+=player_speed
-          if player_dir==1 :player_y+=player_speed
-          if player_dir==2 :player_x-=player_speed
-          if player_dir==3 :player_y-=player_speed
+          if player_dir==0 :
+               player_x+=player_speed
+          if player_dir==1 :
+               player_y+=player_speed
+          if player_dir==2 :
+               player_x-=player_speed
+          if player_dir==3 :
+               player_y-=player_speed
      
      if player_x<0:
           player_x=G_SIZE*GRID_COUNT_X-G_SIZE
@@ -166,7 +170,7 @@ def draw_HUD():
           screen.blit(transform.scale(player_images[0],(HG*2,HG*2)),(G_SIZE*(6+i),G_SIZE*(GRID_COUNT_Y)))
 
 def keyboard_control():
-     global player_dir,player_wish_dir,mainloop ,player_x,player_y# need mainloop to exit by ESC etc
+     global player_dir,player_wish_dir,mainloop# need mainloop to exit by ESC etc
      for e in event.get():
           if e.type==QUIT:
                mainloop=False # x button to close exe
@@ -177,18 +181,18 @@ def keyboard_control():
 def debugdraw():
      global powerup_phase, player_x, player_y
      
-     player_x=int(player_x )# prevent float value for level index
-     player_y=int(player_y )# prevent float value for level index
+     px=int(player_x )# prevent float value for level index
+     py=int(player_y )# prevent float value for level index
      
-     index_c=player_x//G_SIZE
-     index_r=player_y//G_SIZE
+     index_c=px//G_SIZE
+     index_r=py//G_SIZE
      
-     _mystr=f'{PACMAN_CAN_GO},{index_r},{index_c},player_x:{player_x},'
+     _mystr=f'{PACMAN_CAN_GO},{index_r},{index_c},player_x:{px},'
      _mytext=myfont.render(_mystr, 1, (255,255,0))             
      _myrect=Rect(G_SIZE*10,G_SIZE*(GRID_COUNT_Y),G_SIZE*10  ,G_SIZE*10)
      screen.blit(_mytext,_myrect)
 
-     _mystr2=f'x%G_SIZE:{player_x%G_SIZE},y%G_SIZE:{player_y%G_SIZE}, powerup phase : {powerup_phase}'
+     _mystr2=f'x%G_SIZE:{px%G_SIZE},y%G_SIZE:{py%G_SIZE}, powerup phase : {powerup_phase}'
      _mytext2=myfont.render(_mystr2, 1, (255,255,0))             
      _myrect2=Rect(G_SIZE*10,G_SIZE*(GRID_COUNT_Y+1),G_SIZE*10  ,G_SIZE*10)
      screen.blit(_mytext2,_myrect2)
