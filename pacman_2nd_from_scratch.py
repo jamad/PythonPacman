@@ -130,7 +130,6 @@ class Ghost:
 
           g_screen.blit(image, (self.x, self.y, G_SIZE, G_SIZE))
 
-ghosts=[Ghost(i) for i in range(4)]
 
 
 def pacman_eats_dot():
@@ -242,6 +241,9 @@ def debugdraw():
 
      draw.circle(g_screen, color='purple', center=(index_c*G_SIZE,index_r*G_SIZE + HEIGHT_HUD_UPPER), radius=5 ,width=0) # player's grid position
      draw.rect(g_screen, color='purple', rect=(index_c*G_SIZE, index_r*G_SIZE + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE), width=1 ) # 
+
+
+ghosts=[Ghost(i) for i in range(4)] # instantiated 4 ghosts
 
 start_ticks=time.get_ticks()# game initial time to register
 g_mainloop=True
