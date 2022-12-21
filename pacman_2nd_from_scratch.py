@@ -101,18 +101,6 @@ player_images = [load_image('player',i) for i in (1,2,3,2)]# 4 images
 ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
 spooked_img   = load_image('ghost','powerup') 
 dead_img      = load_image('ghost','dead') 
-                    
-def update_available_direction():
-     global player_dir,player_x, player_y
-
-     if player_x%G_SIZE or player_y%G_SIZE: # if not on the grid, no change
-          return PACMAN_CAN_GO
-
-     if GRID_COUNT_X <= (player_x // G_SIZE) +2 : # warping zone  R,D,L,U 
-          return [1,0,1,0] 
-
-     ir,ic=int(player_y//G_SIZE),int(player_x//G_SIZE)
-     return [level[r][c]in ' ·■' for r,c in ((ir,ic+1),(ir+1,ic),(ir,ic-1),(ir-1,ic)) ]# RLUD
 
 def pacman_eats_dot():
      global player_x,player_y,score, powerup_phase
@@ -186,7 +174,6 @@ def keyboard_control():
                if e.key == K_ESCAPE:mainloop = False #Esc key
                else:player_wish_dir = DIR_DICT.get(e.key, player_dir)# change player direction
 
-
 def debugdraw():
      global powerup_phase, player_x, player_y
      
@@ -217,12 +204,17 @@ while mainloop:# main loop continues until quit button
      clock.tick(FPS)
      millisec=time.get_ticks()-start_ticks # how much milliseconds passed since start
 
-     PACMAN_CAN_GO=update_available_direction() # need to check collision before control (but only on grid)
      
      keyboard_control() # user key input handling
 
      # process on the grid
-     if (player_x%G_SIZE==player_y%G_SIZE==0) : # direction change only on the grid
+     if (player_x%G_SIZE==player_y%G_SIZE==0) :
+          if GRID_COUNT_X <= (player_x // G_SIZE) +2 : # warping zone  R,D,L,U 
+               PACMAN_CAN_GO= [1,0,1,0] 
+          else:
+               ir,ic=int(player_y//G_SIZE),int(player_x//G_SIZE)
+               PACMAN_CAN_GO= [level[r][c]in ' ·■' for r,c in ((ir,ic+1),(ir+1,ic),(ir,ic-1),(ir-1,ic)) ]# RLUD
+
           if  PACMAN_CAN_GO[player_wish_dir]:player_dir = player_wish_dir # change direction if player wish is available 
 
      pacman_eats_dot()
