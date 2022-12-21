@@ -4,7 +4,7 @@ import copy
 from math import pi, cos, sin
 
 init()
-FPS=120
+FPS=60
 HG =12 # half grid ( minimum : 4 ,  maximum  maybe 16)
 G_SIZE=HG*2 # grid size is double of half grid
 GRID_COUNT_X=30
@@ -33,12 +33,13 @@ def keyboard_control():
                else:g_player_wish_dir = DIR_DICT.get(e.key, g_player_dir)# change player direction
 
 def debugdraw():
+    time=str(100+int(g_clock.get_fps())  )
     for i,f in enumerate(ALL_FONTS):
-        g_myfont=font.SysFont(f,G_SIZE//4*3)
-
-        _mystr2=f'{i}/{len(ALL_FONTS)} {f.upper()}'
+        g_myfont=font.SysFont(f,G_SIZE//2)
+        
+        _mystr2=f'{i}/{len(ALL_FONTS)} {time[:15]} {f.upper()} '
         _mytext2=g_myfont.render(_mystr2, 1, (255,255,0))             
-        _myrect2=Rect(G_SIZE*(i//30)*10,    G_SIZE*(i%30),   G_SIZE*10  ,G_SIZE*10)
+        _myrect2=Rect(G_SIZE*(i//30)*15,    G_SIZE*(i%30),   G_SIZE*10  ,G_SIZE*10)
         g_screen.blit(_mytext2,_myrect2)
 
 start_ticks=time.get_ticks()# game initial time to register
@@ -51,7 +52,7 @@ while g_mainloop:# main loop continues until quit button
      keyboard_control() # user key input handling
 
      ###################### draw screen
-     g_screen.fill('black')
+     #g_screen.fill('black')
 
      if 1:debugdraw()# DEBUG DRAW
      
