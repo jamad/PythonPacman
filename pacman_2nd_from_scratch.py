@@ -115,11 +115,47 @@ class Ghost:
           self.dead=False
           self.inbox=True
 
+          self.wish_direction=3 # up first
+          self.direction=-1
+          self.turns=[0]*4
+
      def update(self):
           global g_powerup_phase
-          self.turns=[0]*4
           self.inbox=True
           self.spooked=( 0< g_powerup_phase)
+
+          if self.x%G_SIZE==self.y%G_SIZE==0:
+               index_r,index_c=int(self.y//G_SIZE),int(self.x//G_SIZE)
+               if GRID_COUNT_X -2 <= index_c  :self.turns= [1,0,1,0]  # warping zone 
+               else:
+                    for i,(r,c) in enumerate([(0,1),(1,0),(0,-1),(-1,0)]):
+                         result=g_level[index_r+r][index_c+c]in' ·■═'
+                         if result: my_color='green'
+                         else:my_color='red'
+
+                         # debug draw!
+                         draw.rect(g_screen, color=my_color, rect=((index_c+c)*G_SIZE, (index_r+r)*G_SIZE + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE), width=1 ) # 
+
+                         self.turns[i]=  result 
+
+               if self.turns[self.wish_direction]:
+                    self.direction = self.wish_direction # change direction if player wish is available 
+          
+          #print(self.id, self.turns)
+          # move ghost
+          #if self.turns[self.direction]:self.direction=self.wish_direction
+          if self.turns[self.direction]:          # move if pacman can move otherwise, stay
+               dx={0:1,2:-1}.get(self.direction,0)
+               dy={1:1,3:-1}.get(self.direction,0)
+               self.x+=dx*self.speed
+               self.y+=dy*self.speed
+               
+          
+     
+     # if warp tunnel
+     if g_player_x<-G_SIZE:          g_player_x=G_SIZE*(GRID_COUNT_X)
+     elif G_SIZE*(GRID_COUNT_X) < g_player_x: g_player_x=-G_SIZE
+
 
      def draw(self):
           image=self.img
@@ -128,7 +164,7 @@ class Ghost:
           if self.dead:       
                image=dead_img
 
-          g_screen.blit(image, (self.x, self.y, G_SIZE, G_SIZE))
+          g_screen.blit(image, (self.x, self.y + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
 
 
 
@@ -262,9 +298,10 @@ while g_mainloop:# main loop continues until quit button
      pacman_eats_dot()
      powerup_handling()
 
-     for ghost in ghosts:ghost.update()
      ###################### draw screen
      g_screen.fill('black')
+
+     for ghost in ghosts:ghost.update() # for debug
 
      draw_board(g_millisec)
      draw_player()
