@@ -60,6 +60,7 @@ DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction
 ### global variables
 g_player_speed=HG/4 # speed can be float number (for example, 0.25)
 
+g_lives=3
 g_score=0
 g_player_x=G_SIZE*GRID_COUNT_X//2
 g_player_y=G_SIZE*24
@@ -78,21 +79,17 @@ g_myfont=font.Font('freesansbold.ttf',G_SIZE//4*3)
 from PIL import Image, ImageDraw
 
 # - generate PIL image with transparent background -
-g_size = G_SIZE
-g_img_corner = Image.new("RGBA", (G_SIZE*2, G_SIZE*2))
-g_my_draw = ImageDraw.Draw(g_img_corner)
-g_my_rect = (0, 0, G_SIZE, G_SIZE)
+img_corner = Image.new("RGBA", (G_SIZE*2, G_SIZE*2))
+g_my_draw = ImageDraw.Draw(img_corner)
 
 ANGLE_SEGMENTS=32 # arc resolution
 a=pi/2/ANGLE_SEGMENTS
-
-P=[(HG*cos(a*i)  ,HG*sin(a*i))for i in range(ANGLE_SEGMENTS+1)]
-for p1,p2 in zip(P,P[1:]):
+POINTS=[(HG*cos(a*i)  ,HG*sin(a*i))for i in range(ANGLE_SEGMENTS+1)]
+for p1,p2 in zip(POINTS,POINTS[1:]):
      g_my_draw.line((p1, p2), fill=COLOR_WALL, width=WALL_THICKNESS)
 
 # - convert into PyGame image -
-data = g_img_corner.tobytes()
-g_img_corner = image.fromstring(data, g_img_corner.size, g_img_corner.mode)
+corner_img = image.fromstring(img_corner.tobytes(), img_corner.size, img_corner.mode)
 #################################################### wall parts image end
 
 # image assets
@@ -125,33 +122,31 @@ def draw_board(millisec):
      G=G_SIZE
      for i in range(GRID_COUNT_Y):
           for j in range(GRID_COUNT_X):
+               x,y=G*j,G*i
                c=level[i][j]
-               if c=='│':draw.line(   g_screen, COLOR_WALL, (G*j+HG,G*i),(G*j+HG, G*i+G),WALL_THICKNESS)
-               if c=='─':draw.line(   g_screen, COLOR_WALL, (G*j,G*i+HG),(G*j+G, G*i+HG),WALL_THICKNESS)
-               if c=='┘':g_screen.blit(g_img_corner, (G*j,G*i))# <- display image
-               if c=='┐':g_screen.blit(transform.rotate(g_img_corner, 90),     (G*j,G*i-G))
-               if c=='┌':g_screen.blit(transform.rotate(g_img_corner, 180),    (G*j-G,G*i-G))
-               if c=='└':g_screen.blit(transform.rotate(g_img_corner, -90),    (G*j-G,G*i))
-               if c=='═':draw.line(   g_screen, 'white', (G*j,G*i+HG), (G*j+G, G*i+HG), WALL_THICKNESS)
-               if c=='·':draw.circle( g_screen, 'white', (G*j+HG, G*i+HG), G//8)
+               if c=='│':draw.line(   g_screen, COLOR_WALL, (x+HG,y),(x+HG, y+G),WALL_THICKNESS)
+               if c=='─':draw.line(   g_screen, COLOR_WALL, (x,y+HG),(x+G, y+HG),WALL_THICKNESS)
+               if c=='┘':g_screen.blit(corner_img, (x,y))# <- display image
+               if c=='┐':g_screen.blit(transform.rotate(corner_img, 90),     (x,y-G))
+               if c=='┌':g_screen.blit(transform.rotate(corner_img, 180),    (x-G,y-G))
+               if c=='└':g_screen.blit(transform.rotate(corner_img, -90),    (x-G,y))
+               if c=='═':draw.line(   g_screen, 'white', (x,y+HG), (x+G, y+HG), WALL_THICKNESS)
+               if c=='·':draw.circle( g_screen, 'white', (x+HG, y+HG), G//8)
                if c=='■':
                     radius=(G*1.5//4,G*1.5*5//16)[millisec%(FPS*4)<FPS*2]
-                    draw.circle( g_screen, 'white', (G*(j+.5), G*(i+.5)), radius )
+                    draw.circle( g_screen, 'white', (x+HG, y+HG), radius )
 
-def draw_player(milsec):
+def draw_player():
      global g_pacman_moving, g_player_dir, g_player_x, g_player_y
-     # draw animated pacman at the new position
      img_player=player_images[ (g_pacman_moving//8) %4] #player animation
-     g_screen.blit(transform.rotate(img_player, -90*g_player_dir), (g_player_x, g_player_y)) # this logic needs RDLU instead of RLUD
+     g_screen.blit(transform.rotate(img_player, -90*g_player_dir), (g_player_x, g_player_y))
 
 def draw_HUD():
-     #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
      _myrect=Rect(G_SIZE,G_SIZE*(GRID_COUNT_Y),G_SIZE*10  ,G_SIZE*10)
      _mytext=g_myfont.render(f'SCORE : {g_score}', 1, (255,255,0))             
      g_screen.blit(_mytext,_myrect)
 
-     lives=3
-     for i in range(lives-1):
+     for i in range(g_lives-1):
           g_screen.blit(transform.scale(player_images[0],(HG*2,HG*2)),(G_SIZE*(6+i),G_SIZE*(GRID_COUNT_Y)))
 
 def keyboard_control():
@@ -233,7 +228,7 @@ while mainloop:# main loop continues until quit button
      g_screen.fill('black')
 
      draw_board(millisec)
-     draw_player(millisec)
+     draw_player()
      draw_HUD()
 
      if 1:debugdraw()# DEBUG DRAW
