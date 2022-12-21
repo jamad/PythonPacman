@@ -46,7 +46,7 @@ level = copy.deepcopy(boards)
 init()
 FPS=120
 
-HG =12 # half grid
+HG =8 # half grid
 
 GRID_SIZE=HG*2 #pixel for unit block
 
@@ -61,12 +61,14 @@ WALL_THICKNESS= 1 ######## better to have the odd number!  3 is better than 2, 7
 DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction
 
 ### global variables
+player_speed=GRID_SIZE/16 # can be 1 
+
 score=0
 player_x=GRID_SIZE*GRID_COUNT_X//2
 player_y=GRID_SIZE*24
 player_dir=-4
 player_wish_dir=-1
-player_speed=GRID_SIZE//12
+
 pacman_moving=0 # for pacman animation
 powerup_phase=0
 
@@ -121,27 +123,20 @@ def draw_board(millisec):
                     radius=(G*1.5//4,G*1.5*5//16)[millisec%(FPS*4)<FPS*2]
                     draw.circle( screen, 'white', (G*(j+.5), G*(i+.5)), radius )
                     
-
-PACMAN_CAN_GO=[0]*4# direction
-
 def update_available_direction():
      global player_dir,player_x, player_y
-     player_center_x=int(player_x + HG)# prevent float value for level index
-     player_center_y=int(player_y + HG)# prevent float value for level index
 
      if GRID_COUNT_X <= (player_x // GRID_SIZE) +2 :
           return [1,0,1,0] # warping zone  R,D,L,U 
 
      turns=[0]*4 # RLUD
 
-     visual_offset=HG + 1 # why is this best????  ---- actual collision to the visual of the wall # originally num3 
-     
-     index_c=player_center_x//GRID_SIZE
-     index_r=player_center_y//GRID_SIZE
-     cell_R=level[index_r][(player_center_x + visual_offset)//GRID_SIZE]
-     cell_L=level[index_r][(player_center_x - visual_offset)//GRID_SIZE]
-     cell_U=level[(player_center_y - visual_offset)//GRID_SIZE][index_c]
-     cell_D=level[(player_center_y + visual_offset)//GRID_SIZE][index_c]
+     index_c=int(player_x//GRID_SIZE)
+     index_r=int(player_y//GRID_SIZE)
+     cell_R=level[index_r][index_c+1]
+     cell_D=level[index_r+1][index_c]
+     cell_L=level[index_r][index_c-1]
+     cell_U=level[index_r-1][index_c]
      
      # check passable direction
      if cell_R in ' ·■':turns[0]=1 # moving left, right wall is passable type, right is passable
@@ -153,12 +148,15 @@ def update_available_direction():
 
 def draw_player(milsec):
      global pacman_moving, player_dir, player_x, player_y
-     if -1<player_dir and PACMAN_CAN_GO[player_dir]:# move if pacman can move otherwise, stay
-          if player_dir==0 :player_x+=player_speed
-          if player_dir==1 :player_y+=player_speed
-          if player_dir==2 :player_x-=player_speed
-          if player_dir==3 :player_y-=player_speed
+
+     if not PACMAN_CAN_GO[player_dir]:          # move if pacman can move otherwise, stay
+          print('pacman stopped!')
+     else:
           pacman_moving+=1 # for animation 
+          if player_dir==0 :               player_x+=player_speed
+          if player_dir==1 :               player_y+=player_speed
+          if player_dir==2 :               player_x-=player_speed
+          if player_dir==3 :               player_y-=player_speed
      
      if player_x<0:
           player_x=GRID_SIZE*GRID_COUNT_X-GRID_SIZE
@@ -186,7 +184,6 @@ def powerup_handling():
      if powerup_phase:powerup_phase+=1
      powerup_phase%=600# when 600, stop powerup phase
 
-          
 
 def draw_HUD():
      #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
@@ -199,7 +196,7 @@ def draw_HUD():
           screen.blit(transform.scale(player_images[0],(HG*2,HG*2)),(GRID_SIZE*(6+i),GRID_SIZE*(GRID_COUNT_Y)))
 
 def keyboard_control():
-     global player_dir,player_wish_dir,mainloop # need mainloop to exit by ESC etc
+     global player_dir,player_wish_dir,mainloop ,player_x,player_y# need mainloop to exit by ESC etc
      for e in event.get():
           if e.type==QUIT:
                mainloop=False # x button to close exe
@@ -207,24 +204,35 @@ def keyboard_control():
                if e.key == K_ESCAPE:mainloop = False #Esc key
                else:player_wish_dir = DIR_DICT.get(e.key, player_dir)# change player direction
      # change direction if player wish is available 
-     if player_x%GRID_SIZE<2 and player_y%GRID_SIZE<2:# execute if on the grid
-          for i in range(4):
-               if player_wish_dir==i and PACMAN_CAN_GO[i]: # when holding down key 
-                    player_dir = i 
+
+     if player_dir==player_wish_dir:return # already player wish
+
+     if not (player_x%GRID_SIZE==0 and player_y%GRID_SIZE==0) : return # direction should not change if not on the grid
+     
+     for i in range(4):
+          if player_wish_dir==i and PACMAN_CAN_GO[i]: # when holding down key 
+               player_dir = i 
 
 def debugdraw():
      global powerup_phase
-     #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
-     _myrect=Rect(GRID_SIZE*10,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
      
      player_center_x=int(player_x + HG)# prevent float value for level index
      player_center_y=int(player_y + HG)# prevent float value for level index
      
      index_c=player_center_x//GRID_SIZE
      index_r=player_center_y//GRID_SIZE
-     _mystr=f'{PACMAN_CAN_GO},{index_r},{index_c},{player_x},{player_center_x}, powerup phase : {powerup_phase}'
+     
+     _mystr=f'{PACMAN_CAN_GO},{index_r},{index_c},player_x:{player_x},player_center_x:{player_center_x},'
      _mytext=myfont.render(_mystr, 1, (255,255,0))             
+     _myrect=Rect(GRID_SIZE*10,GRID_SIZE*(GRID_COUNT_Y),GRID_SIZE*10  ,GRID_SIZE*10)
      screen.blit(_mytext,_myrect)
+
+     _mystr2=f'{player_x%GRID_SIZE},{player_y%GRID_SIZE}, powerup phase : {powerup_phase}'
+     _mytext2=myfont.render(_mystr2, 1, (255,255,0))             
+     _myrect2=Rect(GRID_SIZE*10,GRID_SIZE*(GRID_COUNT_Y+1),GRID_SIZE*10  ,GRID_SIZE*10)
+     screen.blit(_mytext2,_myrect2)
+
+
 
      draw.circle(screen, color='purple', center=(index_c*GRID_SIZE,index_r*GRID_SIZE), radius=5 ,width=0) # player's grid position
      draw.rect(screen, color='purple', rect=(index_c*GRID_SIZE, index_r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # 
@@ -240,9 +248,11 @@ while mainloop:# main loop continues until quit button
      clock.tick(FPS)
      millisec=time.get_ticks()-start_ticks # how much milliseconds passed since start
 
+     if player_x%GRID_SIZE==player_y%GRID_SIZE:
+          PACMAN_CAN_GO=update_available_direction() # need to check collision before control
+     
      keyboard_control() # user key input handling
 
-     PACMAN_CAN_GO=update_available_direction()
      pacman_eats_dot()
      powerup_handling()
 
