@@ -45,8 +45,9 @@ level = copy.deepcopy(boards)
 
 init()
 FPS=120
+NIMINUM_UNIT=4 # quarter of grid ( minimum : 2 ,  maximum  maybe 8)
 
-HG =8 # half grid ( minimum : 4 ,  maximum  maybe 16)
+HG =NIMINUM_UNIT*2 # half grid 
 
 GRID_SIZE=HG*2 #pixel for unit block
 
@@ -126,6 +127,9 @@ def draw_board(millisec):
 def update_available_direction():
      global player_dir,player_x, player_y
 
+     if player_x%GRID_SIZE or player_y%GRID_SIZE: # 
+          return PACMAN_CAN_GO
+
      if GRID_COUNT_X <= (player_x // GRID_SIZE) +2 :
           return [1,0,1,0] # warping zone  R,D,L,U 
 
@@ -149,14 +153,15 @@ def update_available_direction():
 def draw_player(milsec):
      global pacman_moving, player_dir, player_x, player_y
 
-     if not PACMAN_CAN_GO[player_dir]:          # move if pacman can move otherwise, stay
-          print('pacman stopped!')
-     else:
+     if PACMAN_CAN_GO[player_dir]:          # move if pacman can move otherwise, stay
           pacman_moving+=1 # for animation 
           if player_dir==0 :               player_x+=player_speed
           if player_dir==1 :               player_y+=player_speed
           if player_dir==2 :               player_x-=player_speed
           if player_dir==3 :               player_y-=player_speed
+     else:
+          #print('pacman stopped!')
+          pass
      
      if player_x<0:
           player_x=GRID_SIZE*GRID_COUNT_X-GRID_SIZE
@@ -244,8 +249,7 @@ while mainloop:# main loop continues until quit button
      clock.tick(FPS)
      millisec=time.get_ticks()-start_ticks # how much milliseconds passed since start
 
-     if player_x%GRID_SIZE==player_y%GRID_SIZE:# need to check collision before control (but only on grid)
-          PACMAN_CAN_GO=update_available_direction() 
+     PACMAN_CAN_GO=update_available_direction() # need to check collision before control (but only on grid)
      
      keyboard_control() # user key input handling
 
