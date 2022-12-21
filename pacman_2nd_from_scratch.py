@@ -3,7 +3,7 @@ from pygame import *
 import copy
 from math import pi, cos, sin
 
-debugmode=1
+debugmode=0
 
 BOARD_DATA='''\
 ┌────────────────────────────┐
@@ -126,6 +126,20 @@ class Ghost:
           self.inbox=True
           self.spooked=( 0< g_powerup_phase)
 
+          # logic for ghost wish
+          self.target_x=g_player_x
+          self.target_y=g_player_y
+
+          diffx=(self.target_x - self.x)
+          diffy=(self.target_y - self.y)
+          if abs(diffx)<abs(diffy):
+               if 0<diffy :self.wish_direction=1 # down
+               else:self.wish_direction=3 # up
+          else:
+               if 0<diffx : self.wish_direction=0
+               else:self.wish_direction=2
+
+          # update if on the grid
           if self.x%G_SIZE==self.y%G_SIZE==0:
                index_r,index_c=int(self.y//G_SIZE),int(self.x//G_SIZE)
                if GRID_COUNT_X -2 <= index_c  :self.turns= [1,0,1,0]  # warping zone 
@@ -144,6 +158,7 @@ class Ghost:
                if self.turns[self.wish_direction]:
                     self.direction = self.wish_direction # change direction if player wish is available 
           
+
           #print(self.id, self.turns)
           # move ghost
           #if self.turns[self.direction]:self.direction=self.wish_direction
