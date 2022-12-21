@@ -66,7 +66,6 @@ g_player_x=G_SIZE*GRID_COUNT_X//2
 g_player_y=G_SIZE*24
 g_player_dir=-4
 g_player_wish_dir=-1
-
 g_pacman_moving=0 # for pacman animation
 g_powerup_phase=0
 
