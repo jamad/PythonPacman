@@ -140,17 +140,6 @@ def draw_board(millisec):
 
 def draw_player(milsec):
      global pacman_moving, player_dir, player_x, player_y
-
-     if PACMAN_CAN_GO[player_dir]:          # move if pacman can move otherwise, stay
-          dx={0:1,2:-1}.get(player_dir,0)
-          dy={1:1,3:-1}.get(player_dir,0)
-          player_x+=dx*player_speed
-          player_y+=dy*player_speed
-          pacman_moving+=1 # for animation 
-     
-     if player_x<-G_SIZE:          player_x=G_SIZE*(GRID_COUNT_X)
-     elif G_SIZE*(GRID_COUNT_X) < player_x: player_x=-G_SIZE
-
      # draw animated pacman at the new position
      img_player=player_images[ (pacman_moving//8) %4] #player animation
      screen.blit(transform.rotate(img_player, -90*player_dir), (player_x, player_y)) # this logic needs RDLU instead of RLUD
@@ -173,6 +162,33 @@ def keyboard_control():
           elif e.type==KEYDOWN:
                if e.key == K_ESCAPE:mainloop = False #Esc key
                else:player_wish_dir = DIR_DICT.get(e.key, player_dir)# change player direction
+
+def player_direction_change():
+     global player_x,player_y, player_wish_dir, player_dir
+     index_r,index_c=int(player_y//G_SIZE),int(player_x//G_SIZE)
+
+     if GRID_COUNT_X -2 <= index_c  : # warping zone  R,D,L,U 
+          PACMAN_CAN_GO= [1,0,1,0] 
+     else:
+          PACMAN_CAN_GO= [level[index_r+r][index_c+c]in ' ·■' for r,c in ((0,1),(1,0),(0,-1),(-1,0)) ]
+
+     if PACMAN_CAN_GO[player_wish_dir]:
+          player_dir = player_wish_dir # change direction if player wish is available 
+
+     return PACMAN_CAN_GO
+
+def player_move():
+     global player_x, player_y, pacman_moving
+     if PACMAN_CAN_GO[player_dir]:          # move if pacman can move otherwise, stay
+          dx={0:1,2:-1}.get(player_dir,0)
+          dy={1:1,3:-1}.get(player_dir,0)
+          player_x+=dx*player_speed
+          player_y+=dy*player_speed
+          pacman_moving+=1 # for animation 
+     
+     # if warp tunnel
+     if player_x<-G_SIZE:          player_x=G_SIZE*(GRID_COUNT_X)
+     elif G_SIZE*(GRID_COUNT_X) < player_x: player_x=-G_SIZE
 
 def debugdraw():
      global powerup_phase, player_x, player_y
@@ -206,16 +222,10 @@ while mainloop:# main loop continues until quit button
      
      keyboard_control() # user key input handling
 
-     # process on the grid
-     if (player_x%G_SIZE==player_y%G_SIZE==0) :
-          if GRID_COUNT_X -2 <= (player_x // G_SIZE)  : # warping zone  R,D,L,U 
-               PACMAN_CAN_GO= [1,0,1,0] 
-          else:
-               ir,ic=int(player_y//G_SIZE),int(player_x//G_SIZE)
-               PACMAN_CAN_GO= [level[ir+r][ic+c]in ' ·■' for r,c in ((0,1),(1,0),(0,-1),(-1,0)) ]# RLUD
+     if (player_x%G_SIZE==player_y%G_SIZE==0) :# process on the grid
+          PACMAN_CAN_GO=player_direction_change()# direction change + available direciton data update
 
-          if  PACMAN_CAN_GO[player_wish_dir]:player_dir = player_wish_dir # change direction if player wish is available 
-
+     player_move()
      pacman_eats_dot()
      powerup_handling()
 
