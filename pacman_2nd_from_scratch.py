@@ -58,41 +58,41 @@ WALL_THICKNESS= 1 ######## better to have the odd number!  3 is better than 2, 7
 DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction
 
 ### global variables
-player_speed=HG/4 # speed can be float number (for example, 0.25)
+g_player_speed=HG/4 # speed can be float number (for example, 0.25)
 
-score=0
-player_x=G_SIZE*GRID_COUNT_X//2
-player_y=G_SIZE*24
-player_dir=-4
-player_wish_dir=-1
+g_score=0
+g_player_x=G_SIZE*GRID_COUNT_X//2
+g_player_y=G_SIZE*24
+g_player_dir=-4
+g_player_wish_dir=-1
 
-pacman_moving=0 # for pacman animation
-powerup_phase=0
+g_pacman_moving=0 # for pacman animation
+g_powerup_phase=0
 
-screen=display.set_mode([GRID_COUNT_X*G_SIZE ,GRID_COUNT_Y*G_SIZE+HEIGHT_HUD])
-clock=time.Clock() # originally variable timer 
+g_screen=display.set_mode([GRID_COUNT_X*G_SIZE ,GRID_COUNT_Y*G_SIZE+HEIGHT_HUD])
+g_clock=time.Clock() # originally variable timer 
 
-myfont=font.Font('freesansbold.ttf',G_SIZE//4*3)
+g_myfont=font.Font('freesansbold.ttf',G_SIZE//4*3)
 
 #################################################### wall parts image creation
 from PIL import Image, ImageDraw
 
 # - generate PIL image with transparent background -
-size = G_SIZE
-img_corner = Image.new("RGBA", (G_SIZE*2, G_SIZE*2))
-my_draw = ImageDraw.Draw(img_corner)
-my_rect = (0, 0, G_SIZE, G_SIZE)
+g_size = G_SIZE
+g_img_corner = Image.new("RGBA", (G_SIZE*2, G_SIZE*2))
+g_my_draw = ImageDraw.Draw(g_img_corner)
+g_my_rect = (0, 0, G_SIZE, G_SIZE)
 
-segments=48
-a=pi/2/ segments
+ANGLE_SEGMENTS=32 # arc resolution
+a=pi/2/ANGLE_SEGMENTS
 
-P=[(HG*cos(a*i)  ,HG*sin(a*i))for i in range(segments+1)]
+P=[(HG*cos(a*i)  ,HG*sin(a*i))for i in range(ANGLE_SEGMENTS+1)]
 for p1,p2 in zip(P,P[1:]):
-     my_draw.line((p1, p2), fill=COLOR_WALL, width=WALL_THICKNESS)
+     g_my_draw.line((p1, p2), fill=COLOR_WALL, width=WALL_THICKNESS)
 
 # - convert into PyGame image -
-data = img_corner.tobytes()
-img_corner = image.fromstring(data, img_corner.size, img_corner.mode)
+data = g_img_corner.tobytes()
+g_img_corner = image.fromstring(data, g_img_corner.size, g_img_corner.mode)
 #################################################### wall parts image end
 
 # image assets
@@ -103,126 +103,126 @@ spooked_img   = load_image('ghost','powerup')
 dead_img      = load_image('ghost','dead') 
 
 def pacman_eats_dot():
-     global player_x,player_y,score, powerup_phase
+     global g_player_x,g_player_y,g_score, g_powerup_phase
      try:
-          Cell_Current=level[int(player_y)//G_SIZE][int(player_x)//G_SIZE]
+          Cell_Current=level[int(g_player_y)//G_SIZE][int(g_player_x)//G_SIZE]
           if Cell_Current=='·':
-               level[int(player_y)//G_SIZE][int(player_x)//G_SIZE]=' '
-               score+=10
+               level[int(g_player_y)//G_SIZE][int(g_player_x)//G_SIZE]=' '
+               g_score+=10
           if Cell_Current=='■':
-               level[int(player_y)//G_SIZE][int(player_x)//G_SIZE]=' '
-               score+=50
-               powerup_phase=1
+               level[int(g_player_y)//G_SIZE][int(g_player_x)//G_SIZE]=' '
+               g_score+=50
+               g_powerup_phase=1
      except:
           print('warping now, so no cells exists')
 
 def powerup_handling():
-     global powerup_phase
-     if powerup_phase:powerup_phase+=1
-     powerup_phase%=600# when 600, stop powerup phase
+     global g_powerup_phase
+     if g_powerup_phase:g_powerup_phase+=1
+     g_powerup_phase%=600# when 600, stop powerup phase
 
 def draw_board(millisec):
      G=G_SIZE
      for i in range(GRID_COUNT_Y):
           for j in range(GRID_COUNT_X):
                c=level[i][j]
-               if c=='│':draw.line(   screen, COLOR_WALL, (G*j+HG,G*i),(G*j+HG, G*i+G),WALL_THICKNESS)
-               if c=='─':draw.line(   screen, COLOR_WALL, (G*j,G*i+HG),(G*j+G, G*i+HG),WALL_THICKNESS)
-               if c=='┘':screen.blit(img_corner, (G*j,G*i))# <- display image
-               if c=='┐':screen.blit(transform.rotate(img_corner, 90),     (G*j,G*i-G))
-               if c=='┌':screen.blit(transform.rotate(img_corner, 180),    (G*j-G,G*i-G))
-               if c=='└':screen.blit(transform.rotate(img_corner, -90),    (G*j-G,G*i))
-               if c=='═':draw.line(   screen, 'white', (G*j,G*i+HG), (G*j+G, G*i+HG), WALL_THICKNESS)
-               if c=='·':draw.circle( screen, 'white', (G*j+HG, G*i+HG), G//8)
+               if c=='│':draw.line(   g_screen, COLOR_WALL, (G*j+HG,G*i),(G*j+HG, G*i+G),WALL_THICKNESS)
+               if c=='─':draw.line(   g_screen, COLOR_WALL, (G*j,G*i+HG),(G*j+G, G*i+HG),WALL_THICKNESS)
+               if c=='┘':g_screen.blit(g_img_corner, (G*j,G*i))# <- display image
+               if c=='┐':g_screen.blit(transform.rotate(g_img_corner, 90),     (G*j,G*i-G))
+               if c=='┌':g_screen.blit(transform.rotate(g_img_corner, 180),    (G*j-G,G*i-G))
+               if c=='└':g_screen.blit(transform.rotate(g_img_corner, -90),    (G*j-G,G*i))
+               if c=='═':draw.line(   g_screen, 'white', (G*j,G*i+HG), (G*j+G, G*i+HG), WALL_THICKNESS)
+               if c=='·':draw.circle( g_screen, 'white', (G*j+HG, G*i+HG), G//8)
                if c=='■':
                     radius=(G*1.5//4,G*1.5*5//16)[millisec%(FPS*4)<FPS*2]
-                    draw.circle( screen, 'white', (G*(j+.5), G*(i+.5)), radius )
+                    draw.circle( g_screen, 'white', (G*(j+.5), G*(i+.5)), radius )
 
 def draw_player(milsec):
-     global pacman_moving, player_dir, player_x, player_y
+     global g_pacman_moving, g_player_dir, g_player_x, g_player_y
      # draw animated pacman at the new position
-     img_player=player_images[ (pacman_moving//8) %4] #player animation
-     screen.blit(transform.rotate(img_player, -90*player_dir), (player_x, player_y)) # this logic needs RDLU instead of RLUD
+     img_player=player_images[ (g_pacman_moving//8) %4] #player animation
+     g_screen.blit(transform.rotate(img_player, -90*g_player_dir), (g_player_x, g_player_y)) # this logic needs RDLU instead of RLUD
 
 def draw_HUD():
      #_myrect=Rect(player_center_x,player_center_y,GRID_SIZE*10  ,GRID_SIZE*10)
      _myrect=Rect(G_SIZE,G_SIZE*(GRID_COUNT_Y),G_SIZE*10  ,G_SIZE*10)
-     _mytext=myfont.render(f'SCORE : {score}', 1, (255,255,0))             
-     screen.blit(_mytext,_myrect)
+     _mytext=g_myfont.render(f'SCORE : {g_score}', 1, (255,255,0))             
+     g_screen.blit(_mytext,_myrect)
 
      lives=3
      for i in range(lives-1):
-          screen.blit(transform.scale(player_images[0],(HG*2,HG*2)),(G_SIZE*(6+i),G_SIZE*(GRID_COUNT_Y)))
+          g_screen.blit(transform.scale(player_images[0],(HG*2,HG*2)),(G_SIZE*(6+i),G_SIZE*(GRID_COUNT_Y)))
 
 def keyboard_control():
-     global player_dir,player_wish_dir,mainloop# need mainloop to exit by ESC etc
+     global g_player_dir,g_player_wish_dir,mainloop# need mainloop to exit by ESC etc
      for e in event.get():
           if e.type==QUIT:
                mainloop=False # x button to close exe
           elif e.type==KEYDOWN:
                if e.key == K_ESCAPE:mainloop = False #Esc key
-               else:player_wish_dir = DIR_DICT.get(e.key, player_dir)# change player direction
+               else:g_player_wish_dir = DIR_DICT.get(e.key, g_player_dir)# change player direction
 
 def player_direction_change():
-     global player_x,player_y, player_wish_dir, player_dir
-     index_r,index_c=int(player_y//G_SIZE),int(player_x//G_SIZE)
+     global g_player_x,g_player_y, g_player_wish_dir, g_player_dir
+     index_r,index_c=int(g_player_y//G_SIZE),int(g_player_x//G_SIZE)
 
      if GRID_COUNT_X -2 <= index_c  : # warping zone  R,D,L,U 
           PACMAN_CAN_GO= [1,0,1,0] 
      else:
           PACMAN_CAN_GO= [level[index_r+r][index_c+c]in' ·■' for r,c in ((0,1),(1,0),(0,-1),(-1,0)) ]
 
-     if PACMAN_CAN_GO[player_wish_dir]:
-          player_dir = player_wish_dir # change direction if player wish is available 
+     if PACMAN_CAN_GO[g_player_wish_dir]:
+          g_player_dir = g_player_wish_dir # change direction if player wish is available 
 
      return PACMAN_CAN_GO
 
 def player_move():
-     global player_x, player_y, pacman_moving
-     if PACMAN_CAN_GO[player_dir]:          # move if pacman can move otherwise, stay
-          dx={0:1,2:-1}.get(player_dir,0)
-          dy={1:1,3:-1}.get(player_dir,0)
-          player_x+=dx*player_speed
-          player_y+=dy*player_speed
-          pacman_moving+=1 # for animation 
+     global g_player_x, g_player_y, g_pacman_moving
+     if PACMAN_CAN_GO[g_player_dir]:          # move if pacman can move otherwise, stay
+          dx={0:1,2:-1}.get(g_player_dir,0)
+          dy={1:1,3:-1}.get(g_player_dir,0)
+          g_player_x+=dx*g_player_speed
+          g_player_y+=dy*g_player_speed
+          g_pacman_moving+=1 # for animation 
      
      # if warp tunnel
-     if player_x<-G_SIZE:          player_x=G_SIZE*(GRID_COUNT_X)
-     elif G_SIZE*(GRID_COUNT_X) < player_x: player_x=-G_SIZE
+     if g_player_x<-G_SIZE:          g_player_x=G_SIZE*(GRID_COUNT_X)
+     elif G_SIZE*(GRID_COUNT_X) < g_player_x: g_player_x=-G_SIZE
 
 def debugdraw():
-     global powerup_phase, player_x, player_y
+     global g_powerup_phase, g_player_x, g_player_y
      
-     px=int(player_x )# prevent float value for level index
-     py=int(player_y )# prevent float value for level index
+     px=int(g_player_x )# prevent float value for level index
+     py=int(g_player_y )# prevent float value for level index
      
      index_c=px//G_SIZE
      index_r=py//G_SIZE
      
      _mystr=f'{PACMAN_CAN_GO},{index_r},{index_c},player_x:{px},'
-     _mytext=myfont.render(_mystr, 1, (255,255,0))             
+     _mytext=g_myfont.render(_mystr, 1, (255,255,0))             
      _myrect=Rect(G_SIZE*10,G_SIZE*(GRID_COUNT_Y),G_SIZE*10  ,G_SIZE*10)
-     screen.blit(_mytext,_myrect)
+     g_screen.blit(_mytext,_myrect)
 
-     _mystr2=f'x%G_SIZE:{px%G_SIZE},y%G_SIZE:{py%G_SIZE}, powerup phase : {powerup_phase}'
-     _mytext2=myfont.render(_mystr2, 1, (255,255,0))             
+     _mystr2=f'x%G_SIZE:{px%G_SIZE},y%G_SIZE:{py%G_SIZE}, powerup phase : {g_powerup_phase}'
+     _mytext2=g_myfont.render(_mystr2, 1, (255,255,0))             
      _myrect2=Rect(G_SIZE*10,G_SIZE*(GRID_COUNT_Y+1),G_SIZE*10  ,G_SIZE*10)
-     screen.blit(_mytext2,_myrect2)
+     g_screen.blit(_mytext2,_myrect2)
 
-     draw.circle(screen, color='purple', center=(index_c*G_SIZE,index_r*G_SIZE), radius=5 ,width=0) # player's grid position
-     draw.rect(screen, color='purple', rect=(index_c*G_SIZE, index_r*G_SIZE,G_SIZE,G_SIZE), width=1 ) # 
+     draw.circle(g_screen, color='purple', center=(index_c*G_SIZE,index_r*G_SIZE), radius=5 ,width=0) # player's grid position
+     draw.rect(g_screen, color='purple', rect=(index_c*G_SIZE, index_r*G_SIZE,G_SIZE,G_SIZE), width=1 ) # 
 
 start_ticks=time.get_ticks()# game initial time to register
 mainloop=True
 while mainloop:# main loop continues until quit button
 
      # game time
-     clock.tick(FPS)
+     g_clock.tick(FPS)
      millisec=time.get_ticks()-start_ticks # how much milliseconds passed since start
      
      keyboard_control() # user key input handling
 
-     if (player_x%G_SIZE==player_y%G_SIZE==0) :# process on the grid
+     if (g_player_x%G_SIZE==g_player_y%G_SIZE==0) :# process on the grid
           PACMAN_CAN_GO=player_direction_change()# direction change + available direciton data update
 
      player_move()
@@ -230,7 +230,7 @@ while mainloop:# main loop continues until quit button
      powerup_handling()
 
      ###################### draw screen
-     screen.fill('black')
+     g_screen.fill('black')
 
      draw_board(millisec)
      draw_player(millisec)
