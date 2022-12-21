@@ -46,7 +46,7 @@ level = copy.deepcopy(boards)
 init()
 FPS=120
 
-HG =8 # half grid
+HG =8 # half grid ( minimum : 4 ,  maximum  maybe 16)
 
 GRID_SIZE=HG*2 #pixel for unit block
 
@@ -192,7 +192,7 @@ def draw_HUD():
      screen.blit(_mytext,_myrect)
 
      lives=3
-     for i in range(lives):
+     for i in range(lives-1):
           screen.blit(transform.scale(player_images[0],(HG*2,HG*2)),(GRID_SIZE*(6+i),GRID_SIZE*(GRID_COUNT_Y)))
 
 def keyboard_control():
@@ -205,13 +205,11 @@ def keyboard_control():
                else:player_wish_dir = DIR_DICT.get(e.key, player_dir)# change player direction
      # change direction if player wish is available 
 
-     if player_dir==player_wish_dir:return # already player wish
-
      if not (player_x%GRID_SIZE==0 and player_y%GRID_SIZE==0) : return # direction should not change if not on the grid
-     
+
+     if player_dir==player_wish_dir:return # already player wish     
      for i in range(4):
-          if player_wish_dir==i and PACMAN_CAN_GO[i]: # when holding down key 
-               player_dir = i 
+          if player_wish_dir==i and PACMAN_CAN_GO[i]:player_dir = i # when holding down key 
 
 def debugdraw():
      global powerup_phase
@@ -232,8 +230,6 @@ def debugdraw():
      _myrect2=Rect(GRID_SIZE*10,GRID_SIZE*(GRID_COUNT_Y+1),GRID_SIZE*10  ,GRID_SIZE*10)
      screen.blit(_mytext2,_myrect2)
 
-
-
      draw.circle(screen, color='purple', center=(index_c*GRID_SIZE,index_r*GRID_SIZE), radius=5 ,width=0) # player's grid position
      draw.rect(screen, color='purple', rect=(index_c*GRID_SIZE, index_r*GRID_SIZE,GRID_SIZE,GRID_SIZE), width=1 ) # 
      draw.circle(screen, color='red', center=(player_center_x,player_center_y), radius=5 ,width=0) # player's center
@@ -248,8 +244,8 @@ while mainloop:# main loop continues until quit button
      clock.tick(FPS)
      millisec=time.get_ticks()-start_ticks # how much milliseconds passed since start
 
-     if player_x%GRID_SIZE==player_y%GRID_SIZE:
-          PACMAN_CAN_GO=update_available_direction() # need to check collision before control
+     if player_x%GRID_SIZE==player_y%GRID_SIZE:# need to check collision before control (but only on grid)
+          PACMAN_CAN_GO=update_available_direction() 
      
      keyboard_control() # user key input handling
 
