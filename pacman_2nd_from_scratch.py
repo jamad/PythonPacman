@@ -77,9 +77,8 @@ for (x,y) in Q:
                     print(e,r,c)
           DIRECTION[(x,y)]=data
 
-for k in sorted(DIRECTION):
-     print(k,DIRECTION[k])
-print('data done')          
+#for k in sorted(DIRECTION):     print(k,DIRECTION[k])
+print('DIRECTION data creation done')          
 
 HEIGHT_HUD_UPPER=HG*2
 HEIGHT_HUD_LOWER=HG*2
@@ -187,8 +186,6 @@ class Ghost:
                     #print(e,(x,y))
                     pass
 
-               #print(Q)
-
           #print(len(SEEN))
           
           # update if on the grid
@@ -287,6 +284,10 @@ def draw_HUD():
 
      for i in range(g_lives-1):
           g_screen.blit(transform.scale(player_images[0],(HG*2,HG*2)),(G_SIZE*(1+i),G_SIZE*(GRID_COUNT_Y+.8)))
+
+          
+     _fps_t = g_myfont.render(f'FPS: {g_clock.get_fps():.3f}' , 1, "green")
+     g_screen.blit(_fps_t,(G_SIZE*(GRID_COUNT_X-5),HG))
 
 def keyboard_control():
      global g_player_dir,g_player_wish_dir,g_mainloop# need mainloop to exit by ESC etc
