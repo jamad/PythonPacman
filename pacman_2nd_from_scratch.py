@@ -43,7 +43,7 @@ level = copy.deepcopy(boards)
 
 init()
 FPS=120
-HG =8 # half grid ( minimum : 4 ,  maximum  maybe 16)
+HG =12 # half grid ( minimum : 4 ,  maximum  maybe 16)
 
 G_SIZE=HG*2 # grid size is double of half grid
 
@@ -170,7 +170,7 @@ def player_direction_change():
      if GRID_COUNT_X -2 <= index_c  : # warping zone  R,D,L,U 
           PACMAN_CAN_GO= [1,0,1,0] 
      else:
-          PACMAN_CAN_GO= [level[index_r+r][index_c+c]in ' ·■' for r,c in ((0,1),(1,0),(0,-1),(-1,0)) ]
+          PACMAN_CAN_GO= [level[index_r+r][index_c+c]in' ·■' for r,c in ((0,1),(1,0),(0,-1),(-1,0)) ]
 
      if PACMAN_CAN_GO[player_wish_dir]:
           player_dir = player_wish_dir # change direction if player wish is available 
