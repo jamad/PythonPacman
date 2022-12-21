@@ -104,14 +104,17 @@ dead_img      = load_image('ghost','dead')
 
 def pacman_eats_dot():
      global player_x,player_y,score, powerup_phase
-     Cell_Current=level[int(player_y)//G_SIZE][int(player_x)//G_SIZE]
-     if Cell_Current=='·':
-          level[int(player_y)//G_SIZE][int(player_x)//G_SIZE]=' '
-          score+=10
-     if Cell_Current=='■':
-          level[int(player_y)//G_SIZE][int(player_x)//G_SIZE]=' '
-          score+=50
-          powerup_phase=1
+     try:
+          Cell_Current=level[int(player_y)//G_SIZE][int(player_x)//G_SIZE]
+          if Cell_Current=='·':
+               level[int(player_y)//G_SIZE][int(player_x)//G_SIZE]=' '
+               score+=10
+          if Cell_Current=='■':
+               level[int(player_y)//G_SIZE][int(player_x)//G_SIZE]=' '
+               score+=50
+               powerup_phase=1
+     except:
+          print('warping now, so no cells exists')
 
 def powerup_handling():
      global powerup_phase
@@ -139,21 +142,14 @@ def draw_player(milsec):
      global pacman_moving, player_dir, player_x, player_y
 
      if PACMAN_CAN_GO[player_dir]:          # move if pacman can move otherwise, stay
+          dx={0:1,2:-1}.get(player_dir,0)
+          dy={1:1,3:-1}.get(player_dir,0)
+          player_x+=dx*player_speed
+          player_y+=dy*player_speed
           pacman_moving+=1 # for animation 
-          if player_dir==0 :
-               player_x+=player_speed
-          if player_dir==1 :
-               player_y+=player_speed
-          if player_dir==2 :
-               player_x-=player_speed
-          if player_dir==3 :
-               player_y-=player_speed
      
-     if player_x<0:
-          player_x=G_SIZE*GRID_COUNT_X-G_SIZE
-     elif G_SIZE*GRID_COUNT_X-G_SIZE < player_x: 
-          #player_x= -GRID_SIZE
-          player_x=0
+     if player_x<-G_SIZE:          player_x=G_SIZE*(GRID_COUNT_X)
+     elif G_SIZE*(GRID_COUNT_X) < player_x: player_x=-G_SIZE
 
      # draw animated pacman at the new position
      img_player=player_images[ (pacman_moving//8) %4] #player animation
@@ -207,17 +203,16 @@ while mainloop:# main loop continues until quit button
      # game time
      clock.tick(FPS)
      millisec=time.get_ticks()-start_ticks # how much milliseconds passed since start
-
      
      keyboard_control() # user key input handling
 
      # process on the grid
      if (player_x%G_SIZE==player_y%G_SIZE==0) :
-          if GRID_COUNT_X <= (player_x // G_SIZE) +2 : # warping zone  R,D,L,U 
+          if GRID_COUNT_X -2 <= (player_x // G_SIZE)  : # warping zone  R,D,L,U 
                PACMAN_CAN_GO= [1,0,1,0] 
           else:
                ir,ic=int(player_y//G_SIZE),int(player_x//G_SIZE)
-               PACMAN_CAN_GO= [level[r][c]in ' ·■' for r,c in ((ir,ic+1),(ir+1,ic),(ir,ic-1),(ir-1,ic)) ]# RLUD
+               PACMAN_CAN_GO= [level[ir+r][ic+c]in ' ·■' for r,c in ((0,1),(1,0),(0,-1),(-1,0)) ]# RLUD
 
           if  PACMAN_CAN_GO[player_wish_dir]:player_dir = player_wish_dir # change direction if player wish is available 
 
