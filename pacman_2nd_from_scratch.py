@@ -46,7 +46,8 @@ g_level = copy.deepcopy(LEVEL_TEMPLATE)
 
 
 init()
-FPS=120
+FPS=120 # algorithm should be faster to keep FPS!
+
 HG =12 # half grid ( minimum : 4 ,  maximum  maybe 16)
 
 G_SIZE=HG*2 # grid size is double of half grid
@@ -285,8 +286,8 @@ def draw_HUD():
      for i in range(g_lives-1):
           g_screen.blit(transform.scale(player_images[0],(HG*2,HG*2)),(G_SIZE*(1+i),G_SIZE*(GRID_COUNT_Y+.8)))
 
-          
-     _fps_t = g_myfont.render(f'FPS: {g_clock.get_fps():.3f}' , 1, "green")
+     value=g_clock.get_fps()
+     _fps_t = g_myfont.render(f'FPS: {value:.3f}' , 1, "red" if  value < FPS*.9 else 'green' )
      g_screen.blit(_fps_t,(G_SIZE*(GRID_COUNT_X-5),HG))
 
 def keyboard_control():
