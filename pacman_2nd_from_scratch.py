@@ -3,6 +3,8 @@ from pygame import *
 import copy
 from math import pi, cos, sin
 
+debugmode=1
+
 BOARD_DATA='''\
 ┌────────────────────────────┐
 │┌────────────┐┌────────────┐│
@@ -134,7 +136,8 @@ class Ghost:
                          else:my_color='red'
 
                          # debug draw!
-                         draw.rect(g_screen, color=my_color, rect=((index_c+c)*G_SIZE, (index_r+r)*G_SIZE + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE), width=1 ) # 
+                         if debugmode:
+                              draw.rect(g_screen, color=my_color, rect=((index_c+c)*G_SIZE, (index_r+r)*G_SIZE + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE), width=1 ) # 
 
                          self.turns[i]=  result 
 
@@ -308,7 +311,7 @@ while g_mainloop:# main loop continues until quit button
      for ghost in ghosts:ghost.draw()
      draw_HUD()
 
-     if 1:debugdraw()# DEBUG DRAW
+     if debugmode:debugdraw()# DEBUG DRAW
      
      display.flip()
 
