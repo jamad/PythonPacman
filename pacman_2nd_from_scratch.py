@@ -99,6 +99,33 @@ ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
 spooked_img   = load_image('ghost','powerup') 
 dead_img      = load_image('ghost','dead') 
 
+# ghost class
+class Ghost:
+     def __init__(self,id):
+          self.id=id
+          self.img=ghost_images[id]
+
+          self.x=G_SIZE*(GRID_COUNT_X//2 + id-2)
+          self.y=G_SIZE*(GRID_COUNT_Y//2)
+          
+          self.target_x=0
+          self.target_y=0
+          self.speed=2
+          self.spooked=False
+          self.dead=False
+          self.inbox=True
+
+     def update(self):
+          pass
+
+     def draw(self):
+          image=self.img
+          if self.spooked:    image=spooked_img
+          if self.dead:       image=dead_img
+
+          g_screen.blit(self.img, (self.x, self.y, G_SIZE, G_SIZE))
+
+ghosts=[Ghost(i) for i in range(4)]
 
 
 def pacman_eats_dot():
@@ -233,6 +260,8 @@ while g_mainloop:# main loop continues until quit button
 
      draw_board(g_millisec)
      draw_player()
+     for ghost in ghosts:
+          ghost.draw()
      draw_HUD()
 
      if 1:debugdraw()# DEBUG DRAW
