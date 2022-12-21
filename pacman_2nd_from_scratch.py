@@ -3,7 +3,7 @@ from pygame import *
 import copy
 from math import pi, cos, sin
 
-boards_data='''\
+BOARD_DATA='''\
 ┌────────────────────────────┐
 │┌────────────┐┌────────────┐│
 ││············││············││
@@ -38,8 +38,8 @@ boards_data='''\
 │└──────────────────────────┘│
 └────────────────────────────┘'''
 
-boards=[list(s) for s in boards_data.split('\n')]# 0 should not be trimmed!
-level = copy.deepcopy(boards)
+LEVEL_TEMPLATE=[list(s) for s in BOARD_DATA.split('\n')]# 0 should not be trimmed!
+level = copy.deepcopy(LEVEL_TEMPLATE)
 
 init()
 FPS=120
@@ -47,8 +47,8 @@ HG =12 # half grid ( minimum : 4 ,  maximum  maybe 16)
 
 G_SIZE=HG*2 # grid size is double of half grid
 
-GRID_COUNT_X=len(boards[0])   #30
-GRID_COUNT_Y=len(boards)      #33
+GRID_COUNT_X=len(LEVEL_TEMPLATE[0])   #30
+GRID_COUNT_Y=len(LEVEL_TEMPLATE)      #33
 
 HEIGHT_HUD=32
 
