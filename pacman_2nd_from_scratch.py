@@ -164,15 +164,21 @@ class Ghost:
           tx,ty=self.target_x//G_SIZE,self.target_y//G_SIZE
           SEEN=set()
           for x,y,dir in Q:
+               
+               # when warp tunnel was used
+               x%=GRID_COUNT_X
+               y%=GRID_COUNT_Y 
+
                if (x,y)==(tx,ty):
                     self.wish_direction= dir and dir[0] or 0# 0 for safety value when target is same position
                     break
-               if x<0 or y<0:continue
+
+               #if x<0 or y<0:continue
                if (x,y)in SEEN:continue
                SEEN.add((x,y))
 
                try:
-                    _r,_d,_l,_u = DIRECTION.get((x,y),[0,0,0,0])
+                    _r,_d,_l,_u = DIRECTION.get((x,y),[1,0,1,0]) #  if data was not found, maybe warp tunnel 
                     if _r:Q.append(( x+1 , y , dir+[0]))
                     if _d:Q.append(( x,  y+1 , dir+[1]))
                     if _l:Q.append(( x-1 , y , dir+[2]))
@@ -184,17 +190,7 @@ class Ghost:
                #print(Q)
 
           #print(len(SEEN))
-          '''
-          diffx=(self.target_x - self.x)
-          diffy=(self.target_y - self.y)
-          if abs(diffx)<abs(diffy):
-               if 0<diffy :self.wish_direction=1 # down
-               else:self.wish_direction=3 # up
-          else:
-               if 0<diffx : self.wish_direction=0
-               else:self.wish_direction=2
-          '''
-
+          
           # update if on the grid
           if self.x%G_SIZE==self.y%G_SIZE==0:
                index_r,index_c=int(self.y//G_SIZE),int(self.x//G_SIZE)
@@ -225,10 +221,9 @@ class Ghost:
                self.y+=dy*self.speed
                
           
-     
-     # if warp tunnel
-     if g_player_x<-G_SIZE:          g_player_x=G_SIZE*(GRID_COUNT_X)
-     elif G_SIZE*(GRID_COUNT_X) < g_player_x: g_player_x=-G_SIZE
+          # if warp tunnel
+          if self.x<-G_SIZE:          self.x=G_SIZE*(GRID_COUNT_X)
+          elif G_SIZE*(GRID_COUNT_X) < self.x: self.x=-G_SIZE
 
 
      def draw(self):
