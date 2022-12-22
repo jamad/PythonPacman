@@ -367,19 +367,20 @@ while g_mainloop:# main loop continues until quit button
      player_collision = draw.circle(g_screen, 'pink', (g_player_x + HG,g_player_y + HG +HEIGHT_HUD_UPPER),21,2)
      for g in ghosts:
           if player_collision.colliderect( g.rect ):
+               
+               if g.dead:continue # nothing happens
+
                if g.spooked:
                     g.dead=True # now ghost is dead
                     print('add score here')
-               elif g.dead:
-                    pass # nothing happens
                else:     
                     #pacman dead
                     g_lives -=1
                     if g_lives==0:print('game over')
                     else:
+                         pass
                          #print('reset')
                          # 207:29
-                         pass
 
 
      display.flip()
