@@ -164,7 +164,7 @@ class Ghost:
      def update(self):
           global g_powerup_phase
 
-          self.inbox=True
+          #self.inbox=True
           
           # logic for ghost wish
           self.target_x=g_player_x  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_x<G_SIZE*GRID_COUNT_X//2]
@@ -185,19 +185,24 @@ class Ghost:
                     self.spooked=False
 
                k=(x%GRID_COUNT_X,y%GRID_COUNT_Y,tx%GRID_COUNT_X,ty%GRID_COUNT_Y)
-               wish_direction =BFS_SOLUTION[k]
+               wish_direction =BFS_SOLUTION.get(k,[0,0,0,0])
 
                self.turns = DIRECTION.get( (x,y), [1,0,1,0] ) # exception : warping tunnel
 
                if self.turns[wish_direction]:
                     self.direction = wish_direction # change direction if player wish is available 
 
+          # speed change 
+          # if self.dead: self.speed=2    # double  but 4 make the ghost pass through walls ..... ????
+          # elif self.spooked:self.speed=1  # half
+          # else: self.speed=2
+
           # move ghost
           if self.turns[self.direction]:          # move if pacman can move otherwise, stay
                dx={0:1,2:-1}.get(self.direction,0)
                dy={1:1,3:-1}.get(self.direction,0)
-               self.x+=dx*self.speed
-               self.y+=dy*self.speed
+               self.x+=dx*self.speed 
+               self.y+=dy*self.speed 
           
           # if warp tunnel
           if self.x<-G_SIZE:          self.x=G_SIZE*(GRID_COUNT_X)
