@@ -7,7 +7,6 @@ debugmode=0
 
 DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction 
 
-
 BOARD_DATA='''\
 ┌────────────────────────────┐
 │┌────────────┐┌────────────┐│
@@ -54,7 +53,6 @@ FPS=120 # algorithm should be faster to keep FPS!  # maybe 120 is maximum as 240
 HG =12 # half grid ( minimum : 4 ,  maximum  maybe 16)
 
 G_SIZE=HG*2 # grid size is double of half grid
-
 GRID_COUNT_X=len(LEVEL_TEMPLATE[0])   #30
 GRID_COUNT_Y=len(LEVEL_TEMPLATE)      #33
 
@@ -64,9 +62,8 @@ Q=[(2,2)]
 for (x,y) in Q:
      x%=GRID_COUNT_X
      y%=GRID_COUNT_Y
-     if (x,y) in DIRECTION:continue
-     data=[]
-     # creat dictionary
+     if (x,y)in DIRECTION:continue
+     data=[]     # creat dictionary
      for dy,dx in ((0,1),(1,0),(0,-1),(-1,0)): # RDLU
           cell=g_level[y+dy][x+dx]
           if cell in ' ·■═':
@@ -75,8 +72,7 @@ for (x,y) in Q:
           else:data.append(0)
      DIRECTION[(x,y)]=data
 
-#for k in sorted(DIRECTION):     print(k,DIRECTION[k])
-print('DIRECTION data creation done')          
+print('DIRECTION data creation done',len(DIRECTION))
 
 BFS_SOLUTION={} # output : direction , input (x,y, targetx,targety)  # better to calculate here if possible
 
@@ -88,7 +84,7 @@ for x,y in DIRECTION:
           v%=GRID_COUNT_Y # very important , without it, index can be expanded infinitely
 
           k=(x,y,u,v)
-          if k in SEEN:continue # no need to update because count should be smaller
+          if k in SEEN:continue # no need to update because count should be smaller by first found in BFS
           SEEN.add(k)
 
           BFS_SOLUTION[k]=_direction and _direction[0] or 0 # first direction
@@ -99,7 +95,7 @@ for x,y in DIRECTION:
           if _l:Q.append(( u-1 , v , _direction+[2]))
           if _u:Q.append(( u  ,v-1 , _direction+[3]))
           
-print(len(BFS_SOLUTION))
+print('len(BFS_SOLUTION)',len(BFS_SOLUTION))
 
 HEIGHT_HUD_UPPER=HG*2
 HEIGHT_HUD_LOWER=HG*2
@@ -107,10 +103,8 @@ HEIGHT_HUD_LOWER=HG*2
 COLOR_WALL = 'blue' # maze color
 WALL_THICKNESS= 1 ######## better to have the odd number!  3 is better than 2, 7 is better than 8 !!!!
 
-
 ### global variables
 g_player_speed=HG/4 # speed can be float number (for example, 0.25)
-
 g_lives=3
 g_score=0
 g_player_x=G_SIZE*GRID_COUNT_X//2
@@ -164,7 +158,6 @@ class Ghost:
           self.dead=False
           self.inbox=True
 
-          self.wish_direction=3 # up first
           self.direction=-1
           self.turns=[0]*4
 
@@ -174,38 +167,28 @@ class Ghost:
           self.spooked=( 0< g_powerup_phase)
 
           # logic for ghost wish
-          self.target_x=g_player_x
-          self.target_y=g_player_y
+          self.target_x=g_player_x  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_x<G_SIZE*GRID_COUNT_X//2]
+          self.target_y=g_player_y  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_y<G_SIZE*GRID_COUNT_Y//2]
 
-          # use DIRECTION for BSF  # objective : determine self.wish_direction
-
-          x,y=self.x//G_SIZE,self.y//G_SIZE
-          
+          x,y=int(self.x//G_SIZE),int(self.y//G_SIZE)
           tx,ty=self.target_x//G_SIZE,self.target_y//G_SIZE
           
-
-          # update if on the grid
-          if self.x%G_SIZE==self.y%G_SIZE==0:
+          if self.x%G_SIZE==self.y%G_SIZE==0: # update if on the grid
 
                k=(x%GRID_COUNT_X,y%GRID_COUNT_Y,tx%GRID_COUNT_X,ty%GRID_COUNT_Y)
-               self.wish_direction =BFS_SOLUTION[k]
+               wish_direction =BFS_SOLUTION[k]
 
-               index_r,index_c=int(self.y//G_SIZE),int(self.x//G_SIZE)
+               self.turns = DIRECTION.get( (x,y), [1,0,1,0] ) # exception : warping tunnel
 
-               self.turns = DIRECTION.get( (index_c,index_r), [1,0,1,0] ) # exception : warping tunnel
+               if self.turns[wish_direction]:
+                    self.direction = wish_direction # change direction if player wish is available 
 
-               if self.turns[self.wish_direction]:
-                    self.direction = self.wish_direction # change direction if player wish is available 
-
-          #print(self.id, self.turns)
           # move ghost
-          #if self.turns[self.direction]:self.direction=self.wish_direction
           if self.turns[self.direction]:          # move if pacman can move otherwise, stay
                dx={0:1,2:-1}.get(self.direction,0)
                dy={1:1,3:-1}.get(self.direction,0)
                self.x+=dx*self.speed
                self.y+=dy*self.speed
-               
           
           # if warp tunnel
           if self.x<-G_SIZE:          self.x=G_SIZE*(GRID_COUNT_X)
@@ -331,7 +314,6 @@ def debugdraw():
      draw.circle(g_screen, color='purple', center=(index_c*G_SIZE,index_r*G_SIZE + HEIGHT_HUD_UPPER), radius=5 ,width=0) # player's grid position
      draw.rect(g_screen, color='purple', rect=(index_c*G_SIZE, index_r*G_SIZE + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE), width=1 ) # 
 
-     
      # direction data check
      g_my_small_font=font.SysFont(ALL_FONTS[1], 7)
      for (x,y) in DIRECTION:
