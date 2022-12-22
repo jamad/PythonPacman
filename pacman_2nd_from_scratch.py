@@ -45,8 +45,6 @@ BOARD_DATA='''\
 LEVEL_TEMPLATE=[list(s) for s in BOARD_DATA.split('\n')]# 0 should not be trimmed!
 g_level = copy.deepcopy(LEVEL_TEMPLATE)
 
-
-
 init()
 FPS=120 # algorithm should be faster to keep FPS!  # maybe 120 is maximum as 240 did not work
 
@@ -84,7 +82,8 @@ for x,y in DIRECTION:
           v%=GRID_COUNT_Y # very important , without it, index can be expanded infinitely
 
           k=(x,y,u,v)
-          if k in SEEN:continue # no need to update because count should be smaller by first found in BFS
+          if k in SEEN:
+               continue # no need to update because count should be smaller by first found in BFS
           SEEN.add(k)
 
           BFS_SOLUTION[k]=_direction and _direction[0] or 0 # first direction
@@ -273,8 +272,8 @@ def player_direction_change():
 
      PACMAN_CAN_GO = DIRECTION.get( (index_c,index_r), [1,0,1,0] ) # exception : warping tunnel
 
-     if PACMAN_CAN_GO[g_player_wish_dir]==1:# because 2 is only for ghost to pass
-          g_player_dir = g_player_wish_dir # change direction if player wish is available 
+     if PACMAN_CAN_GO[g_player_wish_dir]==1: # because 2 is only for ghost to pass
+          g_player_dir = g_player_wish_dir   # change direction if player wish is available 
 
      return PACMAN_CAN_GO
 
@@ -288,8 +287,8 @@ def player_move():
           g_pacman_moving+=1 # for animation 
      
      # if warp tunnel
-     if g_player_x<-G_SIZE:          g_player_x=G_SIZE*(GRID_COUNT_X)
-     elif G_SIZE*(GRID_COUNT_X) < g_player_x: g_player_x=-G_SIZE
+     if g_player_x<-G_SIZE:        g_player_x=G_SIZE*(GRID_COUNT_X)
+     elif G_SIZE*(GRID_COUNT_X) <  g_player_x: g_player_x=-G_SIZE
 
 def debugdraw():
      global g_powerup_phase, g_player_x, g_player_y
