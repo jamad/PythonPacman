@@ -194,24 +194,11 @@ class Ghost:
           # update if on the grid
           if self.x%G_SIZE==self.y%G_SIZE==0:
                index_r,index_c=int(self.y//G_SIZE),int(self.x//G_SIZE)
-
                
-               if GRID_COUNT_X -2 <= index_c  :self.turns= [1,0,1,0]  # warping zone 
-               else:
-                    for i,(r,c) in enumerate([(0,1),(1,0),(0,-1),(-1,0)]):
-                         result=g_level[index_r+r][index_c+c]in' ·■═'
-                         if result: my_color='green'
-                         else:my_color='red'
-
-                         # debug draw!
-                         if debugmode:
-                              draw.rect(g_screen, color=my_color, rect=((index_c+c)*G_SIZE, (index_r+r)*G_SIZE + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE), width=1 ) # 
-
-                         self.turns[i]=  result 
+               self.turns = DIRECTION.get( (index_c,index_r), [1,0,1,0] ) # exception : warping tunnel
 
                if self.turns[self.wish_direction]:
                     self.direction = self.wish_direction # change direction if player wish is available 
-          
 
           #print(self.id, self.turns)
           # move ghost
@@ -227,7 +214,6 @@ class Ghost:
           if self.x<-G_SIZE:          self.x=G_SIZE*(GRID_COUNT_X)
           elif G_SIZE*(GRID_COUNT_X) < self.x: self.x=-G_SIZE
 
-
      def draw(self):
           image=self.img
           if self.spooked:    
@@ -236,8 +222,6 @@ class Ghost:
                image=dead_img
 
           g_screen.blit(image, (self.x, self.y + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
-
-
 
 def pacman_eats_dot():
      global g_player_x,g_player_y,g_score, g_powerup_phase
