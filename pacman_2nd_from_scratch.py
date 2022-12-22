@@ -104,15 +104,6 @@ WALL_THICKNESS= 1 ######## better to have the odd number!  3 is better than 2, 7
 
 ### global variables
 g_player_speed=HG/4 # speed can be float number (for example, 0.25)
-g_lives=3
-g_score=0
-g_counter_eaten_ghost=0
-g_player_x=G_SIZE*GRID_COUNT_X//2
-g_player_y=G_SIZE*24
-g_player_dir=-4
-g_player_wish_dir=-1
-g_pacman_moving=0 # for pacman animation
-g_powerup_phase=0
 
 g_screen=display.set_mode([GRID_COUNT_X*G_SIZE ,HEIGHT_HUD_UPPER+GRID_COUNT_Y*G_SIZE+HEIGHT_HUD_LOWER])
 g_clock=time.Clock() # originally variable timer 
@@ -141,6 +132,24 @@ player_images = [load_image('player',i) for i in (1,2,3,2)]# 4 images
 ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
 spooked_img   = load_image('ghost','powerup') 
 dead_img      = load_image('ghost','dead') 
+
+g_score=0
+g_lives=3
+
+def reset_game():
+     #print('reset')
+     # 207:29
+     global ghosts, g_lives, g_score, g_counter_eaten_ghost, g_player_x, g_player_y, g_player_dir, g_player_wish_dir, g_pacman_moving, g_powerup_phase     
+     g_counter_eaten_ghost=0
+     g_player_x=G_SIZE*GRID_COUNT_X//2
+     g_player_y=G_SIZE*24
+     g_player_dir=-4
+     g_player_wish_dir=-1
+     g_pacman_moving=0 # for pacman animation
+     g_powerup_phase=0
+     
+     ghosts=[Ghost(i) for i in range(4)] # instantiated 4 ghosts
+
 
 # ghost class
 class Ghost:
@@ -353,7 +362,7 @@ def debugdraw():
           _myrect= Rect(x*G_SIZE, y*G_SIZE + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE)
           g_screen.blit(_mytext,_myrect)
 
-ghosts=[Ghost(i) for i in range(4)] # instantiated 4 ghosts
+reset_game()
 
 start_ticks=time.get_ticks()# game initial time to register
 g_mainloop=True
@@ -402,9 +411,7 @@ while g_mainloop:# main loop continues until quit button
                     g_lives -=1
                     if g_lives==0:print('game over')
                     else:
-                         pass
-                         #print('reset')
-                         # 207:29
+                         reset_game()
 
      display.flip()
 
