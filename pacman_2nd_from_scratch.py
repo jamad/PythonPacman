@@ -106,6 +106,7 @@ WALL_THICKNESS= 1 ######## better to have the odd number!  3 is better than 2, 7
 g_player_speed=HG/4 # speed can be float number (for example, 0.25)
 g_lives=3
 g_score=0
+g_counter_eaten_ghost=0
 g_player_x=G_SIZE*GRID_COUNT_X//2
 g_player_y=G_SIZE*24
 g_player_dir=-4
@@ -231,6 +232,8 @@ def pacman_eats_dot():
 
                for g in ghosts:
                     g.spooked=True # make the ghost spook here
+
+               counter_eaten_ghost=0 #reset the counter for score 
 
      except:
           print('warping now, so no cells exists')
@@ -390,8 +393,10 @@ while g_mainloop:# main loop continues until quit button
                if g.dead:continue # nothing happens
 
                if g.spooked:
+                    g_counter_eaten_ghost+=1
                     g.dead=True # now ghost is dead
                     print('add score here')
+                    g_score+=200*(g_counter_eaten_ghost)
                else:     
                     #pacman dead
                     g_lives -=1
