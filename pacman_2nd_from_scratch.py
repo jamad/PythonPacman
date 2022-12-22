@@ -152,7 +152,6 @@ def reset_game():
 # ghost class
 class Ghost:
      def __init__(self,id):
-          self.id=id
           self.img=ghost_images[id]
 
           self.x=G_SIZE*(GRID_COUNT_X//2 + id-2)
@@ -163,7 +162,6 @@ class Ghost:
           self.speed=2
           self.spooked=False
           self.dead=False
-          self.inbox=True
 
           self.direction=-1
           self.turns=[0]*4      
@@ -172,8 +170,6 @@ class Ghost:
      def update(self):
           global g_powerup_phase
 
-          #self.inbox=True
-          
           # logic for ghost wish
           self.target_x=g_player_x  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_x<G_SIZE*GRID_COUNT_X//2]
           self.target_y=g_player_y  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_y<G_SIZE*GRID_COUNT_Y//2]
