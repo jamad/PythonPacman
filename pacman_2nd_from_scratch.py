@@ -49,7 +49,7 @@ g_level = copy.deepcopy(LEVEL_TEMPLATE)
 
 
 init()
-FPS=240 # algorithm should be faster to keep FPS!
+FPS=120 # algorithm should be faster to keep FPS!  # maybe 120 is maximum as 240 did not work
 
 HG =12 # half grid ( minimum : 4 ,  maximum  maybe 16)
 
@@ -79,6 +79,27 @@ for (x,y) in Q:
 print('DIRECTION data creation done')          
 
 BFS_SOLUTION={} # output : direction , input (x,y, targetx,targety)  # better to calculate here if possible
+
+for x,y in DIRECTION:
+     Q=[(x,y,[])] 
+     SEEN=set()
+     for u,v,_direction in Q:
+          u%=GRID_COUNT_X # very important , without it, index can be expanded infinitely
+          v%=GRID_COUNT_Y # very important , without it, index can be expanded infinitely
+
+          k=(x,y,u,v)
+          if k in SEEN:continue # no need to update because count should be smaller
+          SEEN.add(k)
+
+          BFS_SOLUTION[k]=_direction and _direction[0] or 0 # first direction
+
+          _r,_d,_l,_u = DIRECTION.get((u,v),[1,0,1,0]) #  if data was not found, maybe warp tunnel 
+          if _r:Q.append(( u+1 , v , _direction+[0]))
+          if _d:Q.append(( u,  v+1 , _direction+[1]))
+          if _l:Q.append(( u-1 , v , _direction+[2]))
+          if _u:Q.append(( u  ,v-1 , _direction+[3]))
+          
+print(len(BFS_SOLUTION))
 
 HEIGHT_HUD_UPPER=HG*2
 HEIGHT_HUD_LOWER=HG*2
@@ -161,39 +182,13 @@ class Ghost:
           x,y=self.x//G_SIZE,self.y//G_SIZE
           
           tx,ty=self.target_x//G_SIZE,self.target_y//G_SIZE
-          k=(x,y,tx,ty)
+          
 
           # update if on the grid
           if self.x%G_SIZE==self.y%G_SIZE==0:
-               if k in BFS_SOLUTION:
-                    self.wish_direction = BFS_SOLUTION[k]
-               else:
-                    Q=[(x,y,[])] 
-                    SEEN=set()
-                    for u,v,dir in Q:
-                         
-                         # when warp tunnel was used
-                         u%=GRID_COUNT_X
-                         v%=GRID_COUNT_Y 
 
-                         if (u,v)==(tx,ty):
-                              BFS_SOLUTION[k] = dir and dir[0] or 0# 0 for safety value when target is same position
-                              self.wish_direction = BFS_SOLUTION[k]
-                              break
-
-                         #if x<0 or y<0:continue
-                         if (u,v)in SEEN:continue
-                         SEEN.add((u,v))
-
-                         try:
-                              _r,_d,_l,_u = DIRECTION.get((u,v),[1,0,1,0]) #  if data was not found, maybe warp tunnel 
-                              if _r:Q.append(( u+1 , v , dir+[0]))
-                              if _d:Q.append(( u,  v+1 , dir+[1]))
-                              if _l:Q.append(( u-1 , v , dir+[2]))
-                              if _u:Q.append(( u  ,v-1 , dir+[3]))
-                         except Exception as e:
-                              #print(e,(x,y))
-                              pass
+               k=(x%GRID_COUNT_X,y%GRID_COUNT_Y,tx%GRID_COUNT_X,ty%GRID_COUNT_Y)
+               self.wish_direction =BFS_SOLUTION[k]
 
                index_r,index_c=int(self.y//G_SIZE),int(self.x//G_SIZE)
 
