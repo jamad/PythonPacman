@@ -61,11 +61,11 @@ GRID_COUNT_Y=len(LEVEL_TEMPLATE)      #33
 
 #### create dictionary for turns! 
 from collections import defaultdict
-DIRECTION=defaultdict(list) 
+DIRECTION={} #  key : (column, row) 
 DIRECTION[(29,15)]=[1, 0, 1, 0] # exception for warp row=15, col=29
 Q=[(2,2)]
 for (x,y) in Q:
-     if DIRECTION[(x,y)]==[]:
+     if (x,y) not in DIRECTION:
           data=[]
           # creat dictionary
           r,c=y,x
@@ -307,10 +307,7 @@ def player_direction_change():
      global g_player_x,g_player_y, g_player_wish_dir, g_player_dir
      index_r,index_c=int(g_player_y//G_SIZE),int(g_player_x//G_SIZE)
 
-     if GRID_COUNT_X -2 <= index_c  : # warping zone  R,D,L,U 
-          PACMAN_CAN_GO= [1,0,1,0] 
-     else:
-          PACMAN_CAN_GO= [g_level[index_r+r][index_c+c]in' ·■' for r,c in ((0,1),(1,0),(0,-1),(-1,0)) ]
+     PACMAN_CAN_GO = DIRECTION.get( (index_c,index_r), [1,0,1,0] ) # exception : warping tunnel
 
      if PACMAN_CAN_GO[g_player_wish_dir]:
           g_player_dir = g_player_wish_dir # change direction if player wish is available 
@@ -379,7 +376,7 @@ while g_mainloop:# main loop continues until quit button
      
      keyboard_control() # user key input handling
 
-     if (g_player_x%G_SIZE==g_player_y%G_SIZE==0) :# process on the grid
+     if g_player_x%G_SIZE==g_player_y%G_SIZE==0 :# process on the grid
           PACMAN_CAN_GO=player_direction_change()# direction change + available direciton data update
 
      player_move()
