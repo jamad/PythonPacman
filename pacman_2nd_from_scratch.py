@@ -158,7 +158,8 @@ class Ghost:
           self.inbox=True
 
           self.direction=-1
-          self.turns=[0]*4
+          self.turns=[0]*4      
+          self.rect=None # dummy
 
      def update(self):
           global g_powerup_phase
@@ -204,7 +205,7 @@ class Ghost:
           if self.dead:       
                image=dead_img
 
-          g_screen.blit(image, (self.x, self.y + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
+          self.rect = g_screen.blit(image, (self.x, self.y + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
 
 def pacman_eats_dot():
      global g_player_x,g_player_y,g_score, g_powerup_phase
@@ -356,13 +357,30 @@ while g_mainloop:# main loop continues until quit button
 
      draw_board(g_millisec)
      draw_player()
-     for ghost in ghosts:ghost.draw()
+
+     for ghost in ghosts: ghost.draw()
      draw_HUD()
 
      if debugmode:debugdraw()# DEBUG DRAW
      
      # draw pacman collision 
-     draw.circle(g_screen, 'pink', (g_player_x + HG,g_player_y + HG +HEIGHT_HUD_UPPER),21,2)
+     player_collision = draw.circle(g_screen, 'pink', (g_player_x + HG,g_player_y + HG +HEIGHT_HUD_UPPER),21,2)
+     for g in ghosts:
+          if player_collision.colliderect( g.rect ):
+               if g.spooked:
+                    g.dead=True # now ghost is dead
+                    print('add score here')
+               elif g.dead:
+                    pass # nothing happens
+               else:     
+                    #pacman dead
+                    g_lives -=1
+                    if g_lives==0:print('game over')
+                    else:
+                         #print('reset')
+                         # 207:29
+                         pass
+
 
      display.flip()
 
