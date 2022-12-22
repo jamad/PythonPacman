@@ -22,9 +22,9 @@ BOARD_DATA='''\
 └────┐│·│┌──┘ └┘ └──┐│·│┌────┘
      ││·││          ││·││     
 ─────┘│·││ ┌──══──┐ ││·│└─────
-──────┘·└┘ │      │ └┘·└──────
-       ·   │      │   ·       
-──────┐·┌┐ │      │ ┌┐·┌──────
+──────┘·└┘ │!!!!!!│ └┘·└──────
+       ·   │!!!!!!│   ·       
+──────┐·┌┐ │!!!!!!│ ┌┐·┌──────
 ─────┐│·││ └──────┘ ││·│┌─────
      ││·││          ││·││     
 ┌────┘│·││ ┌──────┐ ││·│└────┐
@@ -64,8 +64,8 @@ for (x,y) in Q:
      data=[]     # creat dictionary
      for dy,dx in ((0,1),(1,0),(0,-1),(-1,0)): # RDLU
           cell=g_level[y+dy][x+dx]
-          if cell in ' ·■═':
-               data.append((1,2)[cell=='═'])
+          if cell in ' ·■═!':
+               data.append(1 + (cell=='═') +2*(cell=='!'))# ! means inbox
                Q.append((x+dx, y+dy)) # new x,y to add
           else:data.append(0)
      DIRECTION[(x,y)]=data
@@ -163,9 +163,9 @@ class Ghost:
 
      def update(self):
           global g_powerup_phase
-          self.inbox=True
-          self.spooked=( 0< g_powerup_phase)
 
+          self.inbox=True
+          
           # logic for ghost wish
           self.target_x=g_player_x  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_x<G_SIZE*GRID_COUNT_X//2]
           self.target_y=g_player_y  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_y<G_SIZE*GRID_COUNT_Y//2]
@@ -178,6 +178,11 @@ class Ghost:
           tx,ty=self.target_x//G_SIZE,self.target_y//G_SIZE
           
           if self.x%G_SIZE==self.y%G_SIZE==0: # update if on the grid
+
+               # if ghost is in box. no more dead
+               if g_level[y%GRID_COUNT_Y][x%GRID_COUNT_X]=='!':
+                    self.dead=False
+                    self.spooked=False
 
                k=(x%GRID_COUNT_X,y%GRID_COUNT_Y,tx%GRID_COUNT_X,ty%GRID_COUNT_Y)
                wish_direction =BFS_SOLUTION[k]
@@ -218,13 +223,22 @@ def pacman_eats_dot():
                g_level[int(g_player_y)//G_SIZE][int(g_player_x)//G_SIZE]=' '
                g_score+=50
                g_powerup_phase=1
+
+               for g in ghosts:
+                    g.spooked=True # make the ghost spook here
+
      except:
           print('warping now, so no cells exists')
 
 def powerup_handling():
      global g_powerup_phase
      if g_powerup_phase:g_powerup_phase+=1
+
      g_powerup_phase%=600# when 600, stop powerup phase
+
+     if g_powerup_phase==0:
+          for g in ghosts:
+               g.spooked=False # powerup effect was gone!
 
 def draw_board(millisec):
      G=G_SIZE
