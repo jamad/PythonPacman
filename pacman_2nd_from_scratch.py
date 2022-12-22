@@ -183,12 +183,16 @@ class Ghost:
           
           if self.x%G_SIZE==self.y%G_SIZE==0: # update if on the grid
 
-               # if ghost is in box. no more dead
-               if g_level[y%GRID_COUNT_Y][x%GRID_COUNT_X]=='!':
+               x%=GRID_COUNT_X
+               y%=GRID_COUNT_Y
+               tx%=GRID_COUNT_X
+               ty%=GRID_COUNT_Y
+               # if ghost is in box. no more dead, no more spooked
+               if g_level[y][x]=='!':
                     self.dead=False
                     self.spooked=False
 
-               k=(x%GRID_COUNT_X,y%GRID_COUNT_Y,tx%GRID_COUNT_X,ty%GRID_COUNT_Y)
+               k=(x,y,tx,ty)
                wish_direction =BFS_SOLUTION.get(k,[0,0,0,0])
 
                self.turns = DIRECTION.get( (x,y), [1,0,1,0] ) # exception : warping tunnel
