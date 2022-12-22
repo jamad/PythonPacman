@@ -149,7 +149,6 @@ def reset_game():
      
      ghosts=[Ghost(i) for i in range(4)] # instantiated 4 ghosts
 
-
 # ghost class
 class Ghost:
      def __init__(self,id):
@@ -414,6 +413,6 @@ while g_mainloop:# main loop continues until quit button
 
 quit()
 
-# on collision with ghost >> lose life >> reset 
+# todo : gameover message
 # create 3 variation movement
 # sound effect, restart, winning message
