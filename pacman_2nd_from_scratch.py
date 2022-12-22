@@ -49,7 +49,7 @@ g_level = copy.deepcopy(LEVEL_TEMPLATE)
 
 
 init()
-FPS=120 # algorithm should be faster to keep FPS!
+FPS=240 # algorithm should be faster to keep FPS!
 
 HG =12 # half grid ( minimum : 4 ,  maximum  maybe 16)
 
@@ -58,33 +58,27 @@ G_SIZE=HG*2 # grid size is double of half grid
 GRID_COUNT_X=len(LEVEL_TEMPLATE[0])   #30
 GRID_COUNT_Y=len(LEVEL_TEMPLATE)      #33
 
-
 #### create dictionary for turns! 
-from collections import defaultdict
-DIRECTION={} #  key : (column, row) 
-DIRECTION[(29,15)]=[1, 0, 1, 0] # exception for warp row=15, col=29
+DIRECTION={(29,15):[1, 0, 1, 0]} #  key : (column, row)   # exception for warp row=15, col=29
 Q=[(2,2)]
 for (x,y) in Q:
-     if (x,y) not in DIRECTION:
-          data=[]
-          # creat dictionary
-          r,c=y,x
-          if r<0 or c<0:continue
-          for dr,dc in ((0,1),(1,0),(0,-1),(-1,0)): # RDLU
-               try:
-                    cell=g_level[r+dr][c+dc]
-                    if cell in ' ·■═':
-                         data.append(2 if cell=='═' else 1)
-                         Q.append((c+dc, r+dr)) # new x,y to add
-                    else:data.append(0)
-               except Exception as e:
-                    print(e,r,c)
-          DIRECTION[(x,y)]=data
+     x%=GRID_COUNT_X
+     y%=GRID_COUNT_Y
+     if (x,y) in DIRECTION:continue
+     data=[]
+     # creat dictionary
+     for dy,dx in ((0,1),(1,0),(0,-1),(-1,0)): # RDLU
+          cell=g_level[y+dy][x+dx]
+          if cell in ' ·■═':
+               data.append((1,2)[cell=='═'])
+               Q.append((x+dx, y+dy)) # new x,y to add
+          else:data.append(0)
+     DIRECTION[(x,y)]=data
 
 #for k in sorted(DIRECTION):     print(k,DIRECTION[k])
 print('DIRECTION data creation done')          
 
-BFS_SOLUTION={} # output : direction , input (x,y, targetx,targety)
+BFS_SOLUTION={} # output : direction , input (x,y, targetx,targety)  # better to calculate here if possible
 
 HEIGHT_HUD_UPPER=HG*2
 HEIGHT_HUD_LOWER=HG*2
@@ -168,7 +162,7 @@ class Ghost:
           
           tx,ty=self.target_x//G_SIZE,self.target_y//G_SIZE
           k=(x,y,tx,ty)
-          
+
           # update if on the grid
           if self.x%G_SIZE==self.y%G_SIZE==0:
                if k in BFS_SOLUTION:
@@ -283,7 +277,7 @@ def draw_HUD():
           g_screen.blit(transform.scale(player_images[0],(HG*2,HG*2)),(G_SIZE*(1+i),G_SIZE*(GRID_COUNT_Y+.8)))
 
      value=g_clock.get_fps()
-     _fps_t = g_myfont.render(f'FPS: {value:.3f}' , 1, "red" if  value < FPS*.9 else 'green' )
+     _fps_t = g_myfont.render(f'FPS: {value:.1f}' , 1, "red" if  value < FPS*.9 else 'green' )
      g_screen.blit(_fps_t,(G_SIZE*(GRID_COUNT_X-5),HG))
 
 def keyboard_control():
