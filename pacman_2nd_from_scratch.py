@@ -396,7 +396,7 @@ while g_mainloop:# main loop continues until quit button
                     g_counter_eaten_ghost+=1
                     g.dead=True # now ghost is dead
                     print('add score here')
-                    g_score+=200*(g_counter_eaten_ghost)
+                    g_score+=100*2**(g_counter_eaten_ghost)
                else:     
                     #pacman dead
                     g_lives -=1
