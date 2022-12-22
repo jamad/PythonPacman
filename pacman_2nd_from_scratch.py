@@ -3,7 +3,7 @@ from pygame import *
 import copy
 from math import pi, cos, sin
 
-debugmode=1
+debugmode=0
 
 DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction 
 
@@ -84,6 +84,8 @@ for (x,y) in Q:
 #for k in sorted(DIRECTION):     print(k,DIRECTION[k])
 print('DIRECTION data creation done')          
 
+BFS_SOLUTION={} # output : direction , input (x,y, targetx,targety)
+
 HEIGHT_HUD_UPPER=HG*2
 HEIGHT_HUD_LOWER=HG*2
 
@@ -161,40 +163,45 @@ class Ghost:
           self.target_y=g_player_y
 
           # use DIRECTION for BSF  # objective : determine self.wish_direction
+
+          x,y=self.x//G_SIZE,self.y//G_SIZE
           
-          Q=[(self.x//G_SIZE,self.y//G_SIZE,[])] 
           tx,ty=self.target_x//G_SIZE,self.target_y//G_SIZE
-          SEEN=set()
-          for x,y,dir in Q:
-               
-               # when warp tunnel was used
-               x%=GRID_COUNT_X
-               y%=GRID_COUNT_Y 
+          k=(x,y,tx,ty)
+          if k in BFS_SOLUTION:
+               self.wish_direction = BFS_SOLUTION[k]
+          else:
+               Q=[(x,y,[])] 
+               SEEN=set()
+               for u,v,dir in Q:
+                    
+                    # when warp tunnel was used
+                    u%=GRID_COUNT_X
+                    v%=GRID_COUNT_Y 
 
-               if (x,y)==(tx,ty):
-                    self.wish_direction= dir and dir[0] or 0# 0 for safety value when target is same position
-                    break
+                    if (u,v)==(tx,ty):
+                         BFS_SOLUTION[k] = dir and dir[0] or 0# 0 for safety value when target is same position
+                         self.wish_direction = BFS_SOLUTION[k]
+                         break
 
-               #if x<0 or y<0:continue
-               if (x,y)in SEEN:continue
-               SEEN.add((x,y))
+                    #if x<0 or y<0:continue
+                    if (u,v)in SEEN:continue
+                    SEEN.add((u,v))
 
-               try:
-                    _r,_d,_l,_u = DIRECTION.get((x,y),[1,0,1,0]) #  if data was not found, maybe warp tunnel 
-                    if _r:Q.append(( x+1 , y , dir+[0]))
-                    if _d:Q.append(( x,  y+1 , dir+[1]))
-                    if _l:Q.append(( x-1 , y , dir+[2]))
-                    if _u:Q.append(( x  ,y-1 , dir+[3]))
-               except Exception as e:
-                    #print(e,(x,y))
-                    pass
+                    try:
+                         _r,_d,_l,_u = DIRECTION.get((u,v),[1,0,1,0]) #  if data was not found, maybe warp tunnel 
+                         if _r:Q.append(( u+1 , v , dir+[0]))
+                         if _d:Q.append(( u,  v+1 , dir+[1]))
+                         if _l:Q.append(( u-1 , v , dir+[2]))
+                         if _u:Q.append(( u  ,v-1 , dir+[3]))
+                    except Exception as e:
+                         #print(e,(x,y))
+                         pass
 
-          #print(len(SEEN))
-          
           # update if on the grid
           if self.x%G_SIZE==self.y%G_SIZE==0:
                index_r,index_c=int(self.y//G_SIZE),int(self.x//G_SIZE)
-               
+
                self.turns = DIRECTION.get( (index_c,index_r), [1,0,1,0] ) # exception : warping tunnel
 
                if self.turns[self.wish_direction]:
@@ -293,7 +300,7 @@ def player_direction_change():
 
      PACMAN_CAN_GO = DIRECTION.get( (index_c,index_r), [1,0,1,0] ) # exception : warping tunnel
 
-     if PACMAN_CAN_GO[g_player_wish_dir]:
+     if PACMAN_CAN_GO[g_player_wish_dir]==1:# because 2 is only for ghost to pass
           g_player_dir = g_player_wish_dir # change direction if player wish is available 
 
      return PACMAN_CAN_GO
