@@ -361,6 +361,9 @@ while g_mainloop:# main loop continues until quit button
 
      if debugmode:debugdraw()# DEBUG DRAW
      
+     # draw pacman collision 
+     draw.circle(g_screen, 'pink', (g_player_x + HG,g_player_y + HG +HEIGHT_HUD_UPPER),21,2)
+
      display.flip()
 
 quit()
