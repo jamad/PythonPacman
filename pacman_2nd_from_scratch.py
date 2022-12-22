@@ -411,6 +411,5 @@ while g_mainloop:# main loop continues until quit button
 quit()
 
 # on collision with ghost >> lose life >> reset 
-# eat ghost >> ghost run back to the box
 # create 3 variation movement
 # sound effect, restart, winning message
