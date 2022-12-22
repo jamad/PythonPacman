@@ -3,7 +3,10 @@ from pygame import *
 import copy
 from math import pi, cos, sin
 
-debugmode=0
+debugmode=1
+
+DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction 
+
 
 BOARD_DATA='''\
 ┌────────────────────────────┐
@@ -87,7 +90,6 @@ HEIGHT_HUD_LOWER=HG*2
 COLOR_WALL = 'blue' # maze color
 WALL_THICKNESS= 1 ######## better to have the odd number!  3 is better than 2, 7 is better than 8 !!!!
 
-DIR_DICT= {K_RIGHT:0,K_DOWN:1,K_LEFT:2,K_UP:3}# dictionary for direction
 
 ### global variables
 g_player_speed=HG/4 # speed can be float number (for example, 0.25)
@@ -192,6 +194,8 @@ class Ghost:
           # update if on the grid
           if self.x%G_SIZE==self.y%G_SIZE==0:
                index_r,index_c=int(self.y//G_SIZE),int(self.x//G_SIZE)
+
+               
                if GRID_COUNT_X -2 <= index_c  :self.turns= [1,0,1,0]  # warping zone 
                else:
                     for i,(r,c) in enumerate([(0,1),(1,0),(0,-1),(-1,0)]):
@@ -349,6 +353,19 @@ def debugdraw():
      draw.circle(g_screen, color='purple', center=(index_c*G_SIZE,index_r*G_SIZE + HEIGHT_HUD_UPPER), radius=5 ,width=0) # player's grid position
      draw.rect(g_screen, color='purple', rect=(index_c*G_SIZE, index_r*G_SIZE + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE), width=1 ) # 
 
+     
+     # direction data check
+     g_my_small_font=font.SysFont(ALL_FONTS[1], 7)
+     for (x,y) in DIRECTION:
+          data=DIRECTION[(x,y)]
+          if data==[]:data=[0,0,0,0]
+
+          #_mystr=''.join('>v<^'[i] for i in (0,1,2,3) if data[i] ) 
+          _mystr=''.join('>v<^'[i] for i in (2,3,1,0) if data[i] )  #'<^v>' was better for debug display
+          
+          _mytext=g_my_small_font.render(_mystr, 1, (255,255,0))            
+          _myrect= Rect(x*G_SIZE, y*G_SIZE + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE)
+          g_screen.blit(_mytext,_myrect)
 
 ghosts=[Ghost(i) for i in range(4)] # instantiated 4 ghosts
 
