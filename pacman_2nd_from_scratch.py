@@ -76,15 +76,14 @@ BFS_SOLUTION={} # output : direction , input (x,y, targetx,targety)  # better to
 
 for x,y in DIRECTION:
      Q=[(x,y,[])] 
-     SEEN=set()
+     VISITED=set()
      for u,v,_direction in Q:
           u%=GRID_COUNT_X # very important , without it, index can be expanded infinitely
           v%=GRID_COUNT_Y # very important , without it, index can be expanded infinitely
 
           k=(x,y,u,v)
-          if k in SEEN:
-               continue # no need to update because count should be smaller by first found in BFS
-          SEEN.add(k)
+          if k in VISITED:continue # no need to update because count should be smaller by first found in BFS
+          VISITED.add(k)
 
           BFS_SOLUTION[k]=_direction and _direction[0] or 0 # first direction
 
@@ -229,23 +228,21 @@ class Ghost:
 
 def pacman_eats_dot():
      global g_player_x,g_player_y,g_score, g_powerup_phase
-     try:
-          Cell_Current=g_level[int(g_player_y)//G_SIZE][int(g_player_x)//G_SIZE]
-          if Cell_Current=='·':
-               g_level[int(g_player_y)//G_SIZE][int(g_player_x)//G_SIZE]=' '
-               g_score+=10
-          if Cell_Current=='■':
-               g_level[int(g_player_y)//G_SIZE][int(g_player_x)//G_SIZE]=' '
-               g_score+=50
-               g_powerup_phase=1
 
-               for g in ghosts:
-                    g.spooked=True # make the ghost spook here
-
-               counter_eaten_ghost=0 #reset the counter for score 
-
-     except:
-          print('warping now, so no cells exists')
+     y=int(g_player_y)//G_SIZE
+     x=int(g_player_x)//G_SIZE
+     y%=GRID_COUNT_Y
+     x%=GRID_COUNT_X
+     Cell_Current=g_level[y][x]
+     if Cell_Current=='·':
+          g_level[y][x]=' '
+          g_score+=10
+     if Cell_Current=='■':
+          g_level[y][x]=' '
+          g_score+=50
+          g_powerup_phase=1
+          counter_eaten_ghost=0 #reset the counter for score 
+          for g in ghosts:    g.spooked=True # make the ghost spook here
 
 def powerup_handling():
      global g_powerup_phase
