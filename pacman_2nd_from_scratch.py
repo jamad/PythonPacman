@@ -168,38 +168,39 @@ class Ghost:
           
           tx,ty=self.target_x//G_SIZE,self.target_y//G_SIZE
           k=(x,y,tx,ty)
-          if k in BFS_SOLUTION:
-               self.wish_direction = BFS_SOLUTION[k]
-          else:
-               Q=[(x,y,[])] 
-               SEEN=set()
-               for u,v,dir in Q:
-                    
-                    # when warp tunnel was used
-                    u%=GRID_COUNT_X
-                    v%=GRID_COUNT_Y 
-
-                    if (u,v)==(tx,ty):
-                         BFS_SOLUTION[k] = dir and dir[0] or 0# 0 for safety value when target is same position
-                         self.wish_direction = BFS_SOLUTION[k]
-                         break
-
-                    #if x<0 or y<0:continue
-                    if (u,v)in SEEN:continue
-                    SEEN.add((u,v))
-
-                    try:
-                         _r,_d,_l,_u = DIRECTION.get((u,v),[1,0,1,0]) #  if data was not found, maybe warp tunnel 
-                         if _r:Q.append(( u+1 , v , dir+[0]))
-                         if _d:Q.append(( u,  v+1 , dir+[1]))
-                         if _l:Q.append(( u-1 , v , dir+[2]))
-                         if _u:Q.append(( u  ,v-1 , dir+[3]))
-                    except Exception as e:
-                         #print(e,(x,y))
-                         pass
-
+          
           # update if on the grid
           if self.x%G_SIZE==self.y%G_SIZE==0:
+               if k in BFS_SOLUTION:
+                    self.wish_direction = BFS_SOLUTION[k]
+               else:
+                    Q=[(x,y,[])] 
+                    SEEN=set()
+                    for u,v,dir in Q:
+                         
+                         # when warp tunnel was used
+                         u%=GRID_COUNT_X
+                         v%=GRID_COUNT_Y 
+
+                         if (u,v)==(tx,ty):
+                              BFS_SOLUTION[k] = dir and dir[0] or 0# 0 for safety value when target is same position
+                              self.wish_direction = BFS_SOLUTION[k]
+                              break
+
+                         #if x<0 or y<0:continue
+                         if (u,v)in SEEN:continue
+                         SEEN.add((u,v))
+
+                         try:
+                              _r,_d,_l,_u = DIRECTION.get((u,v),[1,0,1,0]) #  if data was not found, maybe warp tunnel 
+                              if _r:Q.append(( u+1 , v , dir+[0]))
+                              if _d:Q.append(( u,  v+1 , dir+[1]))
+                              if _l:Q.append(( u-1 , v , dir+[2]))
+                              if _u:Q.append(( u  ,v-1 , dir+[3]))
+                         except Exception as e:
+                              #print(e,(x,y))
+                              pass
+
                index_r,index_c=int(self.y//G_SIZE),int(self.x//G_SIZE)
 
                self.turns = DIRECTION.get( (index_c,index_r), [1,0,1,0] ) # exception : warping tunnel
