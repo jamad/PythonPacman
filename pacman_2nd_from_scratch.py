@@ -169,6 +169,10 @@ class Ghost:
           self.target_x=g_player_x  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_x<G_SIZE*GRID_COUNT_X//2]
           self.target_y=g_player_y  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_y<G_SIZE*GRID_COUNT_Y//2]
 
+          if self.dead:
+               self.target_x=380
+               self.target_y=400
+
           x,y=int(self.x//G_SIZE),int(self.y//G_SIZE)
           tx,ty=self.target_x//G_SIZE,self.target_y//G_SIZE
           
@@ -360,3 +364,8 @@ while g_mainloop:# main loop continues until quit button
      display.flip()
 
 quit()
+
+# on collision with ghost >> lose life >> reset 
+# eat ghost >> ghost run back to the box
+# create 3 variation movement
+# sound effect, restart, winning message
