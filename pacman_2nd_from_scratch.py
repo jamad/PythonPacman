@@ -406,7 +406,6 @@ while g_mainloop:# main loop continues until quit button
                          #print('reset')
                          # 207:29
 
-
      display.flip()
 
 quit()
