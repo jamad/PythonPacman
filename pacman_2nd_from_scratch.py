@@ -416,6 +416,8 @@ while g_mainloop:# main loop continues until quit button
                
                if g.dead:continue # nothing happens
 
+               pause=FPS # 1 sec pause when collision except for dead
+
                if g.spooked:
                     g_counter_eaten_ghost+=1
                     g.dead=True # now ghost is dead
@@ -423,7 +425,6 @@ while g_mainloop:# main loop continues until quit button
                     g_score+=100*2**(g_counter_eaten_ghost)
                else:     
                     #pacman dead
-                    pause=FPS
                     g_lives -=1
                     if g_lives==0:
                          print('game over')
