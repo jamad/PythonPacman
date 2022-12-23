@@ -109,6 +109,8 @@ g_clock=time.Clock() # originally variable timer
 
 ALL_FONTS=font.get_fonts()
 g_myfont=font.SysFont(ALL_FONTS[1], G_SIZE//4*3)
+g_my_small_font=font.SysFont(ALL_FONTS[1], 7)
+g_my_bonus_font=font.SysFont(ALL_FONTS[1], 14)
 
 #################################################### wall parts image creation
 from PIL import Image, ImageDraw
@@ -356,7 +358,6 @@ def debugdraw():
      draw.rect(g_screen, color='purple', rect=(index_c*G_SIZE, index_r*G_SIZE + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE), width=1 ) # 
 
      # direction data check
-     g_my_small_font=font.SysFont(ALL_FONTS[1], 7)
      for (x,y) in DIRECTION:
           data=DIRECTION[(x,y)]
           if data==[]:data=[0,0,0,0]
@@ -422,7 +423,13 @@ while g_mainloop:# main loop continues until quit button
                     g_counter_eaten_ghost+=1
                     g.dead=True # now ghost is dead
                     print('add score here')
-                    g_score+=100*2**(g_counter_eaten_ghost)
+                    
+                    bonus=100*2**(g_counter_eaten_ghost)
+                    g_score+=bonus
+                    
+                    _mytext=g_my_bonus_font.render(f'{bonus}', 1, (255,255,0))            
+                    _myrect= Rect(g.x, g.y + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE)
+                    g_screen.blit(_mytext,_myrect)
                else:     
                     #pacman dead
                     g_lives -=1
