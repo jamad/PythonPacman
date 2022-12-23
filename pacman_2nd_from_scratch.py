@@ -154,7 +154,6 @@ def reset_game():
      
      ghosts=[Ghost(i) for i in range(4)] # instantiated 4 ghosts
 
-restart_game()
 
 # ghost class
 class Ghost:
@@ -233,7 +232,8 @@ class Ghost:
                image=dead_img
 
           self.rect = g_screen.blit(image, (self.x, self.y + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
-reset_game()
+
+
 
 def pacman_eats_dot():
      global g_player_x,g_player_y,g_score, g_powerup_phase, g_level
@@ -368,16 +368,25 @@ def debugdraw():
           _myrect= Rect(x*G_SIZE, y*G_SIZE + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE)
           g_screen.blit(_mytext,_myrect)
 
+restart_game()
+reset_game()
 
+pause=0
 
 start_ticks=time.get_ticks()# game initial time to register
 g_mainloop=True
 while g_mainloop:# main loop continues until quit button
 
      # game time
+     
      g_clock.tick(FPS)
+
      g_millisec=time.get_ticks()-start_ticks # how much milliseconds passed since start
      
+     if pause:
+          pause-=1
+          continue
+
      keyboard_control() # user key input handling
 
      if g_player_x%G_SIZE==g_player_y%G_SIZE==0 :# process on the grid
@@ -414,6 +423,7 @@ while g_mainloop:# main loop continues until quit button
                     g_score+=100*2**(g_counter_eaten_ghost)
                else:     
                     #pacman dead
+                    pause=FPS
                     g_lives -=1
                     if g_lives==0:
                          print('game over')
