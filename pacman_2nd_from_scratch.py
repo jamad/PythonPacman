@@ -43,7 +43,7 @@ BOARD_DATA='''\
 └────────────────────────────┘'''
 
 LEVEL_TEMPLATE=[list(s) for s in BOARD_DATA.split('\n')]# 0 should not be trimmed!
-g_level = copy.deepcopy(LEVEL_TEMPLATE)
+#g_level = copy.deepcopy(LEVEL_TEMPLATE)
 
 init()
 FPS=120 # algorithm should be faster to keep FPS!  # maybe 120 is maximum as 240 did not work
@@ -63,7 +63,7 @@ for (x,y) in Q:
      if (x,y)in DIRECTION:continue
      data=[]     # creat dictionary
      for dy,dx in ((0,1),(1,0),(0,-1),(-1,0)): # RDLU
-          cell=g_level[y+dy][x+dx]
+          cell=LEVEL_TEMPLATE[y+dy][x+dx]
           if cell in ' ·■═!':
                data.append(1 + (cell=='═') +2*(cell=='!'))# ! means inbox
                Q.append((x+dx, y+dy)) # new x,y to add
@@ -132,8 +132,13 @@ ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
 spooked_img   = load_image('ghost','powerup') 
 dead_img      = load_image('ghost','dead') 
 
-g_score=0
-g_lives=3
+def restart_game():
+     global g_score, g_lives, g_level
+     g_score=0
+     g_lives=3
+     
+     g_level = copy.deepcopy(LEVEL_TEMPLATE)
+
 
 def reset_game():
      #print('reset')
@@ -148,6 +153,8 @@ def reset_game():
      g_powerup_phase=0
      
      ghosts=[Ghost(i) for i in range(4)] # instantiated 4 ghosts
+
+restart_game()
 
 # ghost class
 class Ghost:
@@ -183,10 +190,12 @@ class Ghost:
           
           if self.x%G_SIZE==self.y%G_SIZE==0: # update if on the grid
 
+               # the following can solve exception : warping tunnel
                x%=GRID_COUNT_X
                y%=GRID_COUNT_Y
                tx%=GRID_COUNT_X
                ty%=GRID_COUNT_Y
+               
                # if ghost is in box. no more dead, no more spooked
                if g_level[y][x]=='!':
                     self.dead=False
@@ -195,7 +204,7 @@ class Ghost:
                k=(x,y,tx,ty)
                wish_direction =BFS_SOLUTION.get(k,[0,0,0,0])
 
-               self.turns = DIRECTION.get( (x,y), [1,0,1,0] ) # exception : warping tunnel
+               self.turns = DIRECTION[(x,y)] 
 
                if self.turns[wish_direction]:
                     self.direction = wish_direction # change direction if player wish is available 
@@ -224,9 +233,10 @@ class Ghost:
                image=dead_img
 
           self.rect = g_screen.blit(image, (self.x, self.y + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
+reset_game()
 
 def pacman_eats_dot():
-     global g_player_x,g_player_y,g_score, g_powerup_phase
+     global g_player_x,g_player_y,g_score, g_powerup_phase, g_level
 
      y=int(g_player_y)//G_SIZE
      x=int(g_player_x)//G_SIZE
@@ -358,7 +368,7 @@ def debugdraw():
           _myrect= Rect(x*G_SIZE, y*G_SIZE + HEIGHT_HUD_UPPER,G_SIZE,G_SIZE)
           g_screen.blit(_mytext,_myrect)
 
-reset_game()
+
 
 start_ticks=time.get_ticks()# game initial time to register
 g_mainloop=True
@@ -405,9 +415,11 @@ while g_mainloop:# main loop continues until quit button
                else:     
                     #pacman dead
                     g_lives -=1
-                    if g_lives==0:print('game over')
-                    else:
-                         reset_game()
+                    if g_lives==0:
+                         print('game over')
+                         restart_game()
+                    
+                    reset_game()
 
      display.flip()
 
