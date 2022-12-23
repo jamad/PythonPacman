@@ -143,7 +143,6 @@ def restart_game():
 
 
 def reset_game():
-     #print('reset')
      # 207:29
      global ghosts, g_lives, g_score, g_counter_eaten_ghost, g_player_x, g_player_y, g_player_dir, g_player_wish_dir, g_pacman_moving, g_powerup_phase     
      g_counter_eaten_ghost=0
@@ -160,9 +159,10 @@ def reset_game():
 # ghost class
 class Ghost:
      def __init__(self,id):
+          self.id=id
           self.img=ghost_images[id]
 
-          self.x=G_SIZE*(GRID_COUNT_X//2 + id-2)
+          self.x=G_SIZE*(GRID_COUNT_X//2 + id-3)
           self.y=G_SIZE*(GRID_COUNT_Y//2)
           
           self.target_x=0
@@ -179,7 +179,7 @@ class Ghost:
           global g_powerup_phase
 
           # logic for ghost wish
-          self.target_x=g_player_x  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_x<G_SIZE*GRID_COUNT_X//2]
+          self.target_x=g_player_x  if not self.spooked else  (G_SIZE*2,G_SIZE*27)[g_player_x<G_SIZE*GRID_COUNT_X//2]
           self.target_y=g_player_y  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_y<G_SIZE*GRID_COUNT_Y//2]
 
           if self.dead:
@@ -228,14 +228,9 @@ class Ghost:
 
      def draw(self):
           image=self.img
-          if self.spooked:    
-               image=spooked_img
-          if self.dead:       
-               image=dead_img
-
+          if self.spooked:    image=spooked_img
+          if self.dead:       image=dead_img
           self.rect = g_screen.blit(image, (self.x, self.y + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
-
-
 
 def pacman_eats_dot():
      global g_player_x,g_player_y,g_score, g_powerup_phase, g_level
