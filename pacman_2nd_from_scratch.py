@@ -272,6 +272,8 @@ class Ghost:
           if self.dead:       image=dead_img
           self.rect = g_screen.blit(image, (self.x -CHAR_OFFSET, self.y -CHAR_OFFSET + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
 
+          if not self.spooked: g_screen.blit(dead_img, (self.x -CHAR_OFFSET, self.y -CHAR_OFFSET + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
+
 def pacman_eats_dot():
      global g_player_x,g_player_y,g_score, g_powerup_phase, g_level ,g_counter_eaten_ghost
 
