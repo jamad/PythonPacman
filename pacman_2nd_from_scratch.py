@@ -201,9 +201,9 @@ class Ghost:
 
           # speed change 
           if self.dead: 
+               self.speed=4  
                self.x=self.x//4 * 4 # warp a bit so that on the grid
                self.y=self.y//4 * 4 # warp a bit so that on the grid
-               self.speed=4    # double  but 4 make the ghost pass through walls ..... ????
           elif self.spooked:self.speed=1  # half
           else: self.speed=2
 
@@ -216,7 +216,7 @@ class Ghost:
           
           # if warp tunnel
           if self.x<-G_SIZE:          self.x=G_SIZE*(GRID_COUNT_X)
-          elif G_SIZE*(GRID_COUNT_X) < self.x: self.x=-G_SIZE
+          if G_SIZE*(GRID_COUNT_X) < self.x: self.x=-G_SIZE
 
      def draw(self):
           image=self.img
