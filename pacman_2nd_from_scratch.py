@@ -51,16 +51,53 @@ FPS=120 # algorithm should be faster to keep FPS!  # maybe 120 is maximum as 240
 HG =12 # half grid ( minimum : 4 ,  maximum  maybe 16)
 
 G_SIZE=HG*2 # grid size is double of half grid
-GRID_COUNT_X=len(LEVEL_TEMPLATE[0])   #30
-GRID_COUNT_Y=len(LEVEL_TEMPLATE)      #33
+G_COUNT_X=len(LEVEL_TEMPLATE[0])   #30
+G_COUNT_Y=len(LEVEL_TEMPLATE)      #33
+RX=range(G_COUNT_X)
+RY=range(G_COUNT_Y)
 
 #### create dictionary for turns! 
 DIRECTION={} #  key : (column, row)   # exception for warp row=15, col=29
-for x in range(GRID_COUNT_X):
-     for y in range(GRID_COUNT_Y):
-          DIRECTION[(x,y)]=[{' ':1,'·':1,'■':1,'═':2,'!':3}.get(LEVEL_TEMPLATE[(y+dy)%GRID_COUNT_Y][(x+dx)%GRID_COUNT_X],0) for dy,dx in ((0,1),(1,0),(0,-1),(-1,0))]     # creat dictionary
+for x in RX:
+     for y in RY:
+          if LEVEL_TEMPLATE[y][x] not in ' ·■═!':
+               DIRECTION[(x,y)]=[0]*4 # in the wall
+          else : 
+               DIRECTION[(x,y)]=[{' ':1,'·':1,'■':1,'═':2,'!':3}.get(LEVEL_TEMPLATE[(y+dy)%G_COUNT_Y][(x+dx)%G_COUNT_X],0) for dy,dx in ((0,1),(1,0),(0,-1),(-1,0))]     # creat dictionary
 
 print('DIRECTION data creation done',len(DIRECTION))
+print(DIRECTION[(12,17)])
+
+#inf=99 # largest number because G_COUNT_X + G_COUNT_Y < 99
+
+DP=[[[[99 for ct in RX]for rt in RY] for c in RX] for r in RY]# [r][c][rt][ct] has minimum cell count for (r,c) to reach (rt,ct)
+
+print('DP initialized')
+
+for r in RY:
+     print(r)
+     for c in RX:
+          if DIRECTION[(c,r)]==[0,0,0,0]:continue # in the wall
+          DP[r][c][r][c]=0# same cell
+          Q=[(r,c,r,c,0)]
+          for r,c,rt,ct,count in Q:
+               RDLU=((rt,ct+1),(rt+1,ct),(rt,ct-1),(rt-1,ct))
+               TURN=DIRECTION[(ct,rt)]
+               for u,v in (RDLU[i] for i in range(4) if TURN[i]):
+                    u%=G_COUNT_Y
+                    v%=G_COUNT_X
+                    cur=DP[r][c][u][v]
+                    tmp=count+1
+                    if tmp<cur:# new record
+                         DP[r][c][u][v]=tmp
+                         Q.append((r,c,u,v,tmp))
+
+print('DP created. the following is the example')
+for R in  DP[16][12]:print(' '.join([f'{x:02}' if x<99 else '--' for x in R]))
+for R in  DP[17][12]:print(' '.join([f'{x:02}' if x<99 else 'xx' for x in R]))
+#for R in  DP[2][2]:print(' '.join([f'{x:02}' if x<99 else '--' for x in R]))
+
+
 
 BFS_SOLUTION={} # output : direction , input (x,y, targetx,targety)  # better to calculate here if possible
 
@@ -68,8 +105,8 @@ for x,y in DIRECTION:
      Q=[(x,y,[])] 
      VISITED=set()
      for u,v,_direction in Q:
-          u%=GRID_COUNT_X # very important , without it, index can be expanded infinitely
-          v%=GRID_COUNT_Y # very important , without it, index can be expanded infinitely
+          u%=G_COUNT_X # very important , without it, index can be expanded infinitely
+          v%=G_COUNT_Y # very important , without it, index can be expanded infinitely
 
           k=(x,y,u,v)
           if k in VISITED:continue # no need to update because count should be smaller by first found in BFS
@@ -93,7 +130,7 @@ WALL_THICKNESS= 1 ######## better to have the odd number!  3 is better than 2, 7
 ### global variables
 g_player_speed=HG/4 # speed can be float number (for example, 0.25)
 
-g_screen=display.set_mode([GRID_COUNT_X*G_SIZE ,HEIGHT_HUD_UPPER+GRID_COUNT_Y*G_SIZE+HEIGHT_HUD_LOWER])
+g_screen=display.set_mode([G_COUNT_X*G_SIZE ,HEIGHT_HUD_UPPER+G_COUNT_Y*G_SIZE+HEIGHT_HUD_LOWER])
 g_clock=time.Clock() # originally variable timer 
 
 ALL_FONTS=font.get_fonts()
@@ -135,7 +172,7 @@ def reset_game():
      # 207:29
      global ghosts, g_lives, g_score, g_counter_eaten_ghost, g_player_x, g_player_y, g_player_dir, g_player_wish_dir, g_pacman_moving, g_powerup_phase     
      g_counter_eaten_ghost=0
-     g_player_x=G_SIZE*GRID_COUNT_X//2
+     g_player_x=G_SIZE*G_COUNT_X//2
      g_player_y=G_SIZE*24
      g_player_dir=-4
      g_player_wish_dir=-1
@@ -151,8 +188,8 @@ class Ghost:
           self.id=id
           self.img=ghost_images[id]
 
-          self.x=G_SIZE*(GRID_COUNT_X//2 + id-3)
-          self.y=G_SIZE*(GRID_COUNT_Y//2)
+          self.x=G_SIZE*(G_COUNT_X//2 + id-3)
+          self.y=G_SIZE*(G_COUNT_Y//2)
           
           self.target_x=0
           self.target_y=0
@@ -168,23 +205,23 @@ class Ghost:
           global g_powerup_phase
 
           # logic for ghost wish
-          self.target_x=g_player_x  if not self.spooked else  (G_SIZE*2,G_SIZE*27)[g_player_x<G_SIZE*GRID_COUNT_X//2]
-          self.target_y=g_player_y  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_y<G_SIZE*GRID_COUNT_Y//2]
+          self.target_x=g_player_x  if not self.spooked else  (G_SIZE*2,G_SIZE*27)[g_player_x<G_SIZE*G_COUNT_X//2]
+          self.target_y=g_player_y  if not self.spooked else (G_SIZE*2,G_SIZE*27)[g_player_y<G_SIZE*G_COUNT_Y//2]
 
           if self.dead:
                self.target_x=380
                self.target_y=400
 
           x,y=int(self.x//G_SIZE),int(self.y//G_SIZE)
-          tx,ty=self.target_x//G_SIZE,self.target_y//G_SIZE
+          tx,ty=int(self.target_x//G_SIZE),int(self.target_y//G_SIZE)
           
           if self.x%G_SIZE==self.y%G_SIZE==0: # update if on the grid
 
                # the following can solve exception : warping tunnel
-               x%=GRID_COUNT_X
-               y%=GRID_COUNT_Y
-               tx%=GRID_COUNT_X
-               ty%=GRID_COUNT_Y
+               x%=G_COUNT_X
+               y%=G_COUNT_Y
+               tx%=G_COUNT_X
+               ty%=G_COUNT_Y
                
                # if ghost is in box. no more dead, no more spooked
                if g_level[y][x]=='!':
@@ -194,11 +231,19 @@ class Ghost:
                k=(x,y,tx,ty)
                wish_direction =BFS_SOLUTION.get(k,[0,0,0,0])
 
+               # disabled the following because ghost move got worse with DP
+               #CR=(DP[y][x+1][ty][tx],0)
+               #CD=(DP[y+1][x][ty][tx],1)
+               #CL=(DP[y][x+1][ty][tx],2)
+               #CU=(DP[y-1][x][ty][tx],3)
+               #LIST=( CR,CD,CL,CU )
+               #wish_direction=min( LIST )[1]
+
                self.turns = DIRECTION[(x,y)] 
 
                if self.turns[wish_direction]:
-                    self.direction = wish_direction # change direction if player wish is available 
-
+                    self.direction = wish_direction # change direction if  wish is available 
+               
           # speed change 
           if self.dead: 
                self.speed=4  
@@ -215,8 +260,8 @@ class Ghost:
                self.y+=dy*self.speed 
           
           # if warp tunnel
-          if self.x<-G_SIZE:          self.x=G_SIZE*(GRID_COUNT_X)
-          if G_SIZE*(GRID_COUNT_X) < self.x: self.x=-G_SIZE
+          if self.x<-G_SIZE:          self.x=G_SIZE*G_COUNT_X
+          if G_SIZE*G_COUNT_X < self.x: self.x=-G_SIZE
 
      def draw(self):
           image=self.img
@@ -225,12 +270,12 @@ class Ghost:
           self.rect = g_screen.blit(image, (self.x, self.y + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
 
 def pacman_eats_dot():
-     global g_player_x,g_player_y,g_score, g_powerup_phase, g_level
+     global g_player_x,g_player_y,g_score, g_powerup_phase, g_level ,g_counter_eaten_ghost
 
      y=int(g_player_y)//G_SIZE
      x=int(g_player_x)//G_SIZE
-     y%=GRID_COUNT_Y
-     x%=GRID_COUNT_X
+     y%=G_COUNT_Y
+     x%=G_COUNT_X
      Cell_Current=g_level[y][x]
      if Cell_Current=='·':
           g_level[y][x]=' '
@@ -239,7 +284,7 @@ def pacman_eats_dot():
           g_level[y][x]=' '
           g_score+=50
           g_powerup_phase=1
-          counter_eaten_ghost=0 #reset the counter for score 
+          g_counter_eaten_ghost=0 #reset the counter for score 
           for g in ghosts:    g.spooked=True # make the ghost spook here
 
 def powerup_handling():
@@ -254,8 +299,8 @@ def powerup_handling():
 
 def draw_board(millisec):
      G=G_SIZE
-     for i in range(GRID_COUNT_Y):
-          for j in range(GRID_COUNT_X):
+     for i in RY:
+          for j in RX:
                x,y=G*j,G*i + HEIGHT_HUD_UPPER
                c=g_level[i][j]
                if c=='│':draw.line(   g_screen, COLOR_WALL, (x+HG,y),(x+HG, y+G),WALL_THICKNESS)
@@ -282,11 +327,11 @@ def draw_HUD():
      g_screen.blit(_mytext,_myrect)
 
      for i in range(g_lives-1):
-          g_screen.blit(transform.scale(player_images[0],(HG*2,HG*2)),(G_SIZE*(1+i),G_SIZE*(GRID_COUNT_Y+.8)))
+          g_screen.blit(transform.scale(player_images[0],(HG*2,HG*2)),(G_SIZE*(1+i),G_SIZE*(G_COUNT_Y+.8)))
 
      value=g_clock.get_fps()
      _fps_t = g_myfont.render(f'FPS: {value:.1f}' , 1, "red" if  value < FPS*.9 else 'green' )
-     g_screen.blit(_fps_t,(G_SIZE*(GRID_COUNT_X-5),HG))
+     g_screen.blit(_fps_t,(G_SIZE*(G_COUNT_X-5),HG))
 
 def keyboard_control():
      global g_player_dir,g_player_wish_dir,g_mainloop# need mainloop to exit by ESC etc
@@ -318,8 +363,8 @@ def player_move():
           g_pacman_moving+=1 # for animation 
      
      # if warp tunnel
-     if g_player_x<-G_SIZE:        g_player_x=G_SIZE*(GRID_COUNT_X)
-     elif G_SIZE*(GRID_COUNT_X) <  g_player_x: g_player_x=-G_SIZE
+     if g_player_x<-G_SIZE:        g_player_x=G_SIZE*G_COUNT_X
+     elif G_SIZE*G_COUNT_X <  g_player_x: g_player_x=-G_SIZE
 
 def debugdraw():
      global g_powerup_phase, g_player_x, g_player_y
@@ -338,7 +383,7 @@ def debugdraw():
 
      _mystr2=f'x%G_SIZE:{px%G_SIZE:02d},y%G_SIZE:{py%G_SIZE:02d}, powerup phase : {g_powerup_phase}'
      _mytext2=g_myfont.render(_mystr2, 1, (255,255,0))             
-     _myrect2=Rect(G_SIZE*10,G_SIZE*(GRID_COUNT_Y+1),G_SIZE*10  ,G_SIZE*10)
+     _myrect2=Rect(G_SIZE*10,G_SIZE*(G_COUNT_Y+1),G_SIZE*10  ,G_SIZE*10)
      g_screen.blit(_mytext2,_myrect2)
 
      draw.circle(g_screen, color='purple', center=(index_c*G_SIZE,index_r*G_SIZE + HEIGHT_HUD_UPPER), radius=5 ,width=0) # player's grid position
