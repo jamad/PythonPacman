@@ -76,8 +76,7 @@ for x,y in DIRECTION:
           VISITED.add(k)
 
           BFS_SOLUTION[k]=_direction and _direction[0] or 0 # first direction
-
-          _r,_d,_l,_u = DIRECTION.get((u,v),[1,0,1,0]) #  if data was not found, maybe warp tunnel 
+          _r,_d,_l,_u = DIRECTION[(u,v)]
           if _r:Q.append(( u+1 , v , _direction+[0]))
           if _d:Q.append(( u,  v+1 , _direction+[1]))
           if _l:Q.append(( u-1 , v , _direction+[2]))
@@ -201,9 +200,12 @@ class Ghost:
                     self.direction = wish_direction # change direction if player wish is available 
 
           # speed change 
-          # if self.dead: self.speed=2    # double  but 4 make the ghost pass through walls ..... ????
-          # elif self.spooked:self.speed=1  # half
-          # else: self.speed=2
+          if self.dead: 
+               self.x=self.x//4 * 4 # warp a bit so that on the grid
+               self.y=self.y//4 * 4 # warp a bit so that on the grid
+               self.speed=4    # double  but 4 make the ghost pass through walls ..... ????
+          elif self.spooked:self.speed=1  # half
+          else: self.speed=2
 
           # move ghost
           if self.turns[self.direction]:          # move if pacman can move otherwise, stay
