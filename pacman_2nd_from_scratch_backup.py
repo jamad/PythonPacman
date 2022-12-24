@@ -1,4 +1,3 @@
-#screen.blit(transform.rotate(img_player, 90*player_dir), pos) # this logic needs RDLU instead of RLUD
 from pygame import *
 import copy
 from math import pi, cos, sin
@@ -75,7 +74,7 @@ DP=[[[[99 for ct in RX]for rt in RY] for c in RX] for r in RY]# [r][c][rt][ct] h
 print('DP initialized')
 
 for r in RY:
-     print(r)
+     #print(r)
      for c in RX:
           if DIRECTION[(c,r)]==[0,0,0,0]:continue # in the wall
           DP[r][c][r][c]=0# same cell
@@ -154,9 +153,11 @@ corner_image = image.fromstring(img_corner.tobytes(), img_corner.size, img_corne
 #################################################### wall parts image end
 
 # image assets
-SCALE=1.6
-CHARACTER_SIZE=G_SIZE*SCALE
-CHAR_OFFSET=(SCALE-1)*G_SIZE//2
+IMG_SCALE=1.6
+IMG_SCALE=1.0
+CHARACTER_SIZE=int(G_SIZE*IMG_SCALE)
+CHAR_OFFSET=G_SIZE//2
+print('char size',CHARACTER_SIZE)
 load_image=lambda type,p:transform.scale(image.load(f'assets/{type}_images/{p}.png'),(CHARACTER_SIZE, CHARACTER_SIZE))
 player_images = [load_image('player',i) for i in (1,2,3,2)]# 4 images
 ghost_images  = [load_image('ghost',x) for x in 'red pink blue orange'.split()]
@@ -175,7 +176,7 @@ def reset_game():
      # 207:29
      global ghosts, g_lives, g_score, g_counter_eaten_ghost, g_player_x, g_player_y, g_player_dir, g_player_wish_dir, g_pacman_moving, g_powerup_phase     
      g_counter_eaten_ghost=0
-     g_player_x=G_SIZE*G_COUNT_X//2
+     g_player_x=G_SIZE*G_COUNT_X/2
      g_player_y=G_SIZE*24
      g_player_dir=-4
      g_player_wish_dir=-1
@@ -191,8 +192,15 @@ class Ghost:
           self.id=id
           self.img=ghost_images[id]
 
-          self.x=G_SIZE*(G_COUNT_X//2 + id-3)
           self.y=G_SIZE*(G_COUNT_Y//2)
+          if id==0:self.x=G_SIZE*(G_COUNT_X//2 + id -3)
+          if id==1:
+               self.x=G_SIZE*(G_COUNT_X//2 + id -3)
+               self.y=G_SIZE*(G_COUNT_Y//2 - 2)
+          if id==2:self.x=G_SIZE*(G_COUNT_X//2 + id +2-3)
+          if id==3:self.x=G_SIZE*(G_COUNT_X//2 + id-3)
+          
+          
           
           self.target_x=0
           self.target_y=0
@@ -235,12 +243,12 @@ class Ghost:
                wish_direction =BFS_SOLUTION.get(k,[0,0,0,0])
 
                # disabled the following because ghost move got worse with DP
-               #CR=(DP[y][x+1][ty][tx],0)
-               #CD=(DP[y+1][x][ty][tx],1)
-               #CL=(DP[y][x+1][ty][tx],2)
-               #CU=(DP[y-1][x][ty][tx],3)
-               #LIST=( CR,CD,CL,CU )
-               #wish_direction=min( LIST )[1]
+               # CR=(DP[y][x+1][ty][tx],0)
+               # CD=(DP[y+1][x][ty][tx],1)
+               # CL=(DP[y][x+1][ty][tx],2)
+               # CU=(DP[y-1][x][ty][tx],3)
+               # LIST=( CR,CD,CL,CU )
+               # wish_direction=min( LIST )[1]
 
                self.turns = DIRECTION[(x,y)] 
 
@@ -270,7 +278,7 @@ class Ghost:
           image=self.img
           if self.spooked:    image=spooked_img
           if self.dead:       image=dead_img
-          self.rect = g_screen.blit(image, (self.x -CHAR_OFFSET, self.y -CHAR_OFFSET + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
+          self.rect = g_screen.blit(image, (self.x - CHAR_OFFSET, self.y -CHAR_OFFSET + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
 
 def pacman_eats_dot():
      global g_player_x,g_player_y,g_score, g_powerup_phase, g_level ,g_counter_eaten_ghost
@@ -321,7 +329,7 @@ def draw_board(millisec):
 def draw_player():
      global g_pacman_moving, g_player_dir, g_player_x, g_player_y
      img_player=player_images[ (g_pacman_moving//8) %4] #player animation
-     g_screen.blit(transform.rotate(img_player, -90*g_player_dir), (g_player_x -CHAR_OFFSET, g_player_y -CHAR_OFFSET + HEIGHT_HUD_UPPER))
+     g_screen.blit(transform.rotate(img_player, -90*g_player_dir), (g_player_x + CHAR_OFFSET , g_player_y + CHAR_OFFSET + HEIGHT_HUD_UPPER))
 
 def draw_HUD():
      global g_lives
@@ -446,7 +454,9 @@ while g_mainloop:# main loop continues until quit button
      if debugmode:debugdraw()# DEBUG DRAW
      
      # draw pacman collision 
-     player_collision = draw.circle(g_screen, 'pink', (g_player_x + HG,g_player_y + HG +HEIGHT_HUD_UPPER),21,2)
+     player_collision = draw.circle(g_screen, 'pink', (g_player_x - CHAR_OFFSET +G_SIZE, g_player_y - CHAR_OFFSET +G_SIZE +HEIGHT_HUD_UPPER),CHARACTER_SIZE//2,2)
+     player_collision = draw.circle(g_screen, 'purple', (g_player_x + CHAR_OFFSET, g_player_y + CHAR_OFFSET +HEIGHT_HUD_UPPER),CHARACTER_SIZE//2,2)
+
      for g in ghosts:
           if player_collision.colliderect( g.rect ):
                
