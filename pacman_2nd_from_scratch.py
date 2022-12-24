@@ -55,20 +55,10 @@ GRID_COUNT_X=len(LEVEL_TEMPLATE[0])   #30
 GRID_COUNT_Y=len(LEVEL_TEMPLATE)      #33
 
 #### create dictionary for turns! 
-DIRECTION={(29,15):[1, 0, 1, 0]} #  key : (column, row)   # exception for warp row=15, col=29
-Q=[(2,2)]
-for (x,y) in Q:
-     x%=GRID_COUNT_X
-     y%=GRID_COUNT_Y
-     if (x,y)in DIRECTION:continue
-     data=[]     # creat dictionary
-     for dy,dx in ((0,1),(1,0),(0,-1),(-1,0)): # RDLU
-          cell=LEVEL_TEMPLATE[y+dy][x+dx]
-          if cell in ' ·■═!':
-               data.append(1 + (cell=='═') +2*(cell=='!'))# ! means inbox
-               Q.append((x+dx, y+dy)) # new x,y to add
-          else:data.append(0)
-     DIRECTION[(x,y)]=data
+DIRECTION={} #  key : (column, row)   # exception for warp row=15, col=29
+for x in range(GRID_COUNT_X):
+     for y in range(GRID_COUNT_Y):
+          DIRECTION[(x,y)]=[{' ':1,'·':1,'■':1,'═':2,'!':3}.get(LEVEL_TEMPLATE[(y+dy)%GRID_COUNT_Y][(x+dx)%GRID_COUNT_X],0) for dy,dx in ((0,1),(1,0),(0,-1),(-1,0))]     # creat dictionary
 
 print('DIRECTION data creation done',len(DIRECTION))
 
