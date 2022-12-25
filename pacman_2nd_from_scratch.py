@@ -270,7 +270,11 @@ class Ghost:
           image=self.img
           if self.spooked:    image=spooked_img
           if self.dead:       image=dead_img
-          self.rect = g_screen.blit(image, (self.x -CHAR_OFFSET, self.y -CHAR_OFFSET + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
+          posX,posY=self.x -CHAR_OFFSET, self.y -CHAR_OFFSET + HEIGHT_HUD_UPPER
+          
+          self.rect = draw.circle(g_screen, 'pink', (self.x+HG,self.y+HG+ HEIGHT_HUD_UPPER),16,2)# ghost collision
+          g_screen.blit(image, (posX,posY, G_SIZE, G_SIZE))# only for visual
+
 
           if not self.spooked: g_screen.blit(dead_img, (self.x -CHAR_OFFSET, self.y -CHAR_OFFSET + HEIGHT_HUD_UPPER, G_SIZE, G_SIZE))
 
