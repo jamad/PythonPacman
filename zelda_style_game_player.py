@@ -20,10 +20,12 @@ class Player(sprite.Sprite):
         elif my_keys[K_RIGHT]:self.direction.x=1
         else:self.direction.x=0
 
-    def move(self):
-        self.rect.center += self.direction * self.speed
+    def move(self, speed):
+        if self.direction.magnitude():# without this, normalize gets error
+            self.direction = self.direction.normalize() # need to reassign
+        self.rect.center += self.direction * speed
 
     def update(self):
         self.input()
-        self.move()
+        self.move( self.speed)
         
