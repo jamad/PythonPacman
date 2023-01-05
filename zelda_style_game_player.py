@@ -9,7 +9,7 @@ class Player(sprite.Sprite):
         self.rect=self.image.get_rect(topleft=pos)
 
         self.direction = math.Vector2() # this helps to have .y and .x 
-        self.speed=4
+        self.speed=1
 
         self.col_sprites=collisions
 

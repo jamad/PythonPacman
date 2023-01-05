@@ -28,8 +28,13 @@ class Game:
             self.level.run()
 
             #my_debug('hello :) ')
+            
+            my_debug(int(self.clock.get_fps())//10*10)
+
             display.update()
             self.clock.tick(FPS)
+            
+
 
 game=Game()
 game.run()

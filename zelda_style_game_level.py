@@ -37,7 +37,8 @@ class Level:
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
 
-        my_debug(self.player.direction)#
+        #my_debug(self.player.direction)#
+
 
 class YSortCameraGroup(sprite.Group):
     def __init__(self):
