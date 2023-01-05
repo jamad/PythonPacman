@@ -14,7 +14,7 @@ class Player(sprite.Sprite):
         self.col_sprites=collisions
 
         #player collision to reduce
-        self.hitbox=self.rect.inflate(-2,-10) # LR 1,1 and UD 5,5 reduce the pixel size 
+        self.hitbox=self.rect.inflate(-16,-32) # LR 1,1 and UD 5,5 reduce the pixel size 
 
     def input(self):
         my_keys=key.get_pressed()
@@ -33,27 +33,32 @@ class Player(sprite.Sprite):
         #self.rect.center += self.direction * speed
         #self.rect.center.x += self.direction.x * speed  ##  << this cause error
         #self.rect.center.y += self.direction.y * speed
-        self.rect.x += self.direction.x * speed
+
+        #self.rect.x += self.direction.x * speed
+        self.hitbox.x += self.direction.x * speed
         self.collision('horizon')
-        self.rect.y += self.direction.y * speed
+        #self.rect.y += self.direction.y * speed
+        self.hitbox.y += self.direction.y * speed
         self.collision('vertical')
+
+        self.rect.center=self.hitbox.center# without it, player cannot move!
 
 
     def collision(self,direction):
         if direction=='horizon':
             for obs in self.col_sprites:
-                if obs.rect.colliderect(self.rect):
+                if obs.rect.colliderect(self.hitbox):
                     if 0<self.direction.x:
-                        self.rect.right=obs.rect.left # clamping the movement by alignment 
+                        self.hitbox.right=obs.rect.left # clamping the movement by alignment 
                     if self.direction.x <0 :
-                        self.rect.left=obs.rect.right # clamping the movement by alignment
+                        self.hitbox.left=obs.rect.right # clamping the movement by alignment
         if direction=='vertical':
             for obs in self.col_sprites:
-                if obs.rect.colliderect(self.rect):
+                if obs.rect.colliderect(self.hitbox):
                     if 0<self.direction.y:
-                        self.rect.bottom=obs.rect.top
+                        self.hitbox.bottom=obs.rect.top
                     if self.direction.y<0:
-                        self.rect.top=obs.rect.bottom
+                        self.hitbox.top=obs.rect.bottom
 
 
     def update(self):
