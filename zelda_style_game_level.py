@@ -8,8 +8,11 @@ from zelda_style_game_debug import my_debug # for debug info
 class Level:
     def __init__(self) -> None:
 
-        self.display_surface = display.get_surface() # get display surface
-        self.visible_sprites=sprite.Group()
+        #self.display_surface = display.get_surface() # get display surface
+
+        #self.visible_sprites=sprite.Group()
+        self.visible_sprites=YSortCameraGroup()
+
         self.col_sprites=sprite.Group()
 
         self.create_map() # sprite setup below
@@ -28,7 +31,18 @@ class Level:
                     self.player = Player(pos, [self.visible_sprites], self.col_sprites)
                 
     def run(self):
-        self.visible_sprites.draw(self.display_surface) # draw all sprites in sprite group
+        #self.visible_sprites.draw(self.display_surface) # draw all sprites in sprite group
+        self.visible_sprites.custom_draw()
         self.visible_sprites.update()
 
         my_debug(self.player.direction)#
+
+class YSortCameraGroup(sprite.Group):
+    def __init__(self):
+        super().__init__()
+
+        self.display_surface = display.get_surface() # get display surface
+
+    def custom_draw(self):
+        for my_sprite in self.sprites():
+            self.display_surface.blit(my_sprite.image, my_sprite.rect)
