@@ -7,14 +7,14 @@ class Player(sprite.Sprite):
 
         self.image= image.load('zelda_style_graphics/player.png').convert_alpha()
         self.rect=self.image.get_rect(topleft=pos)
-        #self.rect.width=TILESIZE
-        #self.rect.height=TILESIZE
-        #print(self.rect)
 
         self.direction = math.Vector2() # this helps to have .y and .x 
-        self.speed=8
+        self.speed=4
 
         self.col_sprites=collisions
+
+        #player collision to reduce
+        self.hitbox=self.rect.inflate(-2,-10) # LR 1,1 and UD 5,5 reduce the pixel size 
 
     def input(self):
         my_keys=key.get_pressed()

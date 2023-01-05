@@ -1,6 +1,6 @@
 WIDTH=1280//2
 HEIGHT=720//2
-FPS=60
+FPS=120
 TILESIZE=64//1
 
 WORLD_MAP = [
@@ -10,18 +10,11 @@ WORLD_MAP = [
 "x  x     xxxxx     x",
 "x  x         x     x",
 "x  x         x     x",
-"x  x         x     x",
-"x  x         x     x",
-"x  x         x     x",
-"x  x         x     x",
-"x  x         x     x",
 "x  x         xxx   x",
 "x      x x         x",
 "x     xxxxx        x",
 "x      xxx         x",
 "x       x          x",
-"x                  x",
-"x                  x",
 "x                  x",
 "xxxxxxxxxxxxxxxxxxxx",
 ]
