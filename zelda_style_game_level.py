@@ -55,7 +55,7 @@ class YSortCameraGroup(sprite.Group):
         self.offset.x = -player.rect.centerx + half_w
         self.offset.y = -player.rect.centery + half_h
 
-        for my_sprite in self.sprites():
+        for my_sprite in sorted( self.sprites(), key=lambda spr:spr.rect.centery):
             
             #myrect= (my_sprite.rect.x, my_sprite.rect.y + offset, my_sprite.rect.w, my_sprite.rect.h)
             myrect=my_sprite.rect.topleft + self.offset  # 2d vector addition
