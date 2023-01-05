@@ -25,7 +25,7 @@ class Level:
                     Tile(pos, [self.visible_sprites,self.col_sprites])
                 if col=='p':
                     pos=(x,y)
-                    self.player = Player(pos, [self.visible_sprites])
+                    self.player = Player(pos, [self.visible_sprites], self.col_sprites)
                 
     def run(self):
         self.visible_sprites.draw(self.display_surface) # draw all sprites in sprite group

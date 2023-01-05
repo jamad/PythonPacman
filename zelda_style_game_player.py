@@ -1,7 +1,7 @@
 from pygame import *
 
 class Player(sprite.Sprite):
-    def __init__(self,pos, groups):
+    def __init__(self,pos, groups, collisions):
         super().__init__(groups)
 
         self.image= image.load('zelda_style_graphics/player.png').convert_alpha()
@@ -9,6 +9,8 @@ class Player(sprite.Sprite):
 
         self.direction = math.Vector2() # this helps to have .y and .x 
         self.speed=5
+
+        self.col_sprites=collisions
 
     def input(self):
         my_keys=key.get_pressed()
@@ -23,9 +25,36 @@ class Player(sprite.Sprite):
     def move(self, speed):
         if self.direction.magnitude():# without this, normalize gets error
             self.direction = self.direction.normalize() # need to reassign
-        self.rect.center += self.direction * speed
+        
+        #self.rect.center += self.direction * speed
+        #self.rect.center.x += self.direction.x * speed  ##  << this cause error
+        #self.rect.center.y += self.direction.y * speed
+        self.rect.x += self.direction.x * speed
+        self.collision('horizon')
+        self.rect.y += self.direction.y * speed
+        self.collision('vertical')
+
+
+    def collision(self,direction):
+        if direction=='horizon':
+            for obs in self.col_sprites:
+                if obs.rect.colliderect(self.rect):
+                    if 0<self.direction.x:
+                        self.rect.right=obs.rect.left # clamping the movement by alignment 
+                    if self.direction.x <0 :
+                        self.rect.left=obs.rect.right # clamping the movement by alignment
+        if direction=='vertical':
+            for obs in self.col_sprites:
+                if obs.rect.colliderect(self.rect):
+                    if 0<self.direction.y:
+                        self.rect.bottom=obs.rect.top
+                    if self.direction.y<0:
+                        self.rect.top=obs.rect.bottom
+
 
     def update(self):
         self.input()
         self.move( self.speed)
+        self.collision(self.direction)
+
         
