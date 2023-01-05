@@ -1,6 +1,7 @@
 from pygame import *
 from zelda_style_game_settings import *
 from zelda_style_game_tiles import * # rocks
+from zelda_style_game_player import *
 
 
 class Level:
@@ -21,6 +22,9 @@ class Level:
                 if col=='x':
                     pos=(x,y)
                     Tile(pos, [self.visible_sprites])
+                if col=='p':
+                    pos=(x,y)
+                    Player(pos, [self.visible_sprites])
                 
                     
 
