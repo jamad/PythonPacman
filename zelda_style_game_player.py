@@ -6,3 +6,24 @@ class Player(sprite.Sprite):
 
         self.image= image.load('zelda_style_graphics/player.png').convert_alpha()
         self.rect=self.image.get_rect(topleft=pos)
+
+        self.direction = math.Vector2() # this helps to have .y and .x 
+        self.speed=5
+
+    def input(self):
+        my_keys=key.get_pressed()
+        if my_keys[K_UP]:self.direction.y=-1
+        elif my_keys[K_DOWN]:self.direction.y=1
+        else:self.direction.y=0
+
+        if my_keys[K_LEFT]:self.direction.x=-1
+        elif my_keys[K_RIGHT]:self.direction.x=1
+        else:self.direction.x=0
+
+    def move(self):
+        self.rect.center += self.direction * self.speed
+
+    def update(self):
+        self.input()
+        self.move()
+        

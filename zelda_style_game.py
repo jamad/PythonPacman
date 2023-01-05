@@ -27,7 +27,7 @@ class Game:
 
             self.level.run()
 
-            my_debug('hello :) ')
+            #my_debug('hello :) ')
             display.update()
             self.clock.tick(FPS)
 
