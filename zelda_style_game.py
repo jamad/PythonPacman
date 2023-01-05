@@ -1,14 +1,9 @@
+# https://www.youtube.com/watch?v=cwWi05Icpw0  
+
 from pygame import *
 #from settings import *
 
-#from zelda_style_game_debug import my_debug
-def my_debug(info, y=10, x=10):
-    myfont=font.Font(None,30)
-    display_surface=display.get_surface()
-    debug_surf=myfont.render(str(info), True,'white')
-    debug_rect=debug_surf.get_rect(topleft=(x,y))
-    draw.rect(display_surface, 'black',debug_rect)
-    display_surface.blit(debug_surf, debug_rect)
+from zelda_style_game_debug import my_debug
 
 
 WIDTH=1280
@@ -39,6 +34,18 @@ WORLD_MAP = [
 ['x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x'],
 ]
 
+
+class Level:
+    def __init__(self) -> None:
+
+        self.display_surface = display.get_surface() # get display surface
+        self.visible_sprintes=sprite.Group()
+        self.col_sprites=sprite.Group()
+
+    def run(self):
+        pass
+
+
 class Game:
     def __init__(self) -> None:
         init()
@@ -46,6 +53,7 @@ class Game:
         self.clock=time.Clock()
         display.set_caption('ZELDA') # challenge 1
 
+        self.level=Level() # level creation
 
     def run(self):
         while 1:
@@ -55,6 +63,9 @@ class Game:
                     exit()
 
             self.screen.fill('black')
+
+            self.level.run()
+
             my_debug('hello :) ')
             display.update()
             self.clock.tick(FPS)
